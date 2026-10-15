@@ -7,6 +7,6 @@
 - 배포: Vercel
 
 ```bash
-npm install
-npm run dev
+bun install
+bun dev
 ```
