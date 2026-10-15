@@ -11,5 +11,8 @@ globalStyle('html, body', {
 	height: '100%',
 	fontFamily: vars.font.body,
 	color: vars.color.grey900,
-	background: vars.color.background,
+	background: vars.color.greyBackground,
+	WebkitTapHighlightColor: 'transparent',
+	WebkitFontSmoothing: 'antialiased',
+	wordBreak: 'keep-all',
 });

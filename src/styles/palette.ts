@@ -10,7 +10,10 @@ const rgba = (hex: string, alpha: number) => {
 
 const reverse = <T extends string>(name: T, scale: Scale<T>) =>
 	Object.fromEntries(
-		steps.map((step, i) => [`${name}${step}`, scale[`${name}${steps[steps.length - 1 - i]}`]]),
+		steps.map((step, i) => [
+			`${name}${step}`,
+			scale[`${name}${steps[steps.length - 1 - i]}`],
+		]),
 	) as Scale<T>;
 
 const grey: Scale<'grey'> = {
