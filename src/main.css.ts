@@ -10,6 +10,6 @@ globalStyle('*, *::before, *::after', {
 globalStyle('html, body', {
 	height: '100%',
 	fontFamily: vars.font.body,
-	color: vars.color.text,
+	color: vars.color.grey900,
 	background: vars.color.background,
 });

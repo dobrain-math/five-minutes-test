@@ -1,14 +1,25 @@
-import { createGlobalTheme } from '@vanilla-extract/css';
+import { assignVars, createGlobalTheme, createThemeContract, globalStyle } from '@vanilla-extract/css';
+import { darkColors, lightColors } from '@/styles/palette.ts';
 
-export const vars = createGlobalTheme(':root', {
-	color: {
-		primary: '#2f6fed',
-		correct: '#1f9d55',
-		wrong: '#e5484d',
-		text: '#1c1c1e',
-		background: '#ffffff',
-	},
-	font: {
-		body: "Pretendard, -apple-system, 'Malgun Gothic', sans-serif",
+const colorVars = createThemeContract(lightColors);
+
+createGlobalTheme(':root', colorVars, lightColors);
+
+createGlobalTheme(':root[data-theme="dark"]', colorVars, darkColors);
+
+globalStyle(':root:not([data-theme="light"])', {
+	'@media': {
+		'(prefers-color-scheme: dark)': {
+			vars: assignVars(colorVars, darkColors),
+		},
 	},
 });
+
+const fontVars = createGlobalTheme(':root', {
+	body: "Pretendard, -apple-system, 'Malgun Gothic', sans-serif",
+});
+
+export const vars = {
+	color: colorVars,
+	font: fontVars,
+};

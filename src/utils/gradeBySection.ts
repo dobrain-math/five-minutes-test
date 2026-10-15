@@ -1,4 +1,4 @@
-import type { Question, SectionResult } from '@/types/test.ts';
+import type { Question, SectionResult } from '@/@types/test';
 
 export function gradeBySection(
 	questions: Question[],
