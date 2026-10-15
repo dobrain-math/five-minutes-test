@@ -21,7 +21,9 @@ src/
   utils/formatDuration.ts  ms → m:ss
   stores/testSession.ts zustand + persist(sessionStorage): 이름·courseId·문제·답·startedAt·finishedAt
   styles/palette.ts     원시 컬러(라이트 + 다크: 스케일 50↔900 뒤집기). 컴포넌트는 직접 쓰지 않는다
-  styles/theme.css.ts   vars.color / vars.shadow(xs~lg, 다크 대응) / vars.font, breakpoints, canHover
+  styles/theme.css.ts   vars.color / vars.shadow(xs~lg, 다크 대응) / vars.font(family·size t1~t8·weight·lineHeight) / vars.radius, breakpoints, canHover
+  styles/typography.css.ts  text.{title1,display,expression,title2,body1,body2,label,caption,caption2,number} — style([text.x, {...}]) 로 조합
+  utils/summarize.ts    유형별 정답률 → 강점·취약점 한 줄 평 (summarize.test.ts 에 문구 그대로 고정)
   styles/layout.css.ts  page, container.{narrow,medium,wide}, content, card, bottomBar, 버튼, 제목
   pages/HomePage        이름 input + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
   pages/TestPage        상단 타이머·진행률, 문제 카드 그리드, 빈칸 있으면 한 번 확인 후 finish → /report/:id
@@ -37,6 +39,8 @@ src/
 - 답 입력은 80문제 세로 스크롤 + 칸마다 입력(inputMode numeric), 출제 순서는 전체 섞기
 - 한 테스트 80문제, 유형별 비율은 정확히 같게(현재 두 종목 모두 8유형 × 10문제)
 - 큰 작업 단위마다 커밋한다
+- 페이지 바탕·답 입력칸은 grey50(한 톤 밝게), 글꼴은 Pretendard(패키지로 포함), 모서리는 vars.radius(xs6~xl16)
+- 리포트에는 강점·취약점 한 줄 평(utils/summarize.ts, 정답률 기준: 강점 100%/50%, 취약 90% 선)
 
 ## 문제 유형 해석 (명시 안 된 부분은 이렇게 정함)
 
@@ -53,6 +57,8 @@ src/
 - [x] 컬러 토큰 + 다크모드 (a2d578c)
 - [x] 문제 생성기 + 테스트 (aa554bd)
 - [x] 홈·테스트·리포트 페이지, 토스풍 반응형 UI (9692393)
+- [x] 배경·입력칸 grey50, Pretendard + 글꼴/둥글기 토큰, 둥글기 축소, 리포트 한 줄 평
+- [ ] 다크모드 주 버튼(blue500 반전값)이 흐려 보임 — 다크 전용 색 조정 필요
 - [ ] 실제 휴대폰에서 확인(숫자 키보드, safe-area), 다크모드 화면 점검
 - [ ] 번들 580KB 경고 → ReportPage(recharts) lazy import 로 분리 검토
 
@@ -60,3 +66,4 @@ src/
 
 - 2026-10-15: 팔레트(palette.ts) 분리, theme 를 contract + 라이트/다크 구조로 교체, 기존 5색 토큰 삭제
 - 2026-10-15: 문제 생성기·buildTest·테스트 22개 작성. 페이지 3개 구현 후 agent-browser 로 모바일(390)·태블릿(820)·PC(1440) 캡처 검증. 채점 후 홈으로 튕기던 버그 수정, 리포트 눈금 0·½·전체로 고정
+- 2026-10-15: 배경·답 칸 grey50, Pretendard 패키지 추가, 글꼴(size t1~t8 등)·radius 토큰과 typography.css.ts 신설, 모서리 축소, 리포트 강점·취약점 한 줄 평(TDD 8개). 다크에서 카드가 바탕과 같아지는 문제로 layered/floated 를 grey100/200 으로 올림

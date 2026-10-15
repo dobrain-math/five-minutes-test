@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '@/styles/theme.css.ts';
+import { text } from '@/styles/typography.css.ts';
 
 export const header = style({ marginBottom: 24 });
 
@@ -13,44 +14,80 @@ export const stats = style({
 	},
 });
 
-export const statLabel = style({
-	fontSize: 14,
-	fontWeight: 600,
-	color: vars.color.grey500,
-});
+export const statLabel = style([
+	text.caption,
+	{ fontWeight: vars.font.weight.semibold, color: vars.color.grey500 },
+]);
 
-export const statValue = style({
-	marginTop: 6,
-	fontSize: 30,
-	fontWeight: 700,
-	letterSpacing: '-0.02em',
-	color: vars.color.grey900,
-	fontVariantNumeric: 'tabular-nums',
-});
+export const statValue = style([
+	text.display,
+	text.number,
+	{ marginTop: 6, color: vars.color.grey900 },
+]);
 
-export const statUnit = style({
-	marginLeft: 4,
-	fontSize: 17,
-	fontWeight: 600,
-	color: vars.color.grey400,
-});
+export const statUnit = style([
+	text.body1,
+	{ marginLeft: 4, color: vars.color.grey400 },
+]);
 
 export const block = style({ marginBottom: 16 });
 
-export const blockTitle = style({
-	marginBottom: 14,
-	fontSize: 18,
-	fontWeight: 700,
-	color: vars.color.grey900,
+export const blockTitle = style([
+	text.title2,
+	{ marginBottom: 14, color: vars.color.grey900 },
+]);
+
+// ── 한 줄 평 ───────────────────────────────────────────────
+
+export const verdictList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 12,
+	listStyle: 'none',
 });
 
-export const legend = style({
+export const verdict = style({
 	display: 'flex',
-	gap: 16,
-	marginBottom: 10,
-	fontSize: 13,
-	color: vars.color.grey600,
+	alignItems: 'flex-start',
+	gap: 10,
 });
+
+const badgeBase = style([
+	text.caption,
+	{
+		flexShrink: 0,
+		padding: '2px 8px',
+		borderRadius: vars.radius.xs,
+		fontWeight: vars.font.weight.bold,
+	},
+]);
+
+export const strengthBadge = style([
+	badgeBase,
+	{ color: vars.color.blue600, background: vars.color.blue50 },
+]);
+
+export const weaknessBadge = style([
+	badgeBase,
+	{ color: vars.color.orange800, background: vars.color.orange50 },
+]);
+
+export const verdictText = style([
+	text.body2,
+	{ fontWeight: vars.font.weight.medium, color: vars.color.grey800 },
+]);
+
+// ── 그래프 ────────────────────────────────────────────────
+
+export const legend = style([
+	text.caption,
+	{
+		display: 'flex',
+		gap: 16,
+		marginBottom: 10,
+		color: vars.color.grey600,
+	},
+]);
 
 export const legendDot = style({
 	display: 'inline-block',
@@ -60,6 +97,8 @@ export const legendDot = style({
 	borderRadius: 3,
 	verticalAlign: 'middle',
 });
+
+// ── 틀린 문제 ─────────────────────────────────────────────
 
 export const wrongList = style({
 	display: 'grid',
@@ -77,52 +116,49 @@ export const wrongItem = style({
 	justifyContent: 'space-between',
 	gap: 12,
 	padding: '12px 16px',
-	borderRadius: 14,
+	borderRadius: vars.radius.sm,
 	background: vars.color.red50,
 });
 
-export const wrongExpr = style({
-	fontSize: 20,
-	fontWeight: 600,
-	color: vars.color.grey900,
-	fontVariantNumeric: 'tabular-nums',
-});
+export const wrongExpr = style([
+	text.expression,
+	text.number,
+	{ fontSize: vars.font.size.t4, color: vars.color.grey900 },
+]);
 
-export const wrongSection = style({
-	marginTop: 2,
-	fontSize: 12,
-	color: vars.color.grey500,
-});
+export const wrongSection = style([
+	text.caption2,
+	{ marginTop: 2, color: vars.color.grey500 },
+]);
 
-export const wrongAnswers = style({
-	flexShrink: 0,
-	textAlign: 'right',
-	fontSize: 15,
-	color: vars.color.grey600,
-	fontVariantNumeric: 'tabular-nums',
-});
+export const wrongAnswers = style([
+	text.body2,
+	text.number,
+	{ flexShrink: 0, textAlign: 'right', color: vars.color.grey600 },
+]);
 
 export const mine = style({
 	color: vars.color.red500,
-	fontWeight: 700,
+	fontWeight: vars.font.weight.bold,
 	textDecoration: 'line-through',
 });
 
 export const correctAnswer = style({
 	marginLeft: 8,
 	color: vars.color.green600,
-	fontWeight: 700,
+	fontWeight: vars.font.weight.bold,
 });
 
-export const allCorrect = style({
-	padding: 20,
-	borderRadius: 14,
-	textAlign: 'center',
-	fontSize: 16,
-	fontWeight: 600,
-	color: vars.color.green700,
-	background: vars.color.green50,
-});
+export const allCorrect = style([
+	text.body1,
+	{
+		padding: 20,
+		borderRadius: vars.radius.sm,
+		textAlign: 'center',
+		color: vars.color.green700,
+		background: vars.color.green50,
+	},
+]);
 
 export const bottomButton = style({
 	maxWidth: 560,

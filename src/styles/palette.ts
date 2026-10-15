@@ -174,6 +174,7 @@ export const darkColors: ColorTokens = {
 	...reverse('purple', purple),
 	background: '#101318',
 	greyBackground: '#0b0d11',
-	layeredBackground: darkGrey.grey50,
-	floatedBackground: darkGrey.grey100,
+	// 페이지 바탕이 grey50 이므로, 카드는 한 단계 위(grey100)로 올려야 다크에서 구분된다.
+	layeredBackground: darkGrey.grey100,
+	floatedBackground: darkGrey.grey200,
 };

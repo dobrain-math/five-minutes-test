@@ -43,14 +43,51 @@ globalStyle(':root:not([data-theme="light"])', {
 	},
 });
 
+// 글자 — 토스 타이포 스케일(t1 가장 큼 → t8 가장 작음). 실제 조합은 typography.css.ts 의 text 를 쓴다.
 const fontVars = createGlobalTheme(':root', {
-	body: "Pretendard, -apple-system, 'Malgun Gothic', sans-serif",
+	family:
+		"'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
+	size: {
+		t1: '30px',
+		t2: '26px',
+		t3: '22px',
+		t4: '20px',
+		t5: '17px',
+		t6: '15px',
+		t7: '13px',
+		t8: '12px',
+	},
+	weight: {
+		regular: '400',
+		medium: '500',
+		semibold: '600',
+		bold: '700',
+	},
+	lineHeight: {
+		tight: '1.3',
+		normal: '1.5',
+	},
+	letterSpacing: {
+		tight: '-0.02em',
+		normal: '0',
+	},
+});
+
+// 모서리 — 바깥 카드일수록 크게, 안쪽 요소일수록 작게.
+const radiusVars = createGlobalTheme(':root', {
+	xs: '6px', // 번호 뱃지
+	sm: '10px', // 답 입력칸, 카드 안쪽 목록
+	md: '12px', // 버튼, 이름 입력칸, 안내 상자
+	lg: '14px', // 문제 카드, 종목 카드
+	xl: '16px', // 큰 카드(리포트 섹션)
+	full: '9999px', // 알약 모양
 });
 
 export const vars = {
 	color: colorVars,
 	shadow: shadowVars,
 	font: fontVars,
+	radius: radiusVars,
 };
 
 /** 모바일 우선 브레이크포인트 (min-width) */

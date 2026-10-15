@@ -14,9 +14,16 @@ import * as layout from '@/styles/layout.css.ts';
 import { vars } from '@/styles/theme.css.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
 import { gradeBySection } from '@/utils/gradeBySection.ts';
+import { summarize } from '@/utils/summarize.ts';
 import * as s from './ReportPage.css.ts';
 
 const BAR_HEIGHT = 44;
+
+// recharts 는 SVG 속성으로 받으므로 토큰 문자열을 그대로 넘긴다.
+const TICK_STYLE = {
+	fontSize: vars.font.size.t8,
+	fontFamily: vars.font.family,
+};
 
 const hideZero = (v: unknown) => (Number(v) > 0 ? String(v) : '');
 
@@ -53,6 +60,14 @@ export default function ReportPage() {
 
 	const wrong = questions.filter((q) => answers[q.id]?.trim() !== q.answer);
 
+	const { strength, weakness } = summarize(
+		chartData.map((d) => ({
+			title: d.name,
+			correct: d.correct,
+			total: d.correct + d.wrong,
+		})),
+	);
+
 	return (
 		<main className={layout.page}>
 			<div className={`${layout.container.medium} ${layout.content}`}>
@@ -76,6 +91,20 @@ export default function ReportPage() {
 						</div>
 					</div>
 				</div>
+
+				<section className={`${layout.card} ${s.block}`}>
+					<h2 className={s.blockTitle}>한 줄 평</h2>
+					<ul className={s.verdictList}>
+						<li className={s.verdict}>
+							<span className={s.strengthBadge}>강점</span>
+							<p className={s.verdictText}>{strength}</p>
+						</li>
+						<li className={s.verdict}>
+							<span className={s.weaknessBadge}>취약점</span>
+							<p className={s.verdictText}>{weakness}</p>
+						</li>
+					</ul>
+				</section>
 
 				<section className={`${layout.card} ${s.block}`}>
 					<h2 className={s.blockTitle}>유형별 정답·오답</h2>
@@ -111,15 +140,19 @@ export default function ReportPage() {
 								allowDecimals={false}
 								domain={[0, perSection]}
 								ticks={ticks}
-								tick={{ fontSize: 12, fill: vars.color.grey500 }}
+								tick={{ ...TICK_STYLE, fill: vars.color.grey500 }}
 								axisLine={false}
 								tickLine={false}
 							/>
 							<YAxis
 								type="category"
 								dataKey="name"
-								width={104}
-								tick={{ fontSize: 13, fill: vars.color.grey700 }}
+								width={128}
+								tick={{
+									...TICK_STYLE,
+									fontSize: vars.font.size.t7,
+									fill: vars.color.grey700,
+								}}
 								axisLine={false}
 								tickLine={false}
 							/>
@@ -133,7 +166,7 @@ export default function ReportPage() {
 									dataKey="correct"
 									position="center"
 									fill="#ffffff"
-									fontSize={12}
+									fontSize={vars.font.size.t8}
 									formatter={hideZero}
 								/>
 							</Bar>
@@ -141,14 +174,14 @@ export default function ReportPage() {
 								dataKey="wrong"
 								stackId="a"
 								fill={vars.color.red400}
-								radius={[0, 6, 6, 0]}
+								radius={[0, 4, 4, 0]}
 								isAnimationActive={false}
 							>
 								<LabelList
 									dataKey="wrong"
 									position="center"
 									fill="#ffffff"
-									fontSize={12}
+									fontSize={vars.font.size.t8}
 									formatter={hideZero}
 								/>
 							</Bar>

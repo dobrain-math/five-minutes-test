@@ -1,29 +1,33 @@
 import { style } from '@vanilla-extract/css';
 import { canHover, vars } from '@/styles/theme.css.ts';
+import { text } from '@/styles/typography.css.ts';
 
 export const header = style({ marginBottom: 28 });
 
 export const field = style({ marginBottom: 28 });
 
-export const nameInput = style({
-	width: '100%',
-	height: 56,
-	padding: '0 18px',
-	border: 'none',
-	borderRadius: 16,
-	fontSize: 18,
-	fontWeight: 600,
-	fontFamily: 'inherit',
-	color: vars.color.grey900,
-	background: vars.color.layeredBackground,
-	boxShadow: vars.shadow.sm,
-	outline: 'none',
-	transition: 'box-shadow 0.15s',
-	'::placeholder': { color: vars.color.grey400, fontWeight: 400 },
-	':focus': {
-		boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+export const nameInput = style([
+	text.body1,
+	{
+		width: '100%',
+		height: 56,
+		padding: '0 18px',
+		border: 'none',
+		borderRadius: vars.radius.md,
+		color: vars.color.grey900,
+		background: vars.color.layeredBackground,
+		boxShadow: vars.shadow.sm,
+		outline: 'none',
+		transition: 'box-shadow 0.15s',
+		'::placeholder': {
+			color: vars.color.grey400,
+			fontWeight: vars.font.weight.regular,
+		},
+		':focus': {
+			boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+		},
 	},
-});
+]);
 
 export const courseList = style({
 	display: 'flex',
@@ -40,8 +44,7 @@ export const courseItem = style({
 	minHeight: 72,
 	padding: '16px 18px',
 	border: 'none',
-	borderRadius: 18,
-	fontFamily: 'inherit',
+	borderRadius: vars.radius.lg,
 	textAlign: 'left',
 	background: vars.color.layeredBackground,
 	boxShadow: vars.shadow.sm,
@@ -68,7 +71,7 @@ export const radio = style({
 	width: 24,
 	height: 24,
 	border: `2px solid ${vars.color.grey300}`,
-	borderRadius: '50%',
+	borderRadius: vars.radius.full,
 	transition: 'border 0.15s',
 	selectors: {
 		[`${courseItem}[aria-checked="true"] &`]: {
@@ -77,14 +80,9 @@ export const radio = style({
 	},
 });
 
-export const courseTitle = style({
-	fontSize: 18,
-	fontWeight: 700,
-	color: vars.color.grey900,
-});
+export const courseTitle = style([text.title2, { color: vars.color.grey900 }]);
 
-export const courseMeta = style({
-	marginTop: 3,
-	fontSize: 14,
-	color: vars.color.grey500,
-});
+export const courseMeta = style([
+	text.caption,
+	{ marginTop: 3, color: vars.color.grey500 },
+]);

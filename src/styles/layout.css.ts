@@ -1,11 +1,15 @@
 import { style, styleVariants } from '@vanilla-extract/css';
 import { breakpoints, canHover, vars } from '@/styles/theme.css.ts';
+import { text } from '@/styles/typography.css.ts';
+
+/** 페이지 바탕: 아주 옅은 회색(grey50) 위에 흰 카드를 올린다 */
+const pageBackground = vars.color.grey50;
 
 export const page = style({
 	display: 'flex',
 	flexDirection: 'column',
 	minHeight: '100dvh',
-	background: vars.color.greyBackground,
+	background: pageBackground,
 });
 
 const containerBase = style({
@@ -35,7 +39,7 @@ export const content = style({
 
 export const card = style({
 	padding: 20,
-	borderRadius: 20,
+	borderRadius: vars.radius.xl,
 	background: vars.color.layeredBackground,
 	boxShadow: vars.shadow.sm,
 });
@@ -47,48 +51,49 @@ export const bottomBar = style({
 	zIndex: 2,
 	paddingTop: 20,
 	paddingBottom: 'calc(16px + env(safe-area-inset-bottom))',
-	background: `linear-gradient(to bottom, transparent, ${vars.color.greyBackground} 20px)`,
+	background: `linear-gradient(to bottom, transparent, ${pageBackground} 20px)`,
 	pointerEvents: 'none',
 });
 
 export const bottomBarInner = style({ pointerEvents: 'auto' });
 
-export const primaryButton = style({
-	width: '100%',
-	height: 56,
-	border: 'none',
-	borderRadius: 16,
-	fontSize: 17,
-	fontWeight: 700,
-	fontFamily: 'inherit',
-	color: '#ffffff',
-	background: vars.color.blue500,
-	boxShadow: vars.shadow.sm,
-	cursor: 'pointer',
-	transition: 'background 0.15s, transform 0.1s, box-shadow 0.15s',
-	selectors: {
-		'&:active:not(:disabled)': {
-			background: vars.color.blue600,
-			transform: 'scale(0.98)',
+export const primaryButton = style([
+	text.body1,
+	{
+		width: '100%',
+		height: 56,
+		border: 'none',
+		borderRadius: vars.radius.md,
+		fontWeight: vars.font.weight.bold,
+		color: '#ffffff',
+		background: vars.color.blue500,
+		boxShadow: vars.shadow.sm,
+		cursor: 'pointer',
+		transition: 'background 0.15s, transform 0.1s, box-shadow 0.15s',
+		selectors: {
+			'&:active:not(:disabled)': {
+				background: vars.color.blue600,
+				transform: 'scale(0.98)',
+			},
+			'&:disabled': {
+				color: vars.color.grey400,
+				background: vars.color.grey200,
+				boxShadow: 'none',
+				cursor: 'not-allowed',
+			},
 		},
-		'&:disabled': {
-			color: vars.color.grey400,
-			background: vars.color.grey200,
-			boxShadow: 'none',
-			cursor: 'not-allowed',
-		},
-	},
-	'@media': {
-		[canHover]: {
-			selectors: {
-				'&:hover:not(:disabled)': {
-					background: vars.color.blue600,
-					boxShadow: vars.shadow.md,
+		'@media': {
+			[canHover]: {
+				selectors: {
+					'&:hover:not(:disabled)': {
+						background: vars.color.blue600,
+						boxShadow: vars.shadow.md,
+					},
 				},
 			},
 		},
 	},
-});
+]);
 
 export const secondaryButton = style([
 	primaryButton,
@@ -108,28 +113,14 @@ export const secondaryButton = style([
 	},
 ]);
 
-export const title = style({
-	fontSize: 26,
-	fontWeight: 700,
-	lineHeight: 1.35,
-	letterSpacing: '-0.02em',
-	color: vars.color.grey900,
-	'@media': {
-		[breakpoints.tablet]: { fontSize: 30 },
-	},
-});
+export const title = style([text.title1, { color: vars.color.grey900 }]);
 
-export const subtitle = style({
-	marginTop: 8,
-	fontSize: 16,
-	lineHeight: 1.5,
-	color: vars.color.grey600,
-});
+export const subtitle = style([
+	text.body2,
+	{ marginTop: 8, fontSize: vars.font.size.t5, color: vars.color.grey600 },
+]);
 
-export const sectionLabel = style({
-	display: 'block',
-	marginBottom: 10,
-	fontSize: 15,
-	fontWeight: 600,
-	color: vars.color.grey600,
-});
+export const sectionLabel = style([
+	text.label,
+	{ display: 'block', marginBottom: 10, color: vars.color.grey600 },
+]);
