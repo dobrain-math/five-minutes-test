@@ -51,7 +51,7 @@ export function evaluate(report: Report) {
 		`한 문제에 평균 ${seconds}초가 걸렸습니다.${pace ? ` ${pace}` : ''}`,
 	);
 
-	// NOTE: 칭찬·연습 권유는 리포트 뱃지(학습 완료 8개↑ / 연습 필요 3개↓)와 같은 기준을 쓴다.
+	// NOTE: 칭찬·연습 권유는 리포트 뱃지(강함 8개↑ / 취약 3개↓)와 같은 기준을 쓴다.
 	const marks = highlightSections(sections);
 	const strong = sections.filter((_, i) => marks[i] === 'strong');
 	const weak = sections.filter((_, i) => marks[i] === 'weak');

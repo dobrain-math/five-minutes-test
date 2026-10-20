@@ -44,7 +44,7 @@ describe('evaluate', () => {
 		}
 	});
 
-	describe('뱃지와 같은 기준(8개 이상 학습 완료 / 3개 이하 연습 필요)', () => {
+	describe('뱃지와 같은 기준(8개 이상 강함 / 3개 이하 취약)', () => {
 		test('8개 맞힌 유형도 칭찬하고, 7개는 칭찬하지 않는다', () => {
 			const text = evaluate(make([sec('가', 8), sec('나', 7), sec('다', 5)]));
 			expect(text).toMatch(/가 연산에서 실력이 돋보입니다/);
