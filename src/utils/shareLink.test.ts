@@ -21,21 +21,29 @@ const report: Report = {
 	courseTitle: course.title,
 	correct: corrects.reduce((a, b) => a + b, 0),
 	total: 80,
-	durationMs: 245_123,
+	// NOTE: 짧은 코드는 걸린 시간을 초 단위, 실시일을 분 단위로 싣는다.
+	durationMs: 245_000,
 	finishedAt: 1_792_481_400_000,
 	sections: titles.map((title, i) => ({
 		title,
 		correct: corrects[i],
 		total: 10,
 	})),
-	// 흔한 경우: 18문제 틀림
-	wrong: Array.from({ length: 18 }, (_, i) => ({
-		text: `${300 + i * 7} − ${80 + i}`,
-		mine: i % 5 === 0 ? '' : String(200 + i),
-		answer: String(300 + i * 7 - (80 + i)),
-		sectionTitle: titles[(i * 3) % 8],
-	})),
+	// 흔한 경우: 18문제 틀림. 틀린 답은 대개 정답과 1·10 차이(받아올림 실수)
+	wrong: Array.from({ length: 18 }, (_, i) => {
+		const answer = 300 + i * 7 - (80 + i);
+		return {
+			text: `${300 + i * 7} − ${80 + i}`,
+			mine: i % 5 === 0 ? '' : String(answer + (i % 2 ? 1 : -10)),
+			answer: String(answer),
+			sectionTitle: titles[(i * 3) % 8],
+		};
+	}),
 };
+
+// v2(2026-10-20 배포) 코드 — 기본연습, 김하늘·초2, 1문제(4 + 8 → 11) 틀림
+const V2_CODE =
+	'2BWJhc2ljCeq5gO2VmOuKmATstIgyg_sO-LDc1gYICgoICgAKAAoACgAKAAoACgEHBAgN';
 
 describe('encodeReport / decodeReport', () => {
 	test('한글 이름·빈 답·실시일까지 그대로 되살린다', () => {
@@ -46,8 +54,34 @@ describe('encodeReport / decodeReport', () => {
 		expect(encodeReport(report)).toMatch(/^[A-Za-z0-9_-]+$/);
 	});
 
-	test('18문제 틀린 흔한 결과의 코드가 250자 이하다', () => {
-		expect(encodeReport(report).length).toBeLessThanOrEqual(250);
+	test('18문제 틀린 흔한 결과의 코드가 170자 이하다(v2 는 201자)', () => {
+		expect(encodeReport(report).length).toBeLessThanOrEqual(170);
+	});
+
+	test('목록에 없는 나이 글자도 되살린다', () => {
+		const odd = { ...report, studentAge: '초2 (빠른)' };
+		expect(decodeReport(encodeReport(odd))).toEqual(odd);
+	});
+
+	test('먼저 배포한 v2 짧은 링크도 그대로 열린다', () => {
+		const r = decodeReport(V2_CODE);
+		expect(r).toMatchObject({
+			studentName: '김하늘',
+			studentAge: '초2',
+			courseId: 'basic',
+			durationMs: 245_123,
+			finishedAt: 1_792_481_400_000,
+			correct: 18,
+		});
+		expect(r?.wrong).toEqual([
+			{
+				text: '4 + 8',
+				mine: '11',
+				answer: '12',
+				// 이 코드를 만들 때 유형 이름을 모두 빈칸으로 넣어 마지막(8번째) 유형으로 적혔다
+				sectionTitle: getCourse('basic')!.sections[7].title,
+			},
+		]);
 	});
 
 	test('80문제를 모두 틀려도 900자 이하다', () => {

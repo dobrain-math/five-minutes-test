@@ -1,9 +1,18 @@
 import type { Report } from '@/@types/test';
 import { getCourse } from '@/data/courses.ts';
+import {
+	type Reader,
+	V3,
+	Writer,
+	base64UrlToBytes,
+	bytesToBase64Url,
+	readHead,
+	writeAge,
+} from '@/utils/shareCode.ts';
 
 /**
  * 예전(v1) 링크 모양. 유형 이름(한글 문장)을 통째로 실은 JSON 이라 900자 안팎으로 길었다.
- * NOTE: 이미 보낸 링크가 있으니 읽기만 계속 지원한다(2026-10-20 v2 로 교체).
+ * NOTE: 이미 보낸 링크가 있으니 읽기만 계속 지원한다(2026-10-20 v2 → v3 로 교체).
  */
 type PayloadV1 = {
 	v: 1;
@@ -18,9 +27,6 @@ type PayloadV1 = {
 	w: string;
 };
 
-/** v2 코드 맨 앞 글자. v1 코드는 늘 'e'(base64 의 '{"')로 시작해서 겹치지 않는다. */
-const V2 = '2';
-
 /**
  * 식의 연산 기호 ↔ 번호. 화면 식은 buildTest 가 「27 − 8」처럼 만든다.
  * RAW 는 이 모양이 아니거나 정답이 계산과 다른 문제 — 식·정답을 글자 그대로 싣는다.
@@ -31,100 +37,57 @@ const RAW = 7;
 const calc = (left: number, op: number, right: number) =>
 	op === 0 ? left + right : op === 2 ? left * right : left - right;
 
-// ── 바이트 쓰기·읽기 ─────────────────────────────────────
+const isPlainNumber = (s: string) => /^(0|[1-9]\d{0,14})$/.test(s);
 
-/** 숫자는 7비트씩 끊어 적는다(작은 수는 1바이트). 글자는 길이 + UTF-8. */
-class Writer {
-	bytes: number[] = [];
-	num(n: number) {
-		let v = Math.max(0, Math.floor(n));
-		while (v >= 0x80) {
-			this.bytes.push((v % 0x80) | 0x80);
-			v = Math.floor(v / 0x80);
-		}
-		this.bytes.push(v);
-	}
-	str(s: string) {
-		const utf8 = new TextEncoder().encode(s);
-		this.num(utf8.length);
-		this.bytes.push(...utf8);
-	}
-}
+/** 음수도 작은 수로: 0,-1,1,-2,2 … → 0,1,2,3,4 … */
+const zigzag = (d: number) => (d >= 0 ? d * 2 : -d * 2 - 1);
+const unzigzag = (z: number) => (z % 2 === 0 ? z / 2 : -(z + 1) / 2);
 
-class Reader {
-	i = 0;
-	bytes: Uint8Array;
-	constructor(bytes: Uint8Array) {
-		this.bytes = bytes;
-	}
-	num() {
-		let v = 0;
-		let scale = 1;
-		for (;;) {
-			if (this.i >= this.bytes.length) throw new Error('코드가 잘렸습니다');
-			const b = this.bytes[this.i++];
-			v += (b & 0x7f) * scale;
-			if (b < 0x80) return v;
-			scale *= 0x80;
-		}
-	}
-	str() {
-		const len = this.num();
-		if (this.i + len > this.bytes.length) throw new Error('코드가 잘렸습니다');
-		const s = new TextDecoder('utf-8', { fatal: true }).decode(
-			this.bytes.subarray(this.i, this.i + len),
-		);
-		this.i += len;
-		return s;
-	}
-}
+// ── 쓰기(v3) ─────────────────────────────────────────────
 
-function bytesToBase64Url(bytes: ArrayLike<number>) {
-	let binary = '';
-	for (let i = 0; i < bytes.length; i++)
-		binary += String.fromCharCode(bytes[i]);
-	return btoa(binary)
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=+$/, '');
-}
-
-function base64UrlToBytes(code: string) {
-	const binary = atob(code.replace(/-/g, '+').replace(/_/g, '/'));
-	return Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
-}
-
-// ── 쓰기 ─────────────────────────────────────────────────
-
-/** 적은 답: 0 = 빈칸, 1 = 글자 그대로(뒤따름), n + 2 = 숫자 n */
-function writeMine(w: Writer, mine: string) {
+/**
+ * 적은 답: 0 = 빈칸, 1 = 글자 그대로(뒤따름), 그 밖 = «정답과의 차이» + 2.
+ * NOTE: 틀린 답은 대개 정답과 1·10 차이라 차이로 적으면 1바이트에 들어간다.
+ */
+function writeMine(w: Writer, mine: string, answer: string) {
 	if (mine === '') w.num(0);
-	else if (/^(0|[1-9]\d{0,14})$/.test(mine)) w.num(Number(mine) + 2);
-	else {
+	else if (isPlainNumber(mine)) {
+		const base = isPlainNumber(answer) ? Number(answer) : 0;
+		w.num(zigzag(Number(mine) - base) + 2);
+	} else {
 		w.num(1);
 		w.str(mine);
 	}
 }
 
 /**
- * 리포트 → 링크에 붙일 코드(v2).
+ * 리포트 → 링크에 붙일 코드(v3).
  * 유형·종목 이름은 싣지 않고(courses.ts 에서 되찾는다) 숫자는 바이트로 묶는다.
- * 틀린 문제의 정답도 식에서 다시 계산하므로 싣지 않는다.
- * NOTE: lz-string 압축도 재 봤지만 흔한 결과가 337자로 이 방식(약 200자)보다 길었다.
+ * 틀린 문제의 정답은 식에서 다시 계산하고, 적은 답은 정답과의 차이만 싣는다.
+ * NOTE: lz-string 압축도 재 봤지만 흔한 결과가 337자로 이 방식보다 길었다.
  * 글자는 base64url(A-Z a-z 0-9 - _)만 써서 카톡·문자가 링크를 중간에 끊지 않는다.
  */
 export function encodeReport(report: Report) {
 	const w = new Writer();
 	w.str(report.courseId ?? '');
 	w.str(report.studentName);
-	w.str(report.studentAge);
-	w.num(report.durationMs);
-	// 실시일은 초 단위로 충분하다. 0 = 없음
-	w.num(report.finishedAt === undefined ? 0 : report.finishedAt / 1000);
+	writeAge(w, report.studentAge);
+	w.num(Math.round(report.durationMs / 1000));
+	// 실시일은 분 단위로 충분하다. 0 = 없음
+	w.num(
+		report.finishedAt === undefined
+			? 0
+			: Math.round(report.finishedAt / 60_000),
+	);
+
+	// 유형마다 문제 수가 같으면(늘 10) 한 번만 적는다. 0 = 유형마다 따로
+	const totals = new Set(report.sections.map((sec) => sec.total));
+	const common = totals.size === 1 ? [...totals][0] : 0;
 	w.num(report.sections.length);
+	w.num(common);
 	for (const sec of report.sections) {
 		w.num(sec.correct);
-		w.num(sec.total);
+		if (common === 0) w.num(sec.total);
 	}
 
 	const index = new Map(report.sections.map((sec, i) => [sec.title, i]));
@@ -146,41 +109,41 @@ export function encodeReport(report: Report) {
 			w.str(q.text);
 			w.str(q.answer);
 		}
-		writeMine(w, q.mine);
+		writeMine(w, q.mine, q.answer);
 	}
-	return V2 + bytesToBase64Url(w.bytes);
+	return V3 + bytesToBase64Url(w.bytes);
 }
 
-// ── 읽기 ─────────────────────────────────────────────────
+// ── 읽기(v2·v3) ──────────────────────────────────────────
 
-function readMine(r: Reader) {
+function readMine(r: Reader, version: 2 | 3, answer: string) {
 	const v = r.num();
-	return v === 0 ? '' : v === 1 ? r.str() : String(v - 2);
+	if (v === 0) return '';
+	if (v === 1) return r.str();
+	if (version === 2) return String(v - 2);
+	const base = isPlainNumber(answer) ? Number(answer) : 0;
+	return String(base + unzigzag(v - 2));
 }
 
-function decodeV2(code: string): Report | null {
-	const r = new Reader(base64UrlToBytes(code));
-	const courseId = r.str();
-	const course = getCourse(courseId);
+function decodeShort(code: string): Report | null {
+	const read = readHead(code);
+	if (!read) return null;
+	const { head, reader: r } = read;
+	const course = getCourse(head.courseId);
 	if (!course) return null;
-	const studentName = r.str();
-	const studentAge = r.str();
-	const durationMs = r.num();
-	const finishedSec = r.num();
 
 	const count = r.num();
 	if (count !== course.sections.length) return null;
-	const sections = course.sections.map((sec) => ({
-		title: sec.title,
-		correct: r.num(),
-		total: r.num(),
-	}));
+	const common = head.version === 3 ? r.num() : 0;
+	const sections = course.sections.map((sec) => {
+		const correct = r.num();
+		return { title: sec.title, correct, total: common || r.num() };
+	});
 
-	const wrongCount = r.num();
-	const wrong = Array.from({ length: wrongCount }, () => {
-		const head = r.num();
-		const op = Math.floor(head / 16);
-		const sectionTitle = sections[head % 16]?.title ?? '';
+	const wrong = Array.from({ length: r.num() }, () => {
+		const h = r.num();
+		const op = Math.floor(h / 16);
+		const sectionTitle = sections[h % 16]?.title ?? '';
 		let text: string;
 		let answer: string;
 		if (op === RAW) {
@@ -193,18 +156,19 @@ function decodeV2(code: string): Report | null {
 			text = `${left} ${OPS[op]} ${right}`;
 			answer = String(calc(left, op, right));
 		}
-		return { text, mine: readMine(r), answer, sectionTitle };
+		const mine = readMine(r, head.version, answer);
+		return { text, mine, answer, sectionTitle };
 	});
 
 	return {
-		studentName,
-		studentAge,
-		courseId,
+		studentName: head.studentName,
+		studentAge: head.studentAge,
+		courseId: head.courseId,
 		courseTitle: course.title,
 		correct: sections.reduce((sum, sec) => sum + sec.correct, 0),
 		total: sections.reduce((sum, sec) => sum + sec.total, 0),
-		durationMs,
-		...(finishedSec > 0 && { finishedAt: finishedSec * 1000 }),
+		durationMs: head.durationMs,
+		...(head.finishedAt !== undefined && { finishedAt: head.finishedAt }),
 		sections,
 		wrong,
 	};
@@ -262,7 +226,7 @@ function decodeV1(code: string): Report | null {
 export function decodeReport(code: string): Report | null {
 	if (!code) return null;
 	try {
-		return code.startsWith(V2) ? decodeV2(code.slice(1)) : decodeV1(code);
+		return code.startsWith('e') ? decodeV1(code) : decodeShort(code);
 	} catch {
 		return null;
 	}
