@@ -188,3 +188,10 @@ export const buttonRow = style({
 	maxWidth: 560,
 	margin: '0 auto',
 });
+
+export const topActions = style({
+	display: 'flex',
+	alignItems: 'center',
+	flexShrink: 0,
+	gap: 8,
+});

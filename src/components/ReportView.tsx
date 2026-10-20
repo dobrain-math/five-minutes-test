@@ -5,6 +5,7 @@ import { evaluate } from '@/utils/evaluate.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
 import { highlightSections } from '@/utils/highlightSections.ts';
 import * as s from './ReportView.css.ts';
+import ThemeToggle from './ThemeToggle.tsx';
 
 type Props = {
 	report: Report;
@@ -21,7 +22,10 @@ export default function ReportView({ report, actions }: Props) {
 		<main className={layout.page}>
 			<div className={`${layout.container.medium} ${layout.content}`}>
 				<header className={s.header}>
-					<h1 className={layout.title}>{studentName} 학생 결과</h1>
+					<div className={layout.titleRow}>
+						<h1 className={layout.title}>{studentName} 학생 결과</h1>
+						<ThemeToggle />
+					</div>
 					<p className={layout.subtitle}>
 						{studentAge ? `${studentAge} · ${courseTitle}` : courseTitle}
 					</p>

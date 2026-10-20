@@ -4,6 +4,13 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>두뇌로수학 테스트</title>
+		<!-- 직접 고른 테마를 첫 화면 그리기 전에 적용해 깜빡임을 막는다 (키: src/utils/theme.ts THEME_KEY) -->
+		<script>
+			try {
+				var t = localStorage.getItem('theme');
+				if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+			} catch (e) {}
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>

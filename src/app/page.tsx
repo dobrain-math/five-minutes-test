@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
@@ -30,7 +31,10 @@ export default function HomePage() {
 		<main className={layout.page}>
 			<div className={`${layout.container.narrow} ${layout.content}`}>
 				<header className={s.header}>
-					<h1 className={layout.title}>연산 테스트</h1>
+					<div className={layout.titleRow}>
+						<h1 className={layout.title}>연산 테스트</h1>
+						<ThemeToggle />
+					</div>
 					<p className={layout.subtitle}>
 						이름·나이를 적고 테스트 볼 종목을 골라 주세요.
 					</p>

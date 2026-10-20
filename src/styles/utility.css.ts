@@ -124,3 +124,11 @@ export const sectionLabel = style([
 	text.label,
 	{ display: 'block', marginBottom: 10, color: vars.color.grey600 },
 ]);
+
+/** 제목 줄 오른쪽 끝에 작은 버튼(테마 토글 등)을 붙인다 */
+export const titleRow = style({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	gap: 12,
+});

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
+import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { getCourse } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
@@ -74,8 +75,11 @@ export default function TestPage() {
 						<span className={s.courseName}>
 							{studentName} · {course.title}
 						</span>
-						<span className={s.timer} aria-label="경과 시간">
-							{formatDuration(now - (startedAt ?? now))}
+						<span className={s.topActions}>
+							<span className={s.timer} aria-label="경과 시간">
+								{formatDuration(now - (startedAt ?? now))}
+							</span>
+							<ThemeToggle />
 						</span>
 					</div>
 					<div className={s.progressRow}>
