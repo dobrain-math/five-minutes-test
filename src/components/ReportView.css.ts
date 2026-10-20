@@ -37,65 +37,95 @@ export const blockTitle = style([
 	{ marginBottom: 14, color: vars.color.grey900 },
 ]);
 
-// ── 한 줄 평 ───────────────────────────────────────────────
+// ── 유형별 정답률 ─────────────────────────────────────────
 
-export const verdictList = style({
-	display: 'flex',
-	flexDirection: 'column',
-	gap: 12,
+export const sectionList = style({
+	display: 'grid',
+	gridTemplateColumns: '1fr',
+	gap: 4,
 	listStyle: 'none',
+	'@media': {
+		[breakpoints.tablet]: {
+			gridTemplateColumns: 'repeat(2, 1fr)',
+			columnGap: 12,
+		},
+	},
 });
 
-export const verdict = style({
-	display: 'flex',
-	alignItems: 'flex-start',
-	gap: 10,
+/** 가장 잘한·약한 유형은 줄 전체에 옅은 색을 깐다 */
+export const sectionRow = style({
+	padding: '12px 12px 14px',
+	borderRadius: vars.radius.sm,
+	selectors: {
+		'&[data-mark="strong"]': { background: vars.color.blue50 },
+		'&[data-mark="weak"]': { background: vars.color.orange50 },
+	},
 });
+
+export const sectionHead = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 6,
+	marginBottom: 8,
+});
+
+export const sectionName = style([
+	text.body2,
+	{
+		minWidth: 0,
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey800,
+		wordBreak: 'keep-all',
+	},
+]);
 
 const badgeBase = style([
-	text.caption,
+	text.caption2,
 	{
 		flexShrink: 0,
-		padding: '2px 8px',
+		padding: '2px 7px',
 		borderRadius: vars.radius.xs,
 		fontWeight: vars.font.weight.bold,
+		color: '#ffffff',
 	},
 ]);
 
 export const strengthBadge = style([
 	badgeBase,
-	{ color: vars.color.blue600, background: vars.color.blue50 },
+	{ background: vars.color.blue500 },
 ]);
 
 export const weaknessBadge = style([
 	badgeBase,
-	{ color: vars.color.orange800, background: vars.color.orange50 },
+	{ background: vars.color.orange500 },
 ]);
 
-export const verdictText = style([
+export const sectionScore = style([
 	text.body2,
-	{ fontWeight: vars.font.weight.medium, color: vars.color.grey800 },
+	text.number,
+	{ flexShrink: 0, marginLeft: 'auto', color: vars.color.grey500 },
 ]);
 
-// ── 그래프 ────────────────────────────────────────────────
+export const sectionCorrect = style({
+	fontWeight: vars.font.weight.bold,
+	color: vars.color.grey900,
+});
 
-export const legend = style([
-	text.caption,
-	{
-		display: 'flex',
-		gap: 16,
-		marginBottom: 10,
-		color: vars.color.grey600,
-	},
-]);
-
-export const legendDot = style({
-	display: 'inline-block',
-	width: 10,
+/** 막대 바탕(오답 몫)은 옅은 빨강, 채워진 몫이 정답률 */
+export const track = style({
 	height: 10,
-	marginRight: 6,
-	borderRadius: 3,
-	verticalAlign: 'middle',
+	borderRadius: vars.radius.full,
+	overflow: 'hidden',
+	background: vars.color.red100,
+});
+
+export const fill = style({
+	height: '100%',
+	borderRadius: vars.radius.full,
+	background: vars.color.green400,
+	selectors: {
+		[`${sectionRow}[data-mark="strong"] &`]: { background: vars.color.blue500 },
+	},
 });
 
 // ── 틀린 문제 ─────────────────────────────────────────────
