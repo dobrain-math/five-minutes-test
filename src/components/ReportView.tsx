@@ -72,7 +72,7 @@ export default function ReportView({ report, actions }: Props) {
 										className={s.sectionRow}
 										data-mark={mark ?? undefined}
 									>
-										{/* NOTE: 이름(왼쪽) + 학습 완료·연습 필요(오른쪽). 768px 미만에서는 아이콘만 남는다. */}
+										{/* NOTE: 이름(왼쪽) + 학습 완료·연습 필요(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
 										<div className={s.sectionHead}>
 											<span className={s.sectionName}>{sec.title}</span>
 											{mark && (

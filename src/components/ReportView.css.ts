@@ -53,10 +53,11 @@ export const blockTitle = style([
 // ── 유형별 정답률 ─────────────────────────────────────────
 
 /**
- * 학습 완료·연습 필요 뱃지만 태블릿 표준 768px 미만에서 아이콘만 남긴다.
- * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터 — 768px 은 뱃지에만 쓴다.
+ * 학습 완료·연습 필요 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
+ * 휴대폰(1열)과 768px 이상은 글자까지 보인다(원장님 결정 2026-10-20).
+ * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터.
  */
-const narrow = 'screen and (max-width: 767px)';
+const narrow = 'screen and (min-width: 640px) and (max-width: 767px)';
 
 export const sectionList = style({
 	display: 'grid',
@@ -150,8 +151,8 @@ export const sectionBody = style({
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
 /**
- * 학습 완료·연습 필요 뱃지. 768px 미만에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
- * (이름 옆에 글자 뱃지까지 두면 휴대폰에서 이름이 두 줄로 꺾여서).
+ * 학습 완료·연습 필요 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
+ * (2열 한 칸이 좁아 글자 뱃지까지 두면 이름이 두 줄로 꺾여서).
  */
 const markBadge = style([
 	badgeBase,
