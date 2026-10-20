@@ -1,19 +1,23 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
-import { useTestSession } from '@/stores/testSession.ts';
-import * as layout from '@/styles/layout.css.ts';
+import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
+import * as layout from '@/styles/utility.css.ts';
 import { TOTAL_QUESTIONS } from '@/utils/buildTest.ts';
-import * as s from './HomePage.css.ts';
+import * as s from './page.css.ts';
 
 export default function HomePage() {
 	const navigate = useNavigate();
-	const studentName = useTestSession((st) => st.studentName);
-	const setStudentName = useTestSession((st) => st.setStudentName);
-	const start = useTestSession((st) => st.start);
+	const studentName = useTestSessionStore((st) => st.studentName);
+	const setStudentName = useTestSessionStore((st) => st.setStudentName);
+	const studentAge = useTestSessionStore((st) => st.studentAge);
+	const setStudentAge = useTestSessionStore((st) => st.setStudentAge);
+	const start = useTestSessionStore((st) => st.start);
 	const [courseId, setCourseId] = useState<string | null>(null);
 
-	const canStart = studentName.trim() !== '' && courseId !== null;
+	const canStart =
+		studentName.trim() !== '' && studentAge !== '' && courseId !== null;
 
 	const handleStart = () => {
 		if (!canStart) return;
@@ -28,7 +32,7 @@ export default function HomePage() {
 				<header className={s.header}>
 					<h1 className={layout.title}>연산 테스트</h1>
 					<p className={layout.subtitle}>
-						이름을 적고 테스트 볼 종목을 골라 주세요.
+						이름·나이를 적고 테스트 볼 종목을 골라 주세요.
 					</p>
 				</header>
 
@@ -46,6 +50,31 @@ export default function HomePage() {
 						enterKeyHint="done"
 						maxLength={20}
 					/>
+				</div>
+
+				<div className={s.field}>
+					<span id="age-label" className={layout.sectionLabel}>
+						나이·학년
+					</span>
+					<ul
+						role="radiogroup"
+						aria-labelledby="age-label"
+						className={s.ageGrid}
+					>
+						{AGES.map((age) => (
+							<li key={age}>
+								<button
+									type="button"
+									role="radio"
+									aria-checked={studentAge === age}
+									className={s.ageChip}
+									onClick={() => setStudentAge(age)}
+								>
+									{age}
+								</button>
+							</li>
+						))}
+					</ul>
 				</div>
 
 				<div className={s.field}>

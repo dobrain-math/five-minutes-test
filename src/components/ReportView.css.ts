@@ -160,7 +160,37 @@ export const allCorrect = style([
 	},
 ]);
 
-export const bottomButton = style({
+// ── 평가문 ────────────────────────────────────────────────
+
+export const evaluation = style([
+	text.body1,
+	{
+		fontWeight: vars.font.weight.regular,
+		color: vars.color.grey800,
+		wordBreak: 'keep-all',
+	},
+]);
+
+// ── 아래 버튼 ─────────────────────────────────────────────
+
+export const buttonRow = style({
+	display: 'flex',
+	gap: 8,
 	maxWidth: 560,
 	margin: '0 auto',
 });
+
+/** 링크 복사 결과를 버튼 위에 잠깐 띄운다 */
+export const notice = style([
+	text.label,
+	{
+		maxWidth: 560,
+		margin: '0 auto 10px',
+		padding: '14px 16px',
+		borderRadius: vars.radius.md,
+		textAlign: 'center',
+		color: vars.color.grey800,
+		background: vars.color.layeredBackground,
+		boxShadow: vars.shadow.md,
+	},
+]);

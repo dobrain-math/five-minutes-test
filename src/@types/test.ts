@@ -1,41 +1,68 @@
 export type Operator = '+' | '-' | '×';
 
 /** 생성기가 만드는 원재료 문제 */
-export interface Problem {
+export type Problem = {
 	left: number;
 	op: Operator;
 	right: number;
-}
+};
 
 /** 0 이상 1 미만을 돌려주는 난수 함수 (기본은 Math.random) */
 export type Rng = () => number;
 
-export interface Question {
+export type Question = {
 	id: string;
 	sectionId: string;
 	/** 화면에 보이는 식. 예: "27 + 8" */
 	text: string;
 	answer: string;
-}
+};
 
-export interface Section {
+export type Section = {
 	id: string;
 	title: string;
-}
+};
 
-export interface SectionDef extends Section {
+export type SectionDef = Section & {
 	/** i 는 이 유형 안에서 몇 번째 문제인지(0부터). 비율을 나눠야 하는 유형이 쓴다. */
 	generate: (rng: Rng, i?: number) => Problem;
-}
+};
 
-export interface Course {
+export type Course = {
 	id: string;
 	title: string;
 	sections: SectionDef[];
-}
+};
 
-export interface SectionResult {
+export type SectionResult = {
 	sectionId: string;
 	correct: number;
 	total: number;
-}
+};
+
+/** 유형 하나의 점수(목차 순서) */
+export type SectionScore = {
+	title: string;
+	correct: number;
+	total: number;
+};
+
+export type WrongAnswer = {
+	text: string;
+	/** 학생이 적은 답. 비워 두었으면 빈 문자열 */
+	mine: string;
+	answer: string;
+	sectionTitle: string;
+};
+
+/** 리포트 화면이 그리는 데이터. 내 기기(세션)에서도, 공유 링크에서도 이 모양으로 만든다. */
+export type Report = {
+	studentName: string;
+	studentAge: string;
+	courseTitle: string;
+	correct: number;
+	total: number;
+	durationMs: number;
+	sections: SectionScore[];
+	wrong: WrongAnswer[];
+};

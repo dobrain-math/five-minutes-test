@@ -86,3 +86,43 @@ export const courseMeta = style([
 	text.caption,
 	{ marginTop: 3, color: vars.color.grey500 },
 ]);
+
+// ── 나이·학년 ─────────────────────────────────────────────
+
+export const ageGrid = style({
+	display: 'grid',
+	gridTemplateColumns: 'repeat(5, 1fr)',
+	gap: 8,
+	listStyle: 'none',
+});
+
+export const ageChip = style([
+	text.label,
+	{
+		width: '100%',
+		height: 48,
+		border: 'none',
+		borderRadius: vars.radius.md,
+		color: vars.color.grey700,
+		background: vars.color.layeredBackground,
+		boxShadow: vars.shadow.sm,
+		cursor: 'pointer',
+		transition: 'box-shadow 0.15s, background 0.15s, transform 0.1s',
+		selectors: {
+			'&:active': { transform: 'scale(0.97)' },
+			'&[aria-checked="true"]': {
+				color: vars.color.blue600,
+				fontWeight: vars.font.weight.bold,
+				background: vars.color.blue50,
+				boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+			},
+		},
+		'@media': {
+			[canHover]: {
+				selectors: {
+					'&:hover:not([aria-checked="true"])': { boxShadow: vars.shadow.md },
+				},
+			},
+		},
+	},
+]);

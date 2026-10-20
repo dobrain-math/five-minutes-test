@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { getCourse } from '@/data/courses.ts';
-import { useTestSession } from '@/stores/testSession.ts';
-import * as layout from '@/styles/layout.css.ts';
+import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
+import * as layout from '@/styles/utility.css.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
-import * as s from './TestPage.css.ts';
+import * as s from './page.css.ts';
 
 function useNow(active: boolean) {
 	const [now, setNow] = useState(Date.now);
@@ -30,7 +30,7 @@ export default function TestPage() {
 		start,
 		setAnswer,
 		finish,
-	} = useTestSession();
+	} = useTestSessionStore();
 	const [confirming, setConfirming] = useState(false);
 	const inputs = useRef<(HTMLInputElement | null)[]>([]);
 

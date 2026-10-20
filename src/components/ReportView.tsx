@@ -1,4 +1,4 @@
-import { Navigate, useNavigate, useParams } from 'react-router';
+import type { ReactNode } from 'react';
 import {
 	Bar,
 	BarChart,
@@ -8,14 +8,13 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import { getCourse } from '@/data/courses.ts';
-import { useTestSession } from '@/stores/testSession.ts';
-import * as layout from '@/styles/layout.css.ts';
+import type { Report } from '@/@types/test';
 import { vars } from '@/styles/theme.css.ts';
+import * as layout from '@/styles/utility.css.ts';
+import { evaluate } from '@/utils/evaluate.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
-import { gradeBySection } from '@/utils/gradeBySection.ts';
 import { summarize } from '@/utils/summarize.ts';
-import * as s from './ReportPage.css.ts';
+import * as s from './ReportView.css.ts';
 
 const BAR_HEIGHT = 44;
 
@@ -27,67 +26,49 @@ const TICK_STYLE = {
 
 const hideZero = (v: unknown) => (Number(v) > 0 ? String(v) : '');
 
-export default function ReportPage() {
-	const { testId } = useParams();
-	const navigate = useNavigate();
-	const course = getCourse(testId);
-	const { studentName, courseId, questions, answers, startedAt, finishedAt } =
-		useTestSession();
+type Props = {
+	report: Report;
+	/** 화면 아래에 붙는 버튼들. 내 결과와 공유받은 결과가 서로 다르다. */
+	actions: ReactNode;
+};
 
-	if (
-		!course ||
-		courseId !== testId ||
-		startedAt === null ||
-		finishedAt === null
-	) {
-		return <Navigate to="/" replace />;
-	}
+/** 리포트 본문. 방금 푼 결과(/report)와 공유 링크(/share)가 함께 쓴다. */
+export default function ReportView({ report, actions }: Props) {
+	const { studentName, studentAge, courseTitle, sections, wrong } = report;
 
-	const results = gradeBySection(questions, answers);
-	const correct = results.reduce((sum, r) => sum + r.correct, 0);
-	const titleOf = (id: string) =>
-		course.sections.find((sec) => sec.id === id)?.title ?? id;
-
-	// 그래프는 목차 순서로 보여준다.
-	const chartData = course.sections.map((sec) => {
-		const r = results.find((x) => x.sectionId === sec.id);
-		const ok = r?.correct ?? 0;
-		return { name: sec.title, correct: ok, wrong: (r?.total ?? 0) - ok };
-	});
+	const chartData = sections.map((sec) => ({
+		name: sec.title,
+		correct: sec.correct,
+		wrong: sec.total - sec.correct,
+	}));
 	// 유형마다 문제 수가 같으므로 눈금은 0 · 절반 · 전체 세 개면 충분하다(좁은 화면에서 겹침 방지).
-	const perSection = Math.max(...chartData.map((d) => d.correct + d.wrong));
+	const perSection = Math.max(...sections.map((sec) => sec.total));
 	const ticks = [0, Math.round(perSection / 2), perSection];
 
-	const wrong = questions.filter((q) => answers[q.id]?.trim() !== q.answer);
-
-	const { strength, weakness } = summarize(
-		chartData.map((d) => ({
-			title: d.name,
-			correct: d.correct,
-			total: d.correct + d.wrong,
-		})),
-	);
+	const { strength, weakness } = summarize(sections);
 
 	return (
 		<main className={layout.page}>
 			<div className={`${layout.container.medium} ${layout.content}`}>
 				<header className={s.header}>
 					<h1 className={layout.title}>{studentName} 학생 결과</h1>
-					<p className={layout.subtitle}>{course.title}</p>
+					<p className={layout.subtitle}>
+						{studentAge ? `${studentAge} · ${courseTitle}` : courseTitle}
+					</p>
 				</header>
 
 				<div className={s.stats}>
 					<div className={layout.card}>
 						<div className={s.statLabel}>맞힌 문제</div>
 						<div className={s.statValue}>
-							{correct}
-							<span className={s.statUnit}>/ {questions.length}</span>
+							{report.correct}
+							<span className={s.statUnit}>/ {report.total}</span>
 						</div>
 					</div>
 					<div className={layout.card}>
 						<div className={s.statLabel}>걸린 시간</div>
 						<div className={s.statValue}>
-							{formatDuration(finishedAt - startedAt)}
+							{formatDuration(report.durationMs)}
 						</div>
 					</div>
 				</div>
@@ -104,6 +85,11 @@ export default function ReportPage() {
 							<p className={s.verdictText}>{weakness}</p>
 						</li>
 					</ul>
+				</section>
+
+				<section className={`${layout.card} ${s.block}`}>
+					<h2 className={s.blockTitle}>종합 평가</h2>
+					<p className={s.evaluation}>{evaluate(report)}</p>
 				</section>
 
 				<section className={`${layout.card} ${s.block}`}>
@@ -195,16 +181,14 @@ export default function ReportPage() {
 						<p className={s.allCorrect}>모두 맞혔어요!</p>
 					) : (
 						<ul className={s.wrongList}>
-							{wrong.map((q) => (
-								<li key={q.id} className={s.wrongItem}>
+							{wrong.map((q, i) => (
+								<li key={i} className={s.wrongItem}>
 									<div>
 										<div className={s.wrongExpr}>{q.text}</div>
-										<div className={s.wrongSection}>{titleOf(q.sectionId)}</div>
+										<div className={s.wrongSection}>{q.sectionTitle}</div>
 									</div>
 									<div className={s.wrongAnswers}>
-										<span className={s.mine}>
-											{answers[q.id]?.trim() || '빈칸'}
-										</span>
+										<span className={s.mine}>{q.mine || '빈칸'}</span>
 										<span className={s.correctAnswer}>{q.answer}</span>
 									</div>
 								</li>
@@ -216,15 +200,7 @@ export default function ReportPage() {
 
 			<div className={layout.bottomBar}>
 				<div className={`${layout.container.medium} ${layout.bottomBarInner}`}>
-					<div className={s.bottomButton}>
-						<button
-							type="button"
-							className={layout.primaryButton}
-							onClick={() => navigate('/')}
-						>
-							처음으로
-						</button>
-					</div>
+					{actions}
 				</div>
 			</div>
 		</main>
