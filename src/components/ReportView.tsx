@@ -9,7 +9,7 @@ import { highlightSections } from '@/utils/highlightSections.ts';
 import * as s from './ReportView.css.ts';
 import ThemeToggle from './ThemeToggle.tsx';
 
-const MARK_LABEL = { strong: '학습 완료', weak: '연습 필요' } as const;
+const MARK_LABEL = { strong: '강함', weak: '취약' } as const;
 
 type Props = {
 	report: Report;
@@ -72,7 +72,7 @@ export default function ReportView({ report, actions }: Props) {
 										className={s.sectionRow}
 										data-mark={mark ?? undefined}
 									>
-										{/* NOTE: 이름(왼쪽) + 학습 완료·연습 필요(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
+										{/* NOTE: 이름(왼쪽) + 강함·취약(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
 										<div className={s.sectionHead}>
 											<span className={s.sectionName}>{sec.title}</span>
 											{mark && (

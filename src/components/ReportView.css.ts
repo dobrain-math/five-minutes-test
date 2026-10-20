@@ -53,7 +53,7 @@ export const blockTitle = style([
 // ── 유형별 정답률 ─────────────────────────────────────────
 
 /**
- * 학습 완료·연습 필요 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
+ * 강함·취약 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
  * 휴대폰(1열)과 768px 이상은 글자까지 보인다(원장님 결정 2026-10-20).
  * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터.
  */
@@ -81,8 +81,8 @@ const tint = (color: string, percent: number) =>
 
 /**
  * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
- * 학습 완료(8개 이상)·연습 필요(3개 이하) 줄은 옅은 색 바탕 + 색 테두리.
- * 안은 «이름 + 학습 완료·연습 필요(sectionHead)» 아래 «10칸 + 맞힌 수(sectionBody)».
+ * 강함(8개 이상)·취약(3개 이하) 줄은 옅은 색 바탕 + 색 테두리.
+ * 안은 «이름 + 강함·취약(sectionHead)» 아래 «10칸 + 맞힌 수(sectionBody)».
  */
 export const sectionRow = style({
 	display: 'flex',
@@ -96,13 +96,13 @@ export const sectionRow = style({
 			borderColor: tint(vars.color.blue500, 35),
 		},
 		'&[data-mark="weak"]': {
-			background: tint(vars.color.orange300, 8),
-			borderColor: tint(vars.color.orange500, 40),
+			background: tint(vars.color.red300, 8),
+			borderColor: tint(vars.color.red500, 40),
 		},
 	},
 });
 
-/** 이름(왼쪽) + 학습 완료·연습 필요 뱃지(오른쪽) 한 줄 */
+/** 이름(왼쪽) + 강함·취약 뱃지(오른쪽) 한 줄 */
 export const sectionHead = style({
 	display: 'flex',
 	alignItems: 'flex-start',
@@ -151,7 +151,7 @@ export const sectionBody = style({
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
 /**
- * 학습 완료·연습 필요 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
+ * 강함·취약 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
  * (2열 한 칸이 좁아 글자 뱃지까지 두면 이름이 두 줄로 꺾여서).
  */
 const markBadge = style([
@@ -170,7 +170,7 @@ export const strengthBadge = style([
 
 export const weaknessBadge = style([
 	markBadge,
-	{ background: vars.color.orange500 },
+	{ background: vars.color.red500 },
 ]);
 
 /** 맞힌 수 「8 / 10」. 다른 뱃지와 같은 알약 모양에 회색 반투명 바탕(다크에서도 옅게) */
@@ -204,7 +204,7 @@ export const cells = style({
 	minWidth: 0,
 });
 
-/** 맞힌 칸은 꽉 찬 초록(학습 완료 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
+/** 맞힌 칸은 꽉 찬 초록(강함 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
 export const cell = style({
 	width: '100%',
 	aspectRatio: '1',
