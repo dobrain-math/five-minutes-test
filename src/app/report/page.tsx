@@ -65,14 +65,14 @@ export default function ReportPage() {
 					<div className={s.buttonRow}>
 						<button
 							type="button"
-							className={`${layout.secondaryButton} ${s.homeButton}`}
+							className={`${layout.primaryButton} ${s.homeButton}`}
 							onClick={() => navigate('/')}
 						>
 							처음으로
 						</button>
 						<button
 							type="button"
-							className={`${layout.primaryButton} ${s.shareButton}`}
+							className={`${layout.secondaryButton} ${s.shareButton}`}
 							onClick={handleShare}
 						>
 							<ShareIcon

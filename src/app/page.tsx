@@ -32,17 +32,17 @@ export default function HomePage() {
 			<div className={`${layout.container.narrow} ${layout.content}`}>
 				<header className={s.header}>
 					<div className={layout.titleRow}>
-						<h1 className={layout.title}>연산 테스트</h1>
+						<h1 className={layout.title}>두뇌로수학 연산 테스트</h1>
 						<ThemeToggle />
 					</div>
 					<p className={layout.subtitle}>
-						이름·나이를 적고 테스트 볼 종목을 골라 주세요.
+						이름과 나이를 입력하고 테스트 유형을 골라 주세요.
 					</p>
 				</header>
 
 				<div className={s.field}>
 					<label htmlFor="student-name" className={layout.sectionLabel}>
-						학생 이름
+						학생명
 					</label>
 					<input
 						id="student-name"
@@ -58,7 +58,7 @@ export default function HomePage() {
 
 				<div className={s.field}>
 					<span id="age-label" className={layout.sectionLabel}>
-						나이·학년
+						나이(학년)
 					</span>
 					<ul
 						role="radiogroup"
@@ -83,7 +83,7 @@ export default function HomePage() {
 
 				<div className={s.field}>
 					<span id="course-label" className={layout.sectionLabel}>
-						테스트 종목
+						테스트 유형
 					</span>
 					<ul
 						role="radiogroup"

@@ -1,29 +1,75 @@
-import { style } from '@vanilla-extract/css';
+import { globalStyle, keyframes, style } from '@vanilla-extract/css';
 import { breakpoints, canHover, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 import { container as layoutContainer } from '@/styles/utility.css.ts';
+
+/**
+ * 색을 반투명으로 섞는다. 바탕 카드 색이 비쳐 라이트·다크 모두에서 옅게 보인다.
+ * NOTE: 다크 팔레트가 50↔900 뒤집기라 red50·orange50 을 그대로 깔면 다크에서 진한 색이 된다.
+ */
+const tint = (color: string, percent: number) =>
+	`color-mix(in srgb, ${color} ${percent}%, transparent)`;
 
 export const header = style({ marginBottom: 24 });
 
 // ── 머리 띠(화면 폭 100%) ─────────────────────────────────
 
-/** 대제목·학생 정보 띠. 본문(옅은 회색 바탕 + 흰 카드)과 색으로 확실히 나눈다. */
+/**
+ * 아래에서 살짝 떠오르며 나타난다. transform·opacity 만 움직여 휴대폰에서도 가볍다.
+ * NOTE: 움직임 줄이기 설정을 켠 기기에서는 애니메이션을 끈다.
+ */
+const riseIn = keyframes({
+	from: { opacity: 0, transform: 'translateY(12px)' },
+	to: { opacity: 1, transform: 'none' },
+});
+
+const riseAnimation = (delayMs: number) =>
+	`${riseIn} 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) ${delayMs}ms both`;
+
+const rise = (delayMs: number) => ({
+	animation: riseAnimation(delayMs),
+	'@media': {
+		'(prefers-reduced-motion: reduce)': { animation: 'none' },
+	},
+});
+
+/**
+ * 대제목·학생 정보 띠. 본문(옅은 회색 바탕 + 흰 카드)과 색으로 확실히 나눈다.
+ * 단색이면 밋밋해서 대각선 그라데이션 + 옅은 원 장식 + 아래로 번지는 파란 그림자로 깊이를 준다.
+ * NOTE: 더 진한 쪽은 blue700 대신 blue500 에 검정을 섞는다 — 다크 팔레트는 50↔900 뒤집기라 blue700 이 밝아진다.
+ */
 export const hero = style({
-	background: vars.color.blue500,
+	position: 'relative',
+	overflow: 'hidden',
 	color: '#ffffff',
+	background: `linear-gradient(135deg, ${vars.color.blue500} 0%, color-mix(in srgb, ${vars.color.blue500} 72%, #000) 100%)`,
+	borderRadius: `0 0 ${vars.radius.xl} ${vars.radius.xl}`,
+	boxShadow: `0 10px 30px -12px ${tint(vars.color.blue500, 60)}`,
+	selectors: {
+		'&::before, &::after': {
+			content: '""',
+			position: 'absolute',
+			borderRadius: '50%',
+			background: 'rgba(255, 255, 255, 0.08)',
+			pointerEvents: 'none',
+		},
+		'&::before': { width: 260, height: 260, top: -120, right: -60 },
+		'&::after': { width: 160, height: 160, bottom: -90, right: 120 },
+	},
 });
 
 export const heroInner = style({
-	paddingTop: 24,
-	paddingBottom: 24,
+	position: 'relative',
+	paddingTop: 36,
+	paddingBottom: 40,
 	'@media': {
-		[breakpoints.tablet]: { paddingTop: 40, paddingBottom: 36 },
+		[breakpoints.tablet]: { paddingTop: 56, paddingBottom: 60 },
 	},
 });
 
 export const heroTitle = style([
 	text.title1,
-	{ color: '#ffffff', wordBreak: 'keep-all' },
+	{ color: '#ffffff', wordBreak: 'keep-all', ...rise(0) },
 ]);
 
 export const heroStudent = style({
@@ -31,7 +77,12 @@ export const heroStudent = style({
 	flexWrap: 'wrap',
 	alignItems: 'center',
 	gap: 6,
-	marginTop: 14,
+	marginTop: 20,
+	...rise(100),
+	'@media': {
+		'(prefers-reduced-motion: reduce)': { animation: 'none' },
+		[breakpoints.tablet]: { marginTop: 24 },
+	},
 });
 
 export const heroName = style([
@@ -67,11 +118,22 @@ export const body = style({
  */
 export const container = layoutContainer.medium;
 
+/** 카드들이 위에서부터 차례로 떠오른다(머리 띠 다음, 0.07초 간격) */
 export const stack = style({
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 16,
 });
+
+for (const n of [1, 2, 3, 4]) {
+	globalStyle(`${stack} > :nth-child(${n})`, {
+		'@media': {
+			'(prefers-reduced-motion: no-preference)': {
+				animation: riseAnimation(160 + (n - 1) * 70),
+			},
+		},
+	});
+}
 
 export const stats = style({
 	display: 'grid',
@@ -127,13 +189,6 @@ export const sectionList = style({
 		},
 	},
 });
-
-/**
- * 색을 반투명으로 섞는다. 바탕 카드 색이 비쳐 라이트·다크 모두에서 옅게 보인다.
- * NOTE: 다크 팔레트가 50↔900 뒤집기라 red50·orange50 을 그대로 깔면 다크에서 진한 색이 된다.
- */
-const tint = (color: string, percent: number) =>
-	`color-mix(in srgb, ${color} ${percent}%, transparent)`;
 
 /**
  * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
@@ -287,7 +342,10 @@ export const wrongList = style({
 	gap: 8,
 	marginTop: 14,
 	listStyle: 'none',
+	// NOTE: 「보기」를 누르면 목록이 살짝 떠오르며 펼쳐진다.
+	animation: riseAnimation(0),
 	'@media': {
+		'(prefers-reduced-motion: reduce)': { animation: 'none' },
 		[breakpoints.tablet]: { gridTemplateColumns: 'repeat(2, 1fr)' },
 	},
 });
@@ -413,12 +471,15 @@ export const buttonRow = style({
 	gap: 8,
 });
 
-/** 「처음으로」: 보조 버튼, 좁게 */
-export const homeButton = style({ flex: '0 0 32%' });
+/** 「처음으로」: 주 버튼(강조), 남은 폭 */
+export const homeButton = style({ flex: 1 });
 
-/** 「테스트 결과 공유」: 주 버튼, 남은 폭 + 아이콘 */
+/** 「테스트 결과 공유」: 보조 버튼(강조 안 함), 글자 폭만 + 아이콘 */
 export const shareButton = style({
-	flex: 1,
+	flex: '0 0 auto',
+	// NOTE: 공용 버튼의 width 100% 를 풀어야 글자 폭만큼만 차지한다.
+	width: 'auto',
+	paddingInline: 18,
 	display: 'inline-flex',
 	alignItems: 'center',
 	justifyContent: 'center',
