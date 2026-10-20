@@ -10,7 +10,7 @@ git clone https://github.com/dobrain-math/five-minutes-test.git
 cd five-minutes-test
 bun install          # bun 이 없으면: npm i -g bun  (또는 https://bun.sh)
 bun run dev          # http://localhost:5173
-bunx vitest run      # 테스트 52개 통과해야 정상
+bunx vitest run      # 테스트 56개 통과해야 정상
 bun run build        # tsc + vite build (경고 없이 끝나야 정상)
 ```
 
@@ -27,13 +27,16 @@ bun run build        # tsc + vite build (경고 없이 끝나야 정상)
 - 결과 공유: 리포트 「결과 공유」 → 휴대폰은 공유 시트, PC는 링크 복사. `/share?r=코드` 는 그 기기에 기록이 없어도 열린다
 - 유형별 막대에 정답률 최고 「가장 잘함」·최저 「더 연습」 표시 (`src/utils/highlightSections.ts`). 「한 줄 평」 칸은 삭제됨
 - 폴더 구조: `src/app/*/page.tsx` (이름만 Next.js 식, 라우팅은 react-router `app/layout.tsx`)
+- 다크모드 토글(해·달, Heroicons) — 홈·리포트 제목 줄, 테스트 타이머 옆. 고른 값은 localStorage 에 기억
+- 리포트 PC(960px~) 대시보드 2단, 틀린 문제는 접혀 있다가 「보기」로 펼침, 빨강·주황·파랑 바탕은 반투명 + 2px 테두리
+- ⚠ 2026-10-20 세션 종료 시점: 마지막 커밋 7823a5d 와 문서 커밋은 **푸시 전**
 
 ## 3. 아직 안 한 작업 (우선순위 순)
 
 1. **다크모드 색 다듬기** — 다크 팔레트를 「단계 뒤집기」로 자동 생성해서 주 버튼(blue500 → 원래 blue400)이
    흐린 하늘색으로 보인다. 다크 전용 버튼·강조색을 따로 정하거나, 공식 다크 팔레트를 받아 `darkColors` 에 넣는다.
    확인: 리포트에서 `document.documentElement.dataset.theme='dark'` 로 강제 후 화면 보기.
-   같은 원인으로 리포트의 「더 연습」 줄(orange50)·틀린 문제 칸(red50)이 다크에서 진한 주황·빨강으로 튄다.
+   리포트의 빨강·주황·파랑 바탕은 반투명 tint 로 해결했다(오답노트 6번). 홈 나이 칩·종목 선택(blue50)은 아직 그대로.
 2. **실제 휴대폰 확인** — 지금까지는 데스크톱 브라우저를 390px로 줄여서만 봤다.
    - 답 칸 누를 때 숫자 키보드가 뜨는지 (iOS/안드로이드)
    - 키보드가 올라올 때 입력칸·하단 「채점하기」 버튼이 가리지 않는지
