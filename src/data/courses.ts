@@ -38,7 +38,7 @@ const basic: Course = {
 	sections: [
 		{
 			id: 'basic-1',
-			title: '받아올림이 없는 한자리 더하기 한자리 연산',
+			title: '받아올림이 없는 한 + 한 연산',
 			generate: (rng) => {
 				const a = int(rng, 1, 8);
 				return add(a, int(rng, 1, 9 - a));
@@ -46,7 +46,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-2',
-			title: '받아올림이 있는 한자리 더하기 한자리 연산',
+			title: '받아올림이 있는 한자리 + 한자리 연산',
 			generate: (rng) => {
 				const a = int(rng, 1, 9);
 				return add(a, int(rng, 10 - a, 9));
@@ -54,7 +54,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-3',
-			title: '받아내림이 없는 한자리 빼기 한자리 연산',
+			title: '받아내림이 없는 한자리 - 한자리 연산',
 			generate: (rng) => {
 				const a = int(rng, 2, 9);
 				return sub(a, int(rng, 1, a - 1));
@@ -62,7 +62,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-4',
-			title: '받아내림이 없는 두자리 빼기 한자리 연산',
+			title: '받아내림이 없는 두자리 - 한자리 연산',
 			generate: (rng) => {
 				const o = int(rng, 1, 9);
 				return sub(num(int(rng, 1, 9), o), int(rng, 1, o));
@@ -70,7 +70,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-5',
-			title: '받아내림이 있는 11~18 빼기 한자리 연산',
+			title: '받아내림이 있는 11~18 - 한자리 연산',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(1, o), int(rng, o + 1, 9));
@@ -78,12 +78,12 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-6',
-			title: '받아올림이 있는 두자리 더하기 한자리 연산',
+			title: '받아올림이 있는 두자리 + 한자리 연산',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: 'basic-7',
-			title: '받아내림이 있는 두자리 빼기 한자리 연산',
+			title: '받아내림이 있는 두자리 - 한자리 연산',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(int(rng, 2, 9), o), int(rng, o + 1, 9));
@@ -91,7 +91,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-8',
-			title: '0으로 끝나는 두자리 빼기 한자리 연산',
+			title: '0으로 끝나는 두자리 - 한자리 연산',
 			generate: (rng) => sub(num(int(rng, 1, 9), 0), int(rng, 1, 9)),
 		},
 	],
@@ -122,12 +122,12 @@ const book531: Course = {
 	sections: [
 		{
 			id: '531-1',
-			title: '받아올림이 있는 두자리 더하기 한자리 연산',
+			title: '받아올림이 있는 두자리 + 한자리 연산',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: '531-2',
-			title: '받아내림이 있는 두자리 빼기 한자리 연산',
+			title: '받아내림이 있는 두자리 - 한자리 연산',
 			generate: (rng) => {
 				const o = int(rng, 0, 8);
 				return sub(num(int(rng, 1, 9), o), int(rng, o + 1, 9));
@@ -135,7 +135,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-3',
-			title: '받아올림이 있는 두자리 더하기 두자리 연산',
+			title: '받아올림이 있는 두자리 + 두자리 연산',
 			generate: (rng) => {
 				const oa = int(rng, 1, 9);
 				return add(
@@ -146,7 +146,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-4',
-			title: '받아내림이 있는 두자리 빼기 두자리 연산',
+			title: '받아내림이 있는 두자리 - 두자리 연산',
 			generate: (rng) => {
 				const ta = int(rng, 2, 9);
 				const oa = int(rng, 0, 8);
@@ -155,7 +155,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-5',
-			title: '받아올림이 있는 세자리 더하기 두자리 연산',
+			title: '받아올림이 있는 세자리 + 두자리 연산',
 			generate: (rng) => {
 				const o = int(rng, 6, 9);
 				return add(
@@ -166,12 +166,12 @@ const book531: Course = {
 		},
 		{
 			id: '531-6',
-			title: '받아내림이 두 번 있는 세자리 빼기 두자리 연산',
+			title: '받아내림이 두 번 있는 세자리 - 두자리 연산',
 			generate: threeMinusTwo,
 		},
 		{
 			id: '531-7-1',
-			title: '올림이 없는 두자리 곱하기 한자리 연산',
+			title: '올림이 없는 두자리 × 한자리 연산',
 			generate: (rng) => {
 				const b = int(rng, 2, 4);
 				const max = Math.floor(9 / b);
@@ -180,7 +180,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-7-2',
-			title: '올림이 있는 두자리 곱하기 한자리 연산',
+			title: '올림이 있는 두자리 × 한자리 연산',
 			generate: (rng) => {
 				const b = int(rng, 2, 9);
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
