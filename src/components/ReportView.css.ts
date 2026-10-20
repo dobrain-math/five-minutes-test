@@ -53,10 +53,9 @@ export const blockTitle = style([
 // ── 유형별 정답률 ─────────────────────────────────────────
 
 /**
- * 태블릿 표준 768px. 이보다 좁으면 유형 목록 1열 + 뱃지 아이콘만, 넓으면 2열 + 글자 뱃지.
- * NOTE: 공용 breakpoints.tablet(640px)은 테스트 화면 그리드용이라 따로 둔다.
+ * 학습 완료·연습 필요 뱃지만 태블릿 표준 768px 미만에서 아이콘만 남긴다.
+ * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터 — 768px 은 뱃지에만 쓴다.
  */
-const wide = 'screen and (min-width: 768px)';
 const narrow = 'screen and (max-width: 767px)';
 
 export const sectionList = style({
@@ -65,7 +64,7 @@ export const sectionList = style({
 	gap: 4,
 	listStyle: 'none',
 	'@media': {
-		[wide]: {
+		[breakpoints.tablet]: {
 			gridTemplateColumns: 'repeat(2, 1fr)',
 			columnGap: 12,
 		},
