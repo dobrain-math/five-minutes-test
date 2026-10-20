@@ -20,7 +20,7 @@ src/
   utils/buildTest.ts    80문제 = 유형 수로 똑같이 나눔(나눠떨어지지 않으면 throw), 유형 안 중복 제거, 전체 섞기
   utils/gradeBySection.ts  유형별 맞힌 개수
   utils/buildReport.ts  끝난 세션 → Report (유형은 목차 순서, 틀린 문제는 출제 순서)
-  utils/highlightSections.ts  유형별 정답률로 가장 잘함(strong)·더 연습(weak) 표시. 모두 같으면 표시 없음
+  utils/highlightSections.ts  유형마다 정답률 80%↑(10문제 중 8개↑) strong·30%↓(3개↓) weak. 다른 유형과 비교하지 않음
   utils/evaluate.ts     Report → 학부모용 종합 평가문(300자 안팎, 규칙 기반)
   utils/shareLink.ts    Report ↔ base64url 코드, /share?r=코드
   utils/summarize.ts    joinTitles 만 evaluate 가 쓴다(한 줄 평 화면은 2026-10-20 삭제)
@@ -35,7 +35,7 @@ src/
   app/test/page.tsx     상단 타이머·진행률, 문제 카드 그리드, 빈칸 있으면 한 번 확인 후 finish → /report/:id
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    ?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
-  components/ReportView 점수·시간, 종합 평가, 유형별 10칸(강점·연습 필요 뱃지), 틀린 문제(접힘 → 보기). 모든 화면 800px 한 단
+  components/ReportView 점수·시간, 종합 평가, 유형별 10칸(학습 완료·연습 필요 뱃지), 틀린 문제(접힘 → 보기). 모든 화면 800px 한 단
   components/ThemeToggle 32px 원형 해·달 버튼(@heroicons/react 24/outline). 홈·리포트 제목 줄, 테스트 상단 바 타이머 옆
   utils/theme.ts        resolveTheme(저장값 > 기기 설정)·toggleTheme. localStorage 'theme' — index.html 인라인 스크립트가 첫 화면 전에 적용
 ```
@@ -50,13 +50,13 @@ src/
 - 한 테스트 80문제, 유형별 비율은 정확히 같게(현재 두 종목 모두 8유형 × 10문제)
 - 큰 작업 단위마다 커밋한다
 - 페이지 바탕·답 입력칸은 grey50(한 톤 밝게), 글꼴은 Pretendard(패키지로 포함), 모서리는 vars.radius(xs6~xl16)
-- 리포트의 「한 줄 평」 칸은 없앴다(2026-10-20). 대신 유형별 칸에서 정답률 최고 유형은 「강점」(파랑), 최저 유형은 「연습 필요」(주황)로 표시
+- 리포트의 「한 줄 평」 칸은 없앴다(2026-10-20). 대신 유형별 칸에서 8개 이상 맞힌 유형은 모두 「학습 완료」(파랑), 3개 이하는 모두 「연습 필요」(주황). 최고·최저 하나만 고르던 방식은 2026-10-20 폐기
 - 유형별 그래프는 «유형마다 한 줄: 이름·맞힌 수 + 살짝 둥근 정사각형 10칸(1문제 = 1칸, 맞힌 칸 초록·강점 줄은 파랑, 틀린 칸 반투명 빨강, 칸 16px)». 맞힌 칸을 앞에서부터 채운다. 640px 이상 2열이고 칸은 줄 맨 아래에 붙여 옆 줄과 높이를 맞춘다
 - 리포트는 PC 에서도 한 단(800px)으로 내려 읽는다. 2단 대시보드는 줄이 안 맞아 없앴다(2026-10-20)
 - 색 테두리·선택 링·포커스 링은 모두 1px
 - 문구는 경어(~니다) 중심, 「~요」는 가끔만(평가문은 ~요 문장 최대 1개 — evaluate.test.ts 가 검사). 요청 문장의 「~주세요」·「~할까요?」 정도만 허용
 - 소제목·항목 이름·버튼은 명사(형)로 끝낸다: 종합 평가, 유형별 정답·오답, 틀린 문제 N개, 테스트 시작, 채점하기, 더 풀기
-- 강·약 표시: 알약 뱃지 「👍 강점」(파랑)·「⭐ 연습 필요」(주황). 아이콘은 @heroicons/react/16/solid HandThumbUpIcon·StarIcon. 24/outline 아이콘(해·달·접기 화살표)은 strokeWidth 2.25 로 Semibold 이상
+- 강·약 표시: 알약 뱃지 「👍 학습 완료」(파랑)·「⭐ 연습 필요」(주황). 아이콘은 @heroicons/react/16/solid HandThumbUpIcon·StarIcon. 24/outline 아이콘(해·달·접기 화살표)은 strokeWidth 2.25 로 Semibold 이상
 - 유형 이름은 문장형: 「받아내림이 없는 두자리 빼기 한자리 연산」「0으로 끝나는 두자리 빼기 한자리 연산」처럼 쓴다(2026-10-20). 평가문은 이름이 「연산」으로 끝나면 「연산」을 또 붙이지 않는다
 - 홈에서 이름·나이·종목을 모두 골라야 시작된다
 
@@ -100,3 +100,4 @@ src/
 - 2026-10-20: 유형별 정답률 막대를 1문제 = 1칸인 정사각형 10칸으로 교체, 유형 이름 16개를 문장형으로(평가문 「연산 연산」 중복 방지 TDD). 390·1440·다크 확인
 - 2026-10-20: 색 테두리 전부 1px, 화면·평가문 문구를 해요체로(TDD), 강점·연습 필요 알약 뱃지 + Heroicons 16/solid, 해·달·화살표 strokeWidth 2.25, 칸 16px·줄 높이 맞춤, 리포트 PC 2단 → 한 단. 390·1440·다크·홈·테스트 확인
 - 2026-10-20: 말투를 해요체 → 경어 중심(~요는 마지막 격려 한 문장만, TDD), 소제목·버튼을 명사형으로 되돌림
+- 2026-10-20: 강·약 표시 기준을 «최고·최저 유형» → «8개 이상 / 3개 이하»로 변경(highlightSections TDD), 「강점」 → 「학습 완료」

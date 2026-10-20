@@ -78,7 +78,7 @@ export default function ReportView({ report, actions }: Props) {
 														className={s.badgeIcon}
 														aria-hidden
 													/>
-													강점
+													학습 완료
 												</span>
 											)}
 											{mark === 'weak' && (

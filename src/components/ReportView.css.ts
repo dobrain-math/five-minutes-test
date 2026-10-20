@@ -73,7 +73,7 @@ const tint = (color: string, percent: number) =>
 	`color-mix(in srgb, ${color} ${percent}%, transparent)`;
 
 /**
- * 강점·연습 필요 유형은 줄 전체에 옅은 색 + 1px 테두리.
+ * 학습 완료(8개 이상)·연습 필요(3개 이하) 유형은 줄 전체에 옅은 색 + 1px 테두리.
  * 2열일 때 이름이 한 줄·두 줄로 달라도 칸은 줄 맨 아래에 붙어 옆 칸과 높이가 맞는다.
  */
 export const sectionRow = style({
@@ -156,7 +156,7 @@ export const cells = style({
 	marginTop: 'auto',
 });
 
-/** 맞힌 칸은 꽉 찬 초록(강점 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
+/** 맞힌 칸은 꽉 찬 초록(학습 완료 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
 export const cell = style({
 	width: 16,
 	height: 16,
