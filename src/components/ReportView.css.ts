@@ -120,21 +120,25 @@ const badgeBase = style([
 	},
 ]);
 
-/** 이름 아래 뱃지 줄: 학습 완료·연습 필요 + 맞힌 수 */
+/** 오른쪽 뱃지 묶음: 학습 완료·연습 필요 + 맞힌 수(맨 오른쪽). 줄어들거나 줄바꿈되지 않는다. */
 export const badges = style({
 	display: 'flex',
-	flexWrap: 'wrap',
 	alignItems: 'center',
+	justifyContent: 'flex-end',
 	gap: 4,
+	flexShrink: 0,
+	// NOTE: 뱃지가 없는 줄도 같은 폭을 비워 둬야 줄마다 칸 크기가 같다(학습 완료 + 10 / 10 이 들어가는 폭). 맞힌 수 뱃지도 폭을 고정해 숫자 자리수와 상관없이 같게.
+	minWidth: 136,
 });
 
 /**
- * 뱃지 줄 + 10칸을 한 묶음으로 세로로 쌓는다.
- * 2열일 때 이름이 한 줄·두 줄로 달라도 묶음째 줄 맨 아래에 붙어 옆 칸과 높이가 맞는다.
+ * 이름 아래 한 줄: 10칸(왼쪽) · 뱃지(오른쪽).
+ * 2열일 때 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 높이가 맞는다.
  */
 export const sectionBody = style({
 	display: 'flex',
-	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'space-between',
 	gap: 8,
 	marginTop: 'auto',
 });
@@ -157,6 +161,8 @@ export const scoreBadge = style([
 	text.number,
 	{
 		padding: '2px 8px',
+		minWidth: 50,
+		justifyContent: 'center',
 		color: vars.color.grey600,
 		background: tint(vars.color.grey500, 14),
 	},
@@ -167,17 +173,22 @@ export const sectionCorrect = style({
 	color: vars.color.grey900,
 });
 
-/** 1문제 = 1칸. 16px 작은 칸 */
+/**
+ * 1문제 = 1칸. 칸은 최대 16px, 휴대폰처럼 좁으면 뱃지 자리를 남기고 함께 작아진다.
+ */
 export const cells = style({
-	display: 'flex',
+	display: 'grid',
+	gridAutoFlow: 'column',
+	gridAutoColumns: 'minmax(0, 16px)',
 	gap: 3,
+	flex: '1 1 auto',
+	minWidth: 0,
 });
 
 /** 맞힌 칸은 꽉 찬 초록(학습 완료 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
 export const cell = style({
-	width: 16,
-	height: 16,
-	flexShrink: 0,
+	width: '100%',
+	aspectRatio: '1',
 	borderRadius: 4,
 	background: tint(vars.color.red400, 12),
 	boxShadow: `inset 0 0 0 1px ${tint(vars.color.red400, 20)}`,

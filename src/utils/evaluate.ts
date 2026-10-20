@@ -1,10 +1,9 @@
 import type { Report, SectionScore } from '@/@types/test';
+import { highlightSections } from '@/utils/highlightSections.ts';
 import { joinTitles } from '@/utils/summarize.ts';
 
-/** 이 정답률 이상인 유형을 「두각」으로 본다 */
+/** 전체 정답률이 이 이상이어야 속도 칭찬·속도 연습 문장을 쓴다(유형별 기준과는 별개) */
 const STRONG_LINE = 0.9;
-/** 이 정답률 미만인 유형을 집중 학습 대상으로 본다 */
-const WEAK_LINE = 0.9;
 /** 가장 잘한 유형도 이보다 낮으면 기초부터 권한다 */
 const BASIC_LINE = 0.5;
 /** 문제당 이 시간(초)을 넘으면 속도 연습을 권한다 */
@@ -33,7 +32,6 @@ export function evaluate(report: Report) {
 	const seconds = total === 0 ? 0 : Math.round(durationMs / 1000 / total);
 	const rates = sections.map(rate);
 	const best = Math.max(...rates);
-	const worst = Math.min(...rates);
 
 	// NOTE: 학부모가 읽으므로 경어(~니다) 중심으로 쓰되, 마지막 격려 한 문장만 ~요로 부드럽게 맺는다.
 	// 「기초부터」 문장과 「조금 더 연습」 문장은 함께 나오지 않으므로 ~요는 많아야 하나다.
@@ -53,24 +51,31 @@ export function evaluate(report: Report) {
 		`한 문제에 평균 ${seconds}초가 걸렸습니다.${pace ? ` ${pace}` : ''}`,
 	);
 
-	const strong = sections.filter((_, i) => rates[i] >= STRONG_LINE);
+	// NOTE: 칭찬·연습 권유는 리포트 뱃지(학습 완료 8개↑ / 연습 필요 3개↓)와 같은 기준을 쓴다.
+	const marks = highlightSections(sections);
+	const strong = sections.filter((_, i) => marks[i] === 'strong');
+	const weak = sections.filter((_, i) => marks[i] === 'weak');
+
 	if (best < BASIC_LINE) {
 		lines.push(
 			'아직 손에 익은 유형이 없습니다. 쉬운 유형부터 차근차근 기초를 다져 가면 금방 좋아질 거예요.',
 		);
-	} else if (strong.length > 0 && strong.length < sections.length) {
-		lines.push(`특히 ${asOperation(strong)}에서 실력이 돋보입니다.`);
-	}
-
-	if (worst >= WEAK_LINE) {
+	} else if (strong.length === sections.length) {
 		lines.push(
 			'모든 유형을 고르게 잘 풀었습니다. 다음 단계에 도전해 보아도 좋겠습니다.',
 		);
-	} else if (best >= BASIC_LINE) {
-		const weakest = sections.filter((_, i) => rates[i] === worst);
-		lines.push(
-			`${asOperation(weakest)}은 정답률이 ${percent(worst)}로 아직 어려워하는 편이라, 조금 더 연습해 보면 좋겠어요.`,
-		);
+	} else {
+		if (strong.length > 0) {
+			lines.push(`특히 ${asOperation(strong)}에서 실력이 돋보입니다.`);
+		}
+		if (weak.length > 0) {
+			// 하나면 정답률을 함께 알려 주고, 여럿이면 이름만 잇는다.
+			const rateText =
+				weak.length === 1 ? `정답률이 ${percent(rate(weak[0]))}로 ` : '';
+			lines.push(
+				`${asOperation(weak)}은 ${rateText}아직 어려워하는 편이라, 조금 더 연습해 보면 좋겠어요.`,
+			);
+		}
 	}
 
 	return lines.join(' ');

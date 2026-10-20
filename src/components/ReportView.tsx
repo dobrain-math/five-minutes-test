@@ -71,14 +71,23 @@ export default function ReportView({ report, actions }: Props) {
 										data-mark={mark ?? undefined}
 									>
 										<div className={s.sectionName}>{sec.title}</div>
-										{/* NOTE: 뱃지를 이름 아래로 내려 이름이 한 줄을 다 쓰게 한다(줄바꿈 줄이기). */}
+										{/* NOTE: 이름은 한 줄을 다 쓰고, 그 아래 줄에 «10칸(왼쪽) · 뱃지(오른쪽)»를 나란히 둔다. */}
 										<div className={s.sectionBody}>
+											{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
+											<div
+												className={s.cells}
+												role="img"
+												aria-label={`${sec.total}문제 중 ${sec.correct}문제 정답`}
+											>
+												{Array.from({ length: sec.total }, (_, n) => (
+													<span
+														key={n}
+														className={s.cell}
+														data-correct={n < sec.correct}
+													/>
+												))}
+											</div>
 											<div className={s.badges}>
-												{/* NOTE: 맞힌 수를 맨 앞에 둬야 줄마다 같은 자리에 온다. */}
-												<span className={s.scoreBadge}>
-													<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
-													{sec.total}
-												</span>
 												{mark === 'strong' && (
 													<span className={s.strengthBadge}>
 														<HandThumbUpIcon
@@ -94,20 +103,11 @@ export default function ReportView({ report, actions }: Props) {
 														연습 필요
 													</span>
 												)}
-											</div>
-											{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
-											<div
-												className={s.cells}
-												role="img"
-												aria-label={`${sec.total}문제 중 ${sec.correct}문제 정답`}
-											>
-												{Array.from({ length: sec.total }, (_, n) => (
-													<span
-														key={n}
-														className={s.cell}
-														data-correct={n < sec.correct}
-													/>
-												))}
+												{/* NOTE: 맞힌 수를 맨 오른쪽 끝에 둬야 줄마다 같은 자리에 온다. */}
+												<span className={s.scoreBadge}>
+													<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
+													{sec.total}
+												</span>
 											</div>
 										</div>
 									</li>
