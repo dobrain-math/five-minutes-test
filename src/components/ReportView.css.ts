@@ -180,7 +180,7 @@ const narrow = 'screen and (min-width: 640px) and (max-width: 767px)';
 export const sectionList = style({
 	display: 'grid',
 	gridTemplateColumns: '1fr',
-	gap: 6,
+	gap: 8,
 	listStyle: 'none',
 	'@media': {
 		[breakpoints.tablet]: {
