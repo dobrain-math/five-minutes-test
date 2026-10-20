@@ -67,14 +67,14 @@ export default function ReportPage() {
 							className={layout.secondaryButton}
 							onClick={handleShare}
 						>
-							결과 공유
+							결과 보내기
 						</button>
 						<button
 							type="button"
 							className={layout.primaryButton}
 							onClick={() => navigate('/')}
 						>
-							처음으로
+							처음으로 가기
 						</button>
 					</div>
 				</>

@@ -20,7 +20,7 @@ export const button = style({
 		'&:active': { transform: 'scale(0.94)' },
 		'&:focus-visible': {
 			outline: 'none',
-			boxShadow: `0 0 0 2px ${vars.color.blue500}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue500}`,
 		},
 	},
 	'@media': {

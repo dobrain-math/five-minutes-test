@@ -35,37 +35,40 @@ export function evaluate(report: Report) {
 	const best = Math.max(...rates);
 	const worst = Math.min(...rates);
 
+	// NOTE: 아이와 학부모가 함께 읽으므로 딱딱한 「~습니다」 대신 부드러운 해요체로 쓴다.
 	const lines = [
-		`${studentName} 학생은 ${report.courseTitle} ${total}문제 중 ${correct}문제를 맞혀 정답률 ${percent(overall)}를 기록했습니다.`,
+		`${studentName} 학생은 ${report.courseTitle} ${total}문제 중 ${correct}문제를 맞혔어요. 정답률은 ${percent(overall)}예요.`,
 	];
 
 	const pace =
 		seconds > SLOW_SECONDS
 			? overall >= STRONG_LINE
-				? '정확도는 높지만 시간이 오래 걸려, 같은 유형을 반복해 계산 속도를 높이면 좋겠습니다.'
-				: '서두르기보다 정확하게 푸는 습관을 먼저 들인 뒤 속도를 높여 가길 권합니다.'
+				? '정확하게 잘 풀고 있어요. 같은 유형을 반복해서 풀다 보면 속도도 점점 붙을 거예요.'
+				: '서두르지 않아도 괜찮아요. 정확하게 푸는 습관을 먼저 들이고, 속도는 천천히 올려 가요.'
 			: seconds <= FAST_SECONDS && overall >= STRONG_LINE
-				? '빠르고 정확하게 계산하는 힘이 돋보입니다.'
+				? '빠르고 정확하게 계산하는 모습이 정말 멋져요.'
 				: '';
-	lines.push(`문제당 평균 ${seconds}초가 걸렸습니다.${pace ? ` ${pace}` : ''}`);
+	lines.push(
+		`한 문제에 평균 ${seconds}초가 걸렸어요.${pace ? ` ${pace}` : ''}`,
+	);
 
 	const strong = sections.filter((_, i) => rates[i] >= STRONG_LINE);
 	if (best < BASIC_LINE) {
 		lines.push(
-			'아직 안정적으로 푸는 유형이 없어, 쉬운 유형부터 기초 연산을 다시 다지는 것을 추천드립니다.',
+			'아직 손에 익은 유형이 없어요. 쉬운 유형부터 차근차근 기초를 다져 가면 금방 좋아질 거예요.',
 		);
 	} else if (strong.length > 0 && strong.length < sections.length) {
-		lines.push(`특히 ${asOperation(strong)}에서 두각을 드러냅니다.`);
+		lines.push(`특히 ${asOperation(strong)}에서 실력이 빛나요.`);
 	}
 
 	if (worst >= WEAK_LINE) {
 		lines.push(
-			'모든 유형에서 고른 실력을 보여, 다음 단계 과정으로 넘어가도 좋겠습니다.',
+			'모든 유형을 고르게 잘 풀었어요. 다음 단계에 도전해 봐도 좋겠어요.',
 		);
 	} else if (best >= BASIC_LINE) {
 		const weakest = sections.filter((_, i) => rates[i] === worst);
 		lines.push(
-			`반면 ${asOperation(weakest)}은 정답률이 ${percent(worst)}로 낮으므로, 관련 학습을 집중적으로 추천드립니다.`,
+			`${asOperation(weakest)}은 정답률이 ${percent(worst)}로 아직 어려워하고 있어서, 조금 더 연습해 보면 좋겠어요.`,
 		);
 	}
 

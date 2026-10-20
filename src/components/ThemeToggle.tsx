@@ -40,10 +40,11 @@ export default function ThemeToggle() {
 			aria-label={isDark ? '라이트 모드로 바꾸기' : '다크 모드로 바꾸기'}
 			title={isDark ? '라이트 모드' : '다크 모드'}
 		>
+			{/* NOTE: Heroicons 기본 굵기(1.5)는 18px 에서 흐려 보여 Semibold 이상(2.25)으로 올린다. */}
 			{isDark ? (
-				<SunIcon className={s.icon} aria-hidden />
+				<SunIcon className={s.icon} strokeWidth={2.25} aria-hidden />
 			) : (
-				<MoonIcon className={s.icon} aria-hidden />
+				<MoonIcon className={s.icon} strokeWidth={2.25} aria-hidden />
 			)}
 		</button>
 	);

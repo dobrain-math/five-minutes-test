@@ -24,7 +24,7 @@ export const nameInput = style([
 			fontWeight: vars.font.weight.regular,
 		},
 		':focus': {
-			boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
 		},
 	},
 ]);
@@ -54,7 +54,7 @@ export const courseItem = style({
 		'&:active': { transform: 'scale(0.99)' },
 		'&[aria-checked="true"]': {
 			background: vars.color.blue50,
-			boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
 		},
 	},
 	'@media': {
@@ -70,7 +70,7 @@ export const radio = style({
 	flexShrink: 0,
 	width: 24,
 	height: 24,
-	border: `2px solid ${vars.color.grey300}`,
+	border: `1px solid ${vars.color.grey300}`,
 	borderRadius: vars.radius.full,
 	transition: 'border 0.15s',
 	selectors: {
@@ -114,7 +114,7 @@ export const ageChip = style([
 				color: vars.color.blue600,
 				fontWeight: vars.font.weight.bold,
 				background: vars.color.blue50,
-				boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+				boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
 			},
 		},
 		'@media': {

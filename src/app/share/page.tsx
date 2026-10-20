@@ -17,7 +17,7 @@ export default function SharePage() {
 				className={layout.primaryButton}
 				onClick={() => navigate('/')}
 			>
-				연산 테스트 보러 가기
+				나도 연산 테스트 풀어 보기
 			</button>
 		</div>
 	);

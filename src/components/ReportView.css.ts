@@ -5,43 +5,17 @@ import { container as layoutContainer } from '@/styles/utility.css.ts';
 
 export const header = style({ marginBottom: 24 });
 
-/** 휴대폰·태블릿은 800px 한 단, PC 는 1200px 대시보드 */
-export const container = style([
-	layoutContainer.medium,
-	{
-		'@media': {
-			[breakpoints.laptop]: { maxWidth: 1200 },
-		},
-	},
-]);
+/**
+ * 모든 화면에서 800px 한 단으로 위에서 아래로 읽는다.
+ * NOTE: PC 2단 대시보드는 왼쪽·오른쪽 카드 높이가 달라 줄이 안 맞아 보여서 없앴다(2026-10-20).
+ */
+export const container = layoutContainer.medium;
 
-// ── 대시보드 배치 ─────────────────────────────────────────
-
-export const dashboard = style({
-	display: 'grid',
-	gridTemplateColumns: 'minmax(0, 1fr)',
-	gap: 16,
-	alignItems: 'start',
-	'@media': {
-		[breakpoints.laptop]: {
-			gridTemplateColumns: 'minmax(0, 5fr) minmax(0, 7fr)',
-			gap: 20,
-		},
-	},
-});
-
-/** 왼쪽 단: 점수·시간 + 종합 평가 */
-export const column = style({
+export const stack = style({
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 16,
-	'@media': {
-		[breakpoints.laptop]: { gap: 20 },
-	},
 });
-
-/** PC 에서 두 단을 가로질러 아래에 놓는다 */
-export const fullRow = style({ gridColumn: '1 / -1' });
 
 export const stats = style({
 	display: 'grid',
@@ -98,10 +72,15 @@ export const sectionList = style({
 const tint = (color: string, percent: number) =>
 	`color-mix(in srgb, ${color} ${percent}%, transparent)`;
 
-/** 가장 잘한·약한 유형은 줄 전체에 옅은 색 + 2px 테두리 */
+/**
+ * 강점·연습 필요 유형은 줄 전체에 옅은 색 + 1px 테두리.
+ * 2열일 때 이름이 한 줄·두 줄로 달라도 칸은 줄 맨 아래에 붙어 옆 칸과 높이가 맞는다.
+ */
 export const sectionRow = style({
-	padding: '10px 10px 12px',
-	border: '2px solid transparent',
+	display: 'flex',
+	flexDirection: 'column',
+	padding: '8px 10px 10px',
+	border: '1px solid transparent',
 	borderRadius: vars.radius.sm,
 	selectors: {
 		'&[data-mark="strong"]': {
@@ -119,7 +98,7 @@ export const sectionHead = style({
 	display: 'flex',
 	alignItems: 'center',
 	gap: 6,
-	marginBottom: 8,
+	marginBottom: 6,
 });
 
 export const sectionName = style([
@@ -132,16 +111,22 @@ export const sectionName = style([
 	},
 ]);
 
+/** 아이콘 + 글자 알약 뱃지 */
 const badgeBase = style([
 	text.caption2,
 	{
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: 3,
 		flexShrink: 0,
-		padding: '2px 7px',
-		borderRadius: vars.radius.xs,
+		padding: '2px 8px 2px 6px',
+		borderRadius: vars.radius.full,
 		fontWeight: vars.font.weight.bold,
 		color: '#ffffff',
 	},
 ]);
+
+export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
 export const strengthBadge = style([
 	badgeBase,
@@ -164,20 +149,21 @@ export const sectionCorrect = style({
 	color: vars.color.grey900,
 });
 
-/** 1문제 = 1칸. 10칸이 줄 폭을 나눠 쓰되 PC 에서 너무 커지지 않게 칸 크기를 묶는다. */
+/** 1문제 = 1칸. 16px 작은 칸을 줄 맨 아래에 붙인다. */
 export const cells = style({
-	display: 'grid',
-	gridAutoFlow: 'column',
-	gridAutoColumns: 'minmax(0, 28px)',
-	gap: 4,
+	display: 'flex',
+	gap: 3,
+	marginTop: 'auto',
 });
 
-/** 맞힌 칸은 꽉 찬 초록(가장 잘함 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 2px 테두리 */
+/** 맞힌 칸은 꽉 찬 초록(강점 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
 export const cell = style({
-	aspectRatio: '1',
-	borderRadius: vars.radius.xs,
+	width: 16,
+	height: 16,
+	flexShrink: 0,
+	borderRadius: 4,
 	background: tint(vars.color.red400, 12),
-	boxShadow: `inset 0 0 0 2px ${tint(vars.color.red400, 45)}`,
+	boxShadow: `inset 0 0 0 1px ${tint(vars.color.red400, 50)}`,
 	selectors: {
 		'&[data-correct="true"]': {
 			background: vars.color.green400,
@@ -199,7 +185,6 @@ export const wrongList = style({
 	listStyle: 'none',
 	'@media': {
 		[breakpoints.tablet]: { gridTemplateColumns: 'repeat(2, 1fr)' },
-		[breakpoints.laptop]: { gridTemplateColumns: 'repeat(3, 1fr)' },
 	},
 });
 
@@ -218,7 +203,7 @@ export const disclosure = style({
 	cursor: 'pointer',
 	selectors: {
 		'&:focus-visible': {
-			outline: `2px solid ${vars.color.blue500}`,
+			outline: `1px solid ${vars.color.blue500}`,
 			outlineOffset: 4,
 			borderRadius: vars.radius.xs,
 		},
@@ -260,7 +245,7 @@ export const wrongItem = style({
 	justifyContent: 'space-between',
 	gap: 12,
 	padding: '10px 14px',
-	border: `2px solid ${tint(vars.color.red400, 35)}`,
+	border: `1px solid ${tint(vars.color.red400, 40)}`,
 	borderRadius: vars.radius.sm,
 	background: tint(vars.color.red400, 7),
 });

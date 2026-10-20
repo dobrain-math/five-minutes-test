@@ -105,7 +105,7 @@ export const item = style({
 	transition: 'box-shadow 0.15s',
 	selectors: {
 		'&:focus-within': {
-			boxShadow: `0 0 0 2px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
 		},
 	},
 });

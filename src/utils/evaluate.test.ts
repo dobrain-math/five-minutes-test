@@ -24,33 +24,48 @@ describe('evaluate', () => {
 		const text = evaluate(make([sec('가', 10), sec('나', 6)]));
 		expect(text).toContain('김하늘 학생은');
 		expect(text).toContain('20문제 중 16문제');
-		expect(text).toContain('정답률 80%');
+		expect(text).toContain('정답률은 80%');
+	});
+
+	test('아이·학부모가 읽기 편하게 모든 문장을 해요체로 쓴다', () => {
+		const cases = [
+			make([sec('가', 10), sec('나', 6)]),
+			make([sec('가', 10), sec('나', 10)], 400_000),
+			make([sec('가', 10), sec('나', 10)], 100_000),
+			make([sec('가', 4), sec('나', 3)]),
+			make([sec('가', 10), sec('나', 9)]),
+		];
+		for (const report of cases) {
+			const text = evaluate(report);
+			expect(text).not.toMatch(/니다\./);
+			expect(text).not.toContain('추천드립');
+		}
 	});
 
 	test('문제당 평균 시간을 초 단위로 알려 준다', () => {
 		// 20문제 · 100초 → 문제당 5초
 		const text = evaluate(make([sec('가', 10), sec('나', 10)], 100_000));
-		expect(text).toContain('문제당 평균 5초');
+		expect(text).toContain('평균 5초');
 	});
 
-	test('잘한 유형은 두각, 못한 유형은 집중 학습을 권한다', () => {
+	test('잘한 유형은 칭찬하고, 못한 유형은 조금 더 연습을 권한다', () => {
 		const text = evaluate(
 			make([sec('두두덧셈', 10), sec('셋둘뺄셈', 4), sec('두한곱셈', 8)]),
 		);
-		expect(text).toMatch(/두두덧셈[^.]*두각/);
-		expect(text).toMatch(/셋둘뺄셈[^.]*40%[^.]*집중/);
-		expect(text).not.toMatch(/두한곱셈[^.]*두각/);
+		expect(text).toMatch(/두두덧셈[^.]*빛나요/);
+		expect(text).toMatch(/셋둘뺄셈[^.]*40%[^.]*연습/);
+		expect(text).not.toMatch(/두한곱셈[^.]*빛나요/);
 	});
 
 	test('모든 유형이 90% 이상이면 약점 대신 다음 단계를 권한다', () => {
 		const text = evaluate(make([sec('가', 10), sec('나', 9)]));
-		expect(text).not.toContain('집중');
+		expect(text).not.toContain('더 연습');
 		expect(text).toContain('다음 단계');
 	});
 
-	test('잘한 유형이 하나도 없으면 두각 문장을 쓰지 않고 기초를 권한다', () => {
+	test('잘한 유형이 하나도 없으면 칭찬 문장을 쓰지 않고 기초를 권한다', () => {
 		const text = evaluate(make([sec('가', 4), sec('나', 3)]));
-		expect(text).not.toContain('두각');
+		expect(text).not.toContain('빛나요');
 		expect(text).toContain('기초');
 	});
 
@@ -68,7 +83,7 @@ describe('evaluate', () => {
 				sec('0으로 끝나는 두자리 빼기 한자리 연산', 8),
 			]),
 		);
-		expect(text).toContain('더하기 한자리 연산에서 두각');
+		expect(text).toContain('더하기 한자리 연산에서 실력이 빛나요');
 		expect(text).toContain('빼기 한자리 연산은 정답률이 40%');
 		expect(text).not.toContain('연산 연산');
 	});
