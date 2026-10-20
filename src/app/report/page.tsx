@@ -32,10 +32,11 @@ export default function ReportPage() {
 	// NOTE: 휴대폰은 공유 시트(카카오톡 등)를, 안 되는 PC 브라우저는 «안내 글 + 링크» 복사를 쓴다.
 	const handleShare = async () => {
 		const url = shareUrl(window.location.origin, encodeReport(report));
-		const { title, text } = shareMessage(report);
+		const message = shareMessage(report, url);
 		if (navigator.share) {
 			try {
-				await navigator.share({ title, text: `${title}\n${text}`, url });
+				// NOTE: url 을 따로 넘기면 카톡이 글을 버린다 — 링크가 든 글 하나만 넘긴다.
+				await navigator.share({ text: message });
 				return;
 			} catch (e) {
 				// 사용자가 공유 시트를 닫은 경우는 그대로 끝낸다.
@@ -43,7 +44,7 @@ export default function ReportPage() {
 			}
 		}
 		try {
-			await navigator.clipboard.writeText(`${title}\n${text}\n${url}`);
+			await navigator.clipboard.writeText(message);
 			setNotice('결과 링크를 복사했습니다. 메신저에 붙여 넣어 보내 주세요.');
 		} catch {
 			setNotice('링크를 복사하지 못했습니다. 다시 눌러 주세요.');

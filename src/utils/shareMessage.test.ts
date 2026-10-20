@@ -9,29 +9,25 @@ const report: Report = {
 	correct: 70,
 	total: 80,
 	durationMs: 600_000,
-	finishedAt: new Date(2026, 9, 20, 15, 30).getTime(),
+	// 한국 2026-10-20(화) 18:25
+	finishedAt: Date.UTC(2026, 9, 20, 9, 25),
 	sections: [],
 	wrong: [],
 };
 
+const url = 'https://five-minutes-test.vercel.app/s/3abc';
+
 describe('shareMessage', () => {
-	test('제목은 이모지를 붙인 부드러운 「리포트 도착」 문장', () => {
-		expect(shareMessage(report).title).toBe(
-			'📮 두뇌로수학 테스트 결과 리포트가 도착했어요',
+	test('링크 카드와 같은 제목·안내 다음 줄에 링크를 붙인 «한 덩어리 글»', () => {
+		expect(shareMessage(report, url)).toBe(
+			'⭐10월 20일(화) 연산 테스트 리포트\n' +
+				'김하늘 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.\n' +
+				url,
 		);
 	});
 
-	test('본문에 학생 이름과 실시일(n월 m일)을 이모지와 함께 적는다', () => {
-		expect(shareMessage(report).text).toBe(
-			'김하늘 학생의 10월 20일 연산 테스트 결과예요 ✏️\n' +
-				'잘한 유형과 조금 더 연습하면 좋을 유형을 정리해 두었어요. 편하게 열어 보세요 😊',
-		);
-	});
-
-	test('날짜가 없는 옛 링크는 날짜 없이 쓴다', () => {
+	test('날짜가 없는 옛 결과는 날짜 없이', () => {
 		const { finishedAt: _, ...old } = report;
-		expect(shareMessage(old).text).toMatch(
-			/^김하늘 학생의 연산 테스트 결과예요 ✏️\n/,
-		);
+		expect(shareMessage(old, url).split('\n')[0]).toBe('⭐연산 테스트 리포트');
 	});
 });

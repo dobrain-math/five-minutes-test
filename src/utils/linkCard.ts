@@ -35,11 +35,18 @@ export function linkCard(code: string): Card | null {
 		return null;
 	}
 	if (!info) return null;
-	const date =
-		info.finishedAt === undefined ? '' : `${formatCardDate(info.finishedAt)} `;
+	return cardText(info.name, info.finishedAt);
+}
+
+/**
+ * 카드 제목·설명 문구. 링크 카드와 공유 시트 글(shareMessage)이 함께 쓴다.
+ * 원장님 지정 형식(2026-10-20): 「⭐m월 d일(요일) 연산 테스트 리포트」 + 「OOO 학생의 금일 …」
+ */
+export function cardText(name: string, finishedAt?: number): Card {
+	const date = finishedAt === undefined ? '' : `${formatCardDate(finishedAt)} `;
 	return {
 		title: `⭐${date}연산 테스트 리포트`,
-		description: `${info.name} 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.`,
+		description: `${name} 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.`,
 	};
 }
 
