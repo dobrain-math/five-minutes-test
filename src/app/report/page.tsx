@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
+import { ShareIcon } from '@heroicons/react/24/outline';
 import * as s from '@/components/ReportView.css.ts';
 import ReportView from '@/components/ReportView.tsx';
 import { getCourse } from '@/data/courses.ts';
@@ -64,17 +65,22 @@ export default function ReportPage() {
 					<div className={s.buttonRow}>
 						<button
 							type="button"
-							className={layout.secondaryButton}
-							onClick={handleShare}
+							className={`${layout.secondaryButton} ${s.homeButton}`}
+							onClick={() => navigate('/')}
 						>
-							결과 보내기
+							처음으로
 						</button>
 						<button
 							type="button"
-							className={layout.primaryButton}
-							onClick={() => navigate('/')}
+							className={`${layout.primaryButton} ${s.shareButton}`}
+							onClick={handleShare}
 						>
-							처음으로 가기
+							<ShareIcon
+								className={s.shareIcon}
+								strokeWidth={2.25}
+								aria-hidden
+							/>
+							테스트 결과 공유
 						</button>
 					</div>
 				</>

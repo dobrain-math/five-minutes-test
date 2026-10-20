@@ -5,6 +5,62 @@ import { container as layoutContainer } from '@/styles/utility.css.ts';
 
 export const header = style({ marginBottom: 24 });
 
+// ── 머리 띠(화면 폭 100%) ─────────────────────────────────
+
+/** 대제목·학생 정보 띠. 본문(옅은 회색 바탕 + 흰 카드)과 색으로 확실히 나눈다. */
+export const hero = style({
+	background: vars.color.blue500,
+	color: '#ffffff',
+});
+
+export const heroInner = style({
+	paddingTop: 24,
+	paddingBottom: 24,
+	'@media': {
+		[breakpoints.tablet]: { paddingTop: 40, paddingBottom: 36 },
+	},
+});
+
+export const heroTitle = style([
+	text.title1,
+	{ color: '#ffffff', wordBreak: 'keep-all' },
+]);
+
+export const heroStudent = style({
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'center',
+	gap: 6,
+	marginTop: 14,
+});
+
+export const heroName = style([
+	text.title2,
+	{ marginRight: 4, color: '#ffffff' },
+]);
+
+/** 나이·종목 뱃지: 흰 반투명 알약 */
+export const heroBadge = style([
+	text.label,
+	{
+		padding: '4px 10px',
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.semibold,
+		color: '#ffffff',
+		background: 'rgba(255, 255, 255, 0.2)',
+	},
+]);
+
+/** 머리 띠 아래 본문 */
+export const body = style({
+	flex: 1,
+	paddingTop: 20,
+	paddingBottom: 32,
+	'@media': {
+		[breakpoints.tablet]: { paddingTop: 28 },
+	},
+});
+
 /**
  * 모든 화면에서 800px 한 단으로 위에서 아래로 읽는다.
  * NOTE: PC 2단 대시보드는 왼쪽·오른쪽 카드 높이가 달라 줄이 안 맞아 보여서 없앴다(2026-10-20).
@@ -88,7 +144,8 @@ export const sectionRow = style({
 	display: 'flex',
 	flexDirection: 'column',
 	padding: '8px 10px 10px',
-	border: `1px solid ${vars.color.grey100}`,
+	// NOTE: grey100 은 다크에서 카드 바탕과 같아져 안 보여서, 회색을 반투명으로 섞는다(라이트·다크 모두 연하게).
+	border: `1px solid ${tint(vars.color.grey500, 16)}`,
 	borderRadius: vars.radius.sm,
 	selectors: {
 		'&[data-mark="strong"]': {
@@ -350,19 +407,31 @@ export const evaluation = style([
 
 // ── 아래 버튼 ─────────────────────────────────────────────
 
+/** 아래 버튼 줄. 본문(800px)과 같은 폭으로 둬야 태블릿 이상에서 버튼만 좁아 보이지 않는다. */
 export const buttonRow = style({
 	display: 'flex',
 	gap: 8,
-	maxWidth: 560,
-	margin: '0 auto',
 });
+
+/** 「처음으로」: 보조 버튼, 좁게 */
+export const homeButton = style({ flex: '0 0 32%' });
+
+/** 「테스트 결과 공유」: 주 버튼, 남은 폭 + 아이콘 */
+export const shareButton = style({
+	flex: 1,
+	display: 'inline-flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: 6,
+});
+
+export const shareIcon = style({ width: 20, height: 20, flexShrink: 0 });
 
 /** 링크 복사 결과를 버튼 위에 잠깐 띄운다 */
 export const notice = style([
 	text.label,
 	{
-		maxWidth: 560,
-		margin: '0 auto 10px',
+		margin: '0 0 10px',
 		padding: '14px 16px',
 		borderRadius: vars.radius.md,
 		textAlign: 'center',

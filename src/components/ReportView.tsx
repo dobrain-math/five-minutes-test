@@ -26,17 +26,22 @@ export default function ReportView({ report, actions }: Props) {
 
 	return (
 		<main className={layout.page}>
-			<div className={`${s.container} ${layout.content}`}>
-				<header className={s.header}>
+			{/* NOTE: 화면 폭 100% 머리 띠. 들어오자마자 「리포트」로 보이게 본문과 색으로 나눈다. */}
+			<header className={s.hero}>
+				<div className={`${s.container} ${s.heroInner}`}>
 					<div className={layout.titleRow}>
-						<h1 className={layout.title}>{studentName} 학생 결과</h1>
+						<h1 className={s.heroTitle}>두뇌로수학 테스트 결과 리포트</h1>
 						<ThemeToggle />
 					</div>
-					<p className={layout.subtitle}>
-						{studentAge ? `${studentAge} · ${courseTitle}` : courseTitle}
-					</p>
-				</header>
+					<div className={s.heroStudent}>
+						<span className={s.heroName}>{studentName}</span>
+						{studentAge && <span className={s.heroBadge}>{studentAge}</span>}
+						<span className={s.heroBadge}>{courseTitle}</span>
+					</div>
+				</div>
+			</header>
 
+			<div className={`${s.container} ${s.body}`}>
 				{/* NOTE: PC 에서도 한 단. 점수 → 평가 → 유형별 → 틀린 문제 순으로 내려 읽는다. */}
 				<div className={s.stack}>
 					<div className={s.stats}>
