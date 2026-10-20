@@ -35,7 +35,7 @@ src/
   app/test/page.tsx     상단 타이머·진행률, 문제 카드 그리드, 빈칸 있으면 한 번 확인 후 finish → /report/:id
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    ?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
-  components/ReportView 점수·시간, 종합 평가, 유형별 정답률 막대 목록(강·약 표시), 틀린 문제 목록
+  components/ReportView 점수·시간, 종합 평가, 유형별 정답률 막대 목록(강·약 표시), 틀린 문제(접힘 → 보기). PC 960px~ 2단 대시보드
   components/ThemeToggle 32px 원형 해·달 버튼(@heroicons/react 24/outline). 홈·리포트 제목 줄, 테스트 상단 바 타이머 옆
   utils/theme.ts        resolveTheme(저장값 > 기기 설정)·toggleTheme. localStorage 'theme' — index.html 인라인 스크립트가 첫 화면 전에 적용
 ```
@@ -85,3 +85,4 @@ src/
 - 2026-10-15: 배경·답 칸 grey50, Pretendard 패키지 추가, 글꼴(size t1~t8 등)·radius 토큰과 typography.css.ts 신설, 모서리 축소, 리포트 강점·취약점 한 줄 평(TDD 8개). 다크에서 카드가 바탕과 같아지는 문제로 layered/floated 를 grey100/200 으로 올림
 - 2026-10-20: 나이 칩·종합 평가·공유 링크 화면 연결(buildReport TDD), ReportView 로 /report·/share 공용화. 한 줄 평 삭제, 유형별 그래프를 정답률 막대 목록 + 가장 잘함/더 연습 표시(highlightSections TDD)로 교체. agent-browser 390·1440·다크 확인
 - 2026-10-20: 다크모드 토글(Heroicons, theme.ts TDD), 고른 값 localStorage 유지 + index.html 깜빡임 방지. 새로고침 후 유지까지 브라우저 확인
+- 2026-10-20: 리포트 PC(960px~) 대시보드 2단(왼쪽 점수·평가 5 : 오른쪽 유형별 7, 아래 틀린 문제 전체 폭), 틀린 문제는 접어 두고 「보기」로 펼침. 빨강·주황·파랑 옅은 바탕을 반투명(tint) + 2px 테두리로(오답노트 6번)
