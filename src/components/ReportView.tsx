@@ -70,8 +70,14 @@ export default function ReportView({ report, actions }: Props) {
 										className={s.sectionRow}
 										data-mark={mark ?? undefined}
 									>
-										<div className={s.sectionHead}>
-											<span className={s.sectionName}>{sec.title}</span>
+										<div className={s.sectionName}>{sec.title}</div>
+										{/* NOTE: 뱃지를 이름 아래로 내려 이름이 한 줄을 다 쓰게 한다(줄바꿈 줄이기). */}
+										<div className={s.badges}>
+											{/* NOTE: 맞힌 수를 맨 앞에 둬야 줄마다 같은 자리에 온다. */}
+											<span className={s.scoreBadge}>
+												<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
+												{sec.total}
+											</span>
 											{mark === 'strong' && (
 												<span className={s.strengthBadge}>
 													<HandThumbUpIcon
@@ -87,10 +93,6 @@ export default function ReportView({ report, actions }: Props) {
 													연습 필요
 												</span>
 											)}
-											<span className={s.sectionScore}>
-												<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
-												{sec.total}
-											</span>
 										</div>
 										{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
 										<div

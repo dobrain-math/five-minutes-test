@@ -94,17 +94,11 @@ export const sectionRow = style({
 	},
 });
 
-export const sectionHead = style({
-	display: 'flex',
-	alignItems: 'center',
-	gap: 6,
-	marginBottom: 6,
-});
-
 export const sectionName = style([
 	text.body2,
 	{
 		minWidth: 0,
+		marginBottom: 6,
 		fontWeight: vars.font.weight.semibold,
 		color: vars.color.grey800,
 		wordBreak: 'keep-all',
@@ -126,6 +120,15 @@ const badgeBase = style([
 	},
 ]);
 
+/** 이름 아래 뱃지 줄: 학습 완료·연습 필요 + 맞힌 수 */
+export const badges = style({
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'center',
+	gap: 4,
+	marginBottom: 8,
+});
+
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
 export const strengthBadge = style([
@@ -138,10 +141,15 @@ export const weaknessBadge = style([
 	{ background: vars.color.orange500 },
 ]);
 
-export const sectionScore = style([
-	text.body2,
+/** 맞힌 수 「8 / 10」. 다른 뱃지와 같은 알약 모양에 회색 반투명 바탕(다크에서도 옅게) */
+export const scoreBadge = style([
+	badgeBase,
 	text.number,
-	{ flexShrink: 0, marginLeft: 'auto', color: vars.color.grey500 },
+	{
+		padding: '2px 8px',
+		color: vars.color.grey600,
+		background: tint(vars.color.grey500, 14),
+	},
 ]);
 
 export const sectionCorrect = style({
