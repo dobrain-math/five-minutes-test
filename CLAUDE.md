@@ -55,10 +55,12 @@ src/
 - 리포트 맨 위는 화면 폭 100% 파랑 머리 띠: 대제목 「두뇌로수학 테스트 결과 리포트」, 아래 이름 + 나이·종목 뱃지. 본문과 색으로 분리. 대각선 그라데이션(blue500 → blue500+검정 28%) + 옅은 흰 원 장식 + 아래 파란 그림자 + 아래 모서리 둥글게(xl). 위아래 여백 36/40, 태블릿 56/60
 - 리포트 아래 버튼: 「처음으로」(왼쪽, 주 버튼 = 강조, 남은 폭) + 「테스트 결과 공유」(오른쪽, 보조 = 강조 안 함, 글자 폭, ShareIcon). 버튼 줄은 본문과 같은 800px
 - 애니메이션: 머리 띠 글자 → 카드 순서로 아래서 떠오르기(opacity·transform 만, 0.5s, 0.07s 간격), 틀린 문제 펼칠 때도. prefers-reduced-motion 이면 끔
-- 공유 링크는 짧은 주소 `/s/코드`(v2: 종목 id + 숫자 바이트 묶음, 정답은 식에서 다시 계산, 흔한 결과 약 200자). 예전 `/share?r=` 링크(v1)도 계속 열린다. 서버·DB 는 쓰지 않음(원장님 결정 2026-10-20: 일단 압축만). lz-string 은 재 봤더니 더 길어서(337자) 안 씀
+- 공유 링크: 짧은 링크 `/r/6글자`(서버 저장, 원장님 결정 2026-10-20 «서버 껴야겠어»). 리포트를 열 때 미리 POST /api/share 로 만들어 두고(아이폰 사파리는 await 뒤 공유 시트를 막음, hooks/useShortShareUrl.ts), 저장소 미연결·실패면 `/s/코드`(긴 링크)로 대신 보낸다. 예전 `/share?r=` 링크(v1)도 계속 열린다. lz-string 은 재 봤더니 더 길어서(337자) 안 씀
+- 저장소: Upstash Redis(Vercel → Storage 에서 프로젝트에 연결, 환경 변수 KV_REST_API_URL·KV_REST_API_TOKEN 또는 UPSTASH_REDIS_REST_*). 키 `r:6글자` = 공유 코드, 기한 없음. SDK 없이 REST(server/shortLink.ts). Supabase 는 무료가 1주 미사용 시 일시정지라 안 씀
+- 서버 코드는 server/handle.ts(링크 카드 + /api/share). ★고치면 `bun run build:server` 로 server/handle.gen.js 를 다시 묶어 함께 커밋 — middleware.ts 는 이 JS 하나만 불러온다. .ts 를 불러오면 Vercel 에서 매번 MIDDLEWARE_INVOCATION_FAILED(2026-10-20 배포 사고, 오답노트). handle.gen.test.ts 가 묶음 최신 여부를 검사
 - 리포트 머리 띠에 「테스트 실시일 2026년 10월 20일」(Report.finishedAt, 옛 링크엔 없음)
 - 미리보기 카드: public/og.png(1200×630, 예시 점수 카드 없음) + index.html og 메타(기본값), 도메인 https://five-minutes-test.vercel.app
-- 리포트마다 다른 카드: 루트 middleware.ts(Vercel 라우팅 미들웨어, /s/* 와 /share)가 코드에서 이름·실시일만 읽어 og 제목·설명을 바꿔 끼운다. 제목 「⭐m월 d일(요일) 연산 테스트 리포트」, 설명 「OOO 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.」(utils/linkCard.ts). DB 없음. 로컬 vite 에서는 안 돌고 배포 뒤에만 동작. 미들웨어가 가져가는 파일(shareCode·linkCard·formatDate·data/ages)은 '@/' 별칭 없이 상대 경로만
+- 리포트마다 다른 카드: 미들웨어(/r/* · /s/* · /share)가 코드에서 이름·실시일만 읽어 og 제목·설명을 바꿔 끼운다. 제목 「⭐m월 d일(요일) 연산 테스트 리포트」, 설명 「OOO 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.」(utils/linkCard.ts). DB 없음. 로컬 vite 에서는 안 돌고 배포 뒤에만 동작. 미들웨어가 가져가는 파일(shareCode·linkCard·formatDate·data/ages)은 '@/' 별칭 없이 상대 경로만
 - 날짜는 모두 한국 시각(formatDate.ts) — Vercel 서버가 UTC 라서
 - 공유 코드 v3(맨 앞 '3'): 나이는 목록 번호, 걸린 시간 초·실시일 분, 적은 답은 정답과의 차이. 흔한 결과 165자(v2 201자). v1('e…')·v2('2…') 링크도 계속 읽는다. 종목의 유형 개수·순서를 바꾸면 그 전 짧은 링크가 깨지거나 이름이 엇갈린다
 - 공유: 공유 시트·링크 복사 글은 카드와 같은 문구(linkCard.cardText) + 마지막 줄 링크를 «한 덩어리»로(utils/shareMessage.ts). navigator.share 에 url 을 따로 넘기면 카톡이 글을 버리고 링크만 보낸다(2026-10-20 휴대폰 확인) → text 하나만 넘긴다. 공유받은 화면(/share)은 아래 버튼 없음, 잘못된 링크는 버튼 없이 안내 글만 화면 가운데
