@@ -49,6 +49,10 @@ describe('buildReport', () => {
 		});
 	});
 
+	test('테스트를 마친 시각을 담는다(공유 메시지의 날짜)', () => {
+		expect(buildReport(course, session).finishedAt).toBe(session.finishedAt);
+	});
+
 	test('유형 점수는 출제 순서가 아니라 목차 순서다', () => {
 		expect(buildReport(course, session).sections).toEqual([
 			{ title: '덧셈', correct: 1, total: 2 },

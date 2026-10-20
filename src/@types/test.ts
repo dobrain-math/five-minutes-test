@@ -63,6 +63,8 @@ export type Report = {
 	correct: number;
 	total: number;
 	durationMs: number;
+	/** 테스트를 마친 시각(ms). 공유 메시지의 날짜로 쓴다. 날짜를 싣기 전 옛 공유 링크에는 없다. */
+	finishedAt?: number;
 	sections: SectionScore[];
 	wrong: WrongAnswer[];
 };

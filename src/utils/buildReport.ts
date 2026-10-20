@@ -30,6 +30,7 @@ export function buildReport(course: Course, session: FinishedSession): Report {
 		correct: sections.reduce((sum, sec) => sum + sec.correct, 0),
 		total: questions.length,
 		durationMs: session.finishedAt - session.startedAt,
+		finishedAt: session.finishedAt,
 		sections,
 		wrong: questions
 			.filter((q) => answers[q.id]?.trim() !== q.answer)

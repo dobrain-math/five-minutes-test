@@ -10,6 +10,8 @@ type Payload = {
 	a: string;
 	c: string;
 	t: number;
+	/** 테스트를 마친 시각. NOTE: 나중에 더한 칸이라 옛 링크에는 없다. */
+	d?: number;
 	/** [유형 이름, 맞힌 수, 문제 수] */
 	s: [string, number, number][];
 	/**
@@ -43,6 +45,7 @@ export function encodeReport(report: Report) {
 		a: report.studentAge,
 		c: report.courseTitle,
 		t: report.durationMs,
+		d: report.finishedAt,
 		s: report.sections.map((sec) => [sec.title, sec.correct, sec.total]),
 		w: report.wrong
 			.map((q) =>
@@ -91,6 +94,7 @@ export function decodeReport(code: string): Report | null {
 		correct: sections.reduce((sum, sec) => sum + sec.correct, 0),
 		total: sections.reduce((sum, sec) => sum + sec.total, 0),
 		durationMs: payload.t,
+		...(typeof payload.d === 'number' && { finishedAt: payload.d }),
 		sections,
 		wrong: payload.w
 			? payload.w.split('~').map((item) => {

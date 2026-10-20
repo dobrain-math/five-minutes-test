@@ -25,6 +25,11 @@ describe('encodeReport / decodeReport', () => {
 		expect(decodeReport(encodeReport(report))).toEqual(report);
 	});
 
+	test('테스트 본 시각까지 되살린다', () => {
+		const dated = { ...report, finishedAt: 1_792_481_400_000 };
+		expect(decodeReport(encodeReport(dated))).toEqual(dated);
+	});
+
 	test('주소에 그대로 붙일 수 있는 글자만 쓴다', () => {
 		expect(encodeReport(report)).toMatch(/^[A-Za-z0-9_-]+$/);
 	});

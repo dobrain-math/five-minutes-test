@@ -13,8 +13,8 @@ const MARK_LABEL = { strong: '강함', weak: '취약' } as const;
 
 type Props = {
 	report: Report;
-	/** 화면 아래에 붙는 버튼들. 내 결과와 공유받은 결과가 서로 다르다. */
-	actions: ReactNode;
+	/** 화면 아래에 붙는 버튼들. 공유받은 결과(/share)는 버튼이 없다. */
+	actions?: ReactNode;
 };
 
 /** 리포트 본문. 방금 푼 결과(/report)와 공유 링크(/share)가 함께 쓴다. */
@@ -184,11 +184,13 @@ export default function ReportView({ report, actions }: Props) {
 				</div>
 			</div>
 
-			<div className={layout.bottomBar}>
-				<div className={`${s.container} ${layout.bottomBarInner}`}>
-					{actions}
+			{actions && (
+				<div className={layout.bottomBar}>
+					<div className={`${s.container} ${layout.bottomBarInner}`}>
+						{actions}
+					</div>
 				</div>
-			</div>
+			)}
 		</main>
 	);
 }
