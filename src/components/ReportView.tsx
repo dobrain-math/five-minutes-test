@@ -65,7 +65,6 @@ export default function ReportView({ report, actions }: Props) {
 						<ul className={s.sectionList}>
 							{sections.map((sec, i) => {
 								const mark = marks[i];
-								const rate = sec.total === 0 ? 0 : sec.correct / sec.total;
 								return (
 									<li
 										key={sec.title}
@@ -85,15 +84,19 @@ export default function ReportView({ report, actions }: Props) {
 												{sec.total}
 											</span>
 										</div>
+										{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
 										<div
-											className={s.track}
+											className={s.cells}
 											role="img"
 											aria-label={`${sec.total}문제 중 ${sec.correct}문제 정답`}
 										>
-											<div
-												className={s.fill}
-												style={{ width: `${rate * 100}%` }}
-											/>
+											{Array.from({ length: sec.total }, (_, n) => (
+												<span
+													key={n}
+													className={s.cell}
+													data-correct={n < sec.correct}
+												/>
+											))}
 										</div>
 									</li>
 								);

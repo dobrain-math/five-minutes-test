@@ -15,6 +15,15 @@ const rate = (s: SectionScore) => (s.total === 0 ? 0 : s.correct / s.total);
 const percent = (r: number) => `${Math.round(r * 100)}%`;
 
 /**
+ * 「두두덧셈 연산」처럼 뒤에 「연산」을 붙인다.
+ * NOTE: 새 유형 이름은 「…한자리 연산」으로 끝나서 그대로 둔다. 예전 공유 링크는 옛 이름이 그대로 온다.
+ */
+const asOperation = (scores: SectionScore[]) => {
+	const titles = joinTitles(scores);
+	return titles.endsWith('연산') ? titles : `${titles} 연산`;
+};
+
+/**
  * 리포트를 학부모가 읽을 300자 안팎의 평가문으로 쓴다.
  * NOTE: 지금은 규칙으로 문장을 고른다. 다른 학생 평균·지난 기록과의 비교는 DB 가 생긴 뒤에 붙인다.
  */
@@ -46,7 +55,7 @@ export function evaluate(report: Report) {
 			'아직 안정적으로 푸는 유형이 없어, 쉬운 유형부터 기초 연산을 다시 다지는 것을 추천드립니다.',
 		);
 	} else if (strong.length > 0 && strong.length < sections.length) {
-		lines.push(`특히 ${joinTitles(strong)} 연산에서 두각을 드러냅니다.`);
+		lines.push(`특히 ${asOperation(strong)}에서 두각을 드러냅니다.`);
 	}
 
 	if (worst >= WEAK_LINE) {
@@ -56,7 +65,7 @@ export function evaluate(report: Report) {
 	} else if (best >= BASIC_LINE) {
 		const weakest = sections.filter((_, i) => rates[i] === worst);
 		lines.push(
-			`반면 ${joinTitles(weakest)} 연산은 정답률이 ${percent(worst)}로 낮으므로, 관련 학습을 집중적으로 추천드립니다.`,
+			`반면 ${asOperation(weakest)}은 정답률이 ${percent(worst)}로 낮으므로, 관련 학습을 집중적으로 추천드립니다.`,
 		);
 	}
 

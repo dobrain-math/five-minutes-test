@@ -60,6 +60,19 @@ describe('evaluate', () => {
 		expect(text).toContain('속도');
 	});
 
+	test('유형 이름이 「연산」으로 끝나면 「연산」을 또 붙이지 않는다', () => {
+		const text = evaluate(
+			make([
+				sec('받아올림이 있는 두자리 더하기 한자리 연산', 10),
+				sec('받아내림이 있는 두자리 빼기 한자리 연산', 4),
+				sec('0으로 끝나는 두자리 빼기 한자리 연산', 8),
+			]),
+		);
+		expect(text).toContain('더하기 한자리 연산에서 두각');
+		expect(text).toContain('빼기 한자리 연산은 정답률이 40%');
+		expect(text).not.toContain('연산 연산');
+	});
+
 	test('유형 이름이 길고 많아도 350자를 넘지 않는다', () => {
 		const long = (n: number, c: number) =>
 			sec(`두 자리 + 한 자리 받아올림 O ${n}`, c);

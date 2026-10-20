@@ -164,24 +164,28 @@ export const sectionCorrect = style({
 	color: vars.color.grey900,
 });
 
-/**
- * 막대 바탕(오답 몫)은 반투명 빨강 + 안쪽 2px 테두리, 채워진 몫이 정답률.
- * 정답 막대가 위에 덮이므로 테두리는 오답 몫에만 보인다.
- */
-export const track = style({
-	height: 12,
-	borderRadius: vars.radius.full,
-	overflow: 'hidden',
-	background: tint(vars.color.red400, 12),
-	boxShadow: `inset 0 0 0 2px ${tint(vars.color.red400, 45)}`,
+/** 1문제 = 1칸. 10칸이 줄 폭을 나눠 쓰되 PC 에서 너무 커지지 않게 칸 크기를 묶는다. */
+export const cells = style({
+	display: 'grid',
+	gridAutoFlow: 'column',
+	gridAutoColumns: 'minmax(0, 28px)',
+	gap: 4,
 });
 
-export const fill = style({
-	height: '100%',
-	borderRadius: vars.radius.full,
-	background: vars.color.green400,
+/** 맞힌 칸은 꽉 찬 초록(가장 잘함 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 2px 테두리 */
+export const cell = style({
+	aspectRatio: '1',
+	borderRadius: vars.radius.xs,
+	background: tint(vars.color.red400, 12),
+	boxShadow: `inset 0 0 0 2px ${tint(vars.color.red400, 45)}`,
 	selectors: {
-		[`${sectionRow}[data-mark="strong"] &`]: { background: vars.color.blue500 },
+		'&[data-correct="true"]': {
+			background: vars.color.green400,
+			boxShadow: 'none',
+		},
+		[`${sectionRow}[data-mark="strong"] &[data-correct="true"]`]: {
+			background: vars.color.blue500,
+		},
 	},
 });
 
