@@ -74,7 +74,7 @@ const tint = (color: string, percent: number) =>
 
 /**
  * 학습 완료(8개 이상)·연습 필요(3개 이하) 유형은 줄 전체에 옅은 색 + 1px 테두리.
- * 2열일 때 이름이 한 줄·두 줄로 달라도 칸은 줄 맨 아래에 붙어 옆 칸과 높이가 맞는다.
+ * 안은 «이름» 아래 «뱃지 줄 + 10칸 묶음(sectionBody)».
  */
 export const sectionRow = style({
 	display: 'flex',
@@ -84,11 +84,11 @@ export const sectionRow = style({
 	borderRadius: vars.radius.sm,
 	selectors: {
 		'&[data-mark="strong"]': {
-			background: tint(vars.color.blue500, 8),
+			background: tint(vars.color.blue300, 8),
 			borderColor: tint(vars.color.blue500, 35),
 		},
 		'&[data-mark="weak"]': {
-			background: tint(vars.color.orange500, 8),
+			background: tint(vars.color.orange300, 8),
 			borderColor: tint(vars.color.orange500, 40),
 		},
 	},
@@ -126,7 +126,17 @@ export const badges = style({
 	flexWrap: 'wrap',
 	alignItems: 'center',
 	gap: 4,
-	marginBottom: 8,
+});
+
+/**
+ * 뱃지 줄 + 10칸을 한 묶음으로 세로로 쌓는다.
+ * 2열일 때 이름이 한 줄·두 줄로 달라도 묶음째 줄 맨 아래에 붙어 옆 칸과 높이가 맞는다.
+ */
+export const sectionBody = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 8,
+	marginTop: 'auto',
 });
 
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
@@ -157,11 +167,10 @@ export const sectionCorrect = style({
 	color: vars.color.grey900,
 });
 
-/** 1문제 = 1칸. 16px 작은 칸을 줄 맨 아래에 붙인다. */
+/** 1문제 = 1칸. 16px 작은 칸 */
 export const cells = style({
 	display: 'flex',
 	gap: 3,
-	marginTop: 'auto',
 });
 
 /** 맞힌 칸은 꽉 찬 초록(학습 완료 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
@@ -171,7 +180,7 @@ export const cell = style({
 	flexShrink: 0,
 	borderRadius: 4,
 	background: tint(vars.color.red400, 12),
-	boxShadow: `inset 0 0 0 1px ${tint(vars.color.red400, 50)}`,
+	boxShadow: `inset 0 0 0 1px ${tint(vars.color.red400, 20)}`,
 	selectors: {
 		'&[data-correct="true"]': {
 			background: vars.color.green400,
