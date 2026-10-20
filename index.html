@@ -5,16 +5,39 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>두뇌로수학 테스트</title>
 		<!-- 카톡·문자에 링크를 붙였을 때 뜨는 미리보기 카드. NOTE: 화면마다 다르게 하려면 서버(Vercel)에서 바꿔 끼워야 한다 -->
-		<meta name="description" content="연산 테스트 결과가 도착했습니다. 눌러서 유형별 결과를 확인해 보세요." />
+		<!-- og:image 는 카톡이 절대 주소만 읽는다. 그림 원본은 public/og.png(1200×630) -->
+		<meta
+			name="description"
+			content="연산 테스트 결과가 도착했어요. 잘한 유형과 연습할 유형을 확인해 보세요 😊"
+		/>
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content="두뇌로수학" />
-		<meta property="og:title" content="두뇌로수학 테스트 결과 리포트 도착" />
-		<meta property="og:description" content="연산 테스트 결과가 도착했습니다. 눌러서 유형별 결과를 확인해 보세요." />
+		<meta property="og:url" content="https://five-minutes-test.vercel.app/" />
+		<meta
+			property="og:title"
+			content="📮 두뇌로수학 테스트 결과 리포트가 도착했어요"
+		/>
+		<meta
+			property="og:description"
+			content="연산 테스트 결과가 도착했어요. 잘한 유형과 연습할 유형을 확인해 보세요 😊"
+		/>
+		<meta
+			property="og:image"
+			content="https://five-minutes-test.vercel.app/og.png"
+		/>
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta
+			property="og:image:alt"
+			content="두뇌로수학 연산 테스트 결과 리포트"
+		/>
+		<meta name="twitter:card" content="summary_large_image" />
 		<!-- 직접 고른 테마를 첫 화면 그리기 전에 적용해 깜빡임을 막는다 (키: src/utils/theme.ts THEME_KEY) -->
 		<script>
 			try {
 				var t = localStorage.getItem('theme');
-				if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+				if (t === 'light' || t === 'dark')
+					document.documentElement.dataset.theme = t;
 			} catch (e) {}
 		</script>
 	</head>

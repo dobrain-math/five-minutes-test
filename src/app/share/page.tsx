@@ -1,16 +1,17 @@
-import { useSearchParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import ReportView from '@/components/ReportView.tsx';
 import * as layout from '@/styles/utility.css.ts';
 import { decodeReport } from '@/utils/shareLink.ts';
 import * as s from './page.css.ts';
 
 /**
- * 공유 링크(/share?r=코드)로 받은 결과. 이 기기에 테스트 기록이 없어도 링크만으로 그린다.
+ * 공유 링크(/s/코드, 예전 /share?r=코드)로 받은 결과. 이 기기에 테스트 기록이 없어도 링크만으로 그린다.
  * NOTE: 받는 사람(학부모)이 볼 화면이라 아래 버튼은 두지 않는다(원장님 결정 2026-10-20).
  */
 export default function SharePage() {
+	const { code } = useParams();
 	const [params] = useSearchParams();
-	const report = decodeReport(params.get('r') ?? '');
+	const report = decodeReport(code ?? params.get('r') ?? '');
 
 	if (!report) {
 		return (

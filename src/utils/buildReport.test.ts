@@ -49,6 +49,10 @@ describe('buildReport', () => {
 		});
 	});
 
+	test('종목 id 를 담는다(짧은 공유 코드가 유형 이름 대신 쓴다)', () => {
+		expect(buildReport(course, session).courseId).toBe('demo');
+	});
+
 	test('테스트를 마친 시각을 담는다(공유 메시지의 날짜)', () => {
 		expect(buildReport(course, session).finishedAt).toBe(session.finishedAt);
 	});

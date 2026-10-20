@@ -26,6 +26,7 @@ export function buildReport(course: Course, session: FinishedSession): Report {
 	return {
 		studentName: session.studentName,
 		studentAge: session.studentAge,
+		courseId: course.id,
 		courseTitle: course.title,
 		correct: sections.reduce((sum, sec) => sum + sec.correct, 0),
 		total: questions.length,

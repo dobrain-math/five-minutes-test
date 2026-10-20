@@ -90,6 +90,17 @@ export const heroName = style([
 	{ marginRight: 4, color: '#ffffff' },
 ]);
 
+/** 이름 줄 아래 「테스트 실시일 2026년 10월 20일」 */
+export const heroDate = style([
+	text.label,
+	{
+		marginTop: 12,
+		fontWeight: vars.font.weight.medium,
+		color: 'rgba(255, 255, 255, 0.8)',
+		...rise(140),
+	},
+]);
+
 /** 나이·종목 뱃지: 흰 반투명 알약 */
 export const heroBadge = style([
 	text.label,

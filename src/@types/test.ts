@@ -59,6 +59,8 @@ export type WrongAnswer = {
 export type Report = {
 	studentName: string;
 	studentAge: string;
+	/** 종목 id. 짧은 공유 코드는 유형 이름 대신 이것만 싣는다. 예전(v1) 공유 링크에는 없다. */
+	courseId?: string;
 	courseTitle: string;
 	correct: number;
 	total: number;

@@ -4,6 +4,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import type { Report } from '@/@types/test';
 import * as layout from '@/styles/utility.css.ts';
 import { evaluate } from '@/utils/evaluate.ts';
+import { formatTestDate } from '@/utils/formatDate.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
 import { highlightSections } from '@/utils/highlightSections.ts';
 import * as s from './ReportView.css.ts';
@@ -19,7 +20,8 @@ type Props = {
 
 /** 리포트 본문. 방금 푼 결과(/report)와 공유 링크(/share)가 함께 쓴다. */
 export default function ReportView({ report, actions }: Props) {
-	const { studentName, studentAge, courseTitle, sections, wrong } = report;
+	const { studentName, studentAge, courseTitle, finishedAt, sections, wrong } =
+		report;
 	const marks = highlightSections(sections);
 	// 틀린 문제는 길어서 처음엔 접어 두고, 눌렀을 때만 펼친다.
 	const [showWrong, setShowWrong] = useState(false);
@@ -38,6 +40,12 @@ export default function ReportView({ report, actions }: Props) {
 						{studentAge && <span className={s.heroBadge}>{studentAge}</span>}
 						<span className={s.heroBadge}>{courseTitle}</span>
 					</div>
+					{/* NOTE: 날짜를 싣기 전에 만든 옛 공유 링크에는 실시일이 없다. */}
+					{finishedAt !== undefined && (
+						<p className={s.heroDate}>
+							테스트 실시일 {formatTestDate(finishedAt)}
+						</p>
+					)}
 				</div>
 			</header>
 
