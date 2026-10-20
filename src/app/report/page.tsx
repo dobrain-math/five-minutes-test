@@ -4,6 +4,7 @@ import { ShareIcon } from '@heroicons/react/24/outline';
 import * as s from '@/components/ReportView.css.ts';
 import ReportView from '@/components/ReportView.tsx';
 import { getCourse } from '@/data/courses.ts';
+import { useShortShareUrl } from '@/hooks/useShortShareUrl.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { buildReport } from '@/utils/buildReport.ts';
@@ -18,6 +19,14 @@ export default function ReportPage() {
 	const [notice, setNotice] = useState('');
 
 	const { courseId, startedAt, finishedAt } = session;
+	const ready =
+		course && courseId === testId && startedAt !== null && finishedAt !== null;
+	const code = ready
+		? encodeReport(buildReport(course, { ...session, startedAt, finishedAt }))
+		: null;
+	// 짧은 링크(/r/6글자)는 미리 만들어 둔다. 준비 전·실패면 긴 링크(/s/코드)로 보낸다.
+	const shortUrl = useShortShareUrl(code);
+
 	if (
 		!course ||
 		courseId !== testId ||
@@ -31,7 +40,8 @@ export default function ReportPage() {
 
 	// NOTE: 휴대폰은 공유 시트(카카오톡 등)를, 안 되는 PC 브라우저는 «안내 글 + 링크» 복사를 쓴다.
 	const handleShare = async () => {
-		const url = shareUrl(window.location.origin, encodeReport(report));
+		const url =
+			shortUrl ?? shareUrl(window.location.origin, encodeReport(report));
 		const message = shareMessage(report, url);
 		if (navigator.share) {
 			try {

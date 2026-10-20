@@ -1,0 +1,9 @@
+{
+	// 서버 테스트(server/*.test.ts) 전용: 앱 설정(@/ 별칭·?raw) + node 타입
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server-test.tsbuildinfo",
+		"types": ["vite/client", "node"]
+	},
+	"include": ["server/**/*.test.ts"]
+}

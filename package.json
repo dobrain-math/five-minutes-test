@@ -8,6 +8,7 @@
 		"build": "tsc -b && vite build",
 		"lint": "oxlint",
 		"format": "prettier --write .",
+		"build:server": "bun build server/handle.ts --target=node --format=esm --outfile=server/handle.gen.js",
 		"test": "vitest",
 		"preview": "vite preview"
 	},
