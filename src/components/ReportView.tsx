@@ -9,6 +9,8 @@ import { highlightSections } from '@/utils/highlightSections.ts';
 import * as s from './ReportView.css.ts';
 import ThemeToggle from './ThemeToggle.tsx';
 
+const MARK_LABEL = { strong: '학습 완료', weak: '연습 필요' } as const;
+
 type Props = {
 	report: Report;
 	/** 화면 아래에 붙는 버튼들. 내 결과와 공유받은 결과가 서로 다르다. */
@@ -70,8 +72,34 @@ export default function ReportView({ report, actions }: Props) {
 										className={s.sectionRow}
 										data-mark={mark ?? undefined}
 									>
-										<div className={s.sectionName}>{sec.title}</div>
-										{/* NOTE: 이름은 한 줄을 다 쓰고, 그 아래 줄에 «10칸(왼쪽) · 뱃지(오른쪽)»를 나란히 둔다. */}
+										{/* NOTE: 이름(왼쪽) + 학습 완료·연습 필요(오른쪽). 768px 미만에서는 아이콘만 남는다. */}
+										<div className={s.sectionHead}>
+											<span className={s.sectionName}>{sec.title}</span>
+											{mark && (
+												<span
+													className={
+														mark === 'strong'
+															? s.strengthBadge
+															: s.weaknessBadge
+													}
+													title={MARK_LABEL[mark]}
+													aria-label={MARK_LABEL[mark]}
+												>
+													{mark === 'strong' ? (
+														<HandThumbUpIcon
+															className={s.badgeIcon}
+															aria-hidden
+														/>
+													) : (
+														<StarIcon className={s.badgeIcon} aria-hidden />
+													)}
+													<span className={s.badgeLabel} aria-hidden>
+														{MARK_LABEL[mark]}
+													</span>
+												</span>
+											)}
+										</div>
+										{/* NOTE: 이름 줄 아래에 «10칸(왼쪽) · 맞힌 수(오른쪽)»를 나란히 둔다. */}
 										<div className={s.sectionBody}>
 											{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
 											<div
@@ -87,28 +115,11 @@ export default function ReportView({ report, actions }: Props) {
 													/>
 												))}
 											</div>
-											<div className={s.badges}>
-												{mark === 'strong' && (
-													<span className={s.strengthBadge}>
-														<HandThumbUpIcon
-															className={s.badgeIcon}
-															aria-hidden
-														/>
-														학습 완료
-													</span>
-												)}
-												{mark === 'weak' && (
-													<span className={s.weaknessBadge}>
-														<StarIcon className={s.badgeIcon} aria-hidden />
-														연습 필요
-													</span>
-												)}
-												{/* NOTE: 맞힌 수를 맨 오른쪽 끝에 둬야 줄마다 같은 자리에 온다. */}
-												<span className={s.scoreBadge}>
-													<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
-													{sec.total}
-												</span>
-											</div>
+											{/* NOTE: 맞힌 수 뱃지는 폭이 고정이라 줄마다 칸 크기·위치가 같다. */}
+											<span className={s.scoreBadge}>
+												<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
+												{sec.total}
+											</span>
 										</div>
 									</li>
 								);

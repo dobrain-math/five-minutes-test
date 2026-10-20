@@ -52,13 +52,20 @@ export const blockTitle = style([
 
 // ── 유형별 정답률 ─────────────────────────────────────────
 
+/**
+ * 태블릿 표준 768px. 이보다 좁으면 유형 목록 1열 + 뱃지 아이콘만, 넓으면 2열 + 글자 뱃지.
+ * NOTE: 공용 breakpoints.tablet(640px)은 테스트 화면 그리드용이라 따로 둔다.
+ */
+const wide = 'screen and (min-width: 768px)';
+const narrow = 'screen and (max-width: 767px)';
+
 export const sectionList = style({
 	display: 'grid',
 	gridTemplateColumns: '1fr',
 	gap: 4,
 	listStyle: 'none',
 	'@media': {
-		[breakpoints.tablet]: {
+		[wide]: {
 			gridTemplateColumns: 'repeat(2, 1fr)',
 			columnGap: 12,
 		},
@@ -73,14 +80,15 @@ const tint = (color: string, percent: number) =>
 	`color-mix(in srgb, ${color} ${percent}%, transparent)`;
 
 /**
- * 학습 완료(8개 이상)·연습 필요(3개 이하) 유형은 줄 전체에 옅은 색 + 1px 테두리.
- * 안은 «이름» 아래 «뱃지 줄 + 10칸 묶음(sectionBody)».
+ * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
+ * 학습 완료(8개 이상)·연습 필요(3개 이하) 줄은 옅은 색 바탕 + 색 테두리.
+ * 안은 «이름 + 학습 완료·연습 필요(sectionHead)» 아래 «10칸 + 맞힌 수(sectionBody)».
  */
 export const sectionRow = style({
 	display: 'flex',
 	flexDirection: 'column',
 	padding: '8px 10px 10px',
-	border: '1px solid transparent',
+	border: `1px solid ${vars.color.grey100}`,
 	borderRadius: vars.radius.sm,
 	selectors: {
 		'&[data-mark="strong"]': {
@@ -94,11 +102,19 @@ export const sectionRow = style({
 	},
 });
 
+/** 이름(왼쪽) + 학습 완료·연습 필요 뱃지(오른쪽) 한 줄 */
+export const sectionHead = style({
+	display: 'flex',
+	alignItems: 'flex-start',
+	justifyContent: 'space-between',
+	gap: 6,
+	marginBottom: 6,
+});
+
 export const sectionName = style([
 	text.body2,
 	{
 		minWidth: 0,
-		marginBottom: 6,
 		fontWeight: vars.font.weight.semibold,
 		color: vars.color.grey800,
 		wordBreak: 'keep-all',
@@ -120,19 +136,8 @@ const badgeBase = style([
 	},
 ]);
 
-/** 오른쪽 뱃지 묶음: 학습 완료·연습 필요 + 맞힌 수(맨 오른쪽). 줄어들거나 줄바꿈되지 않는다. */
-export const badges = style({
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'flex-end',
-	gap: 4,
-	flexShrink: 0,
-	// NOTE: 뱃지가 없는 줄도 같은 폭을 비워 둬야 줄마다 칸 크기가 같다(학습 완료 + 10 / 10 이 들어가는 폭). 맞힌 수 뱃지도 폭을 고정해 숫자 자리수와 상관없이 같게.
-	minWidth: 136,
-});
-
 /**
- * 이름 아래 한 줄: 10칸(왼쪽) · 뱃지(오른쪽).
+ * 이름 아래 한 줄: 10칸(왼쪽) · 맞힌 수(오른쪽).
  * 2열일 때 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 높이가 맞는다.
  */
 export const sectionBody = style({
@@ -145,13 +150,26 @@ export const sectionBody = style({
 
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
-export const strengthBadge = style([
+/**
+ * 학습 완료·연습 필요 뱃지. 768px 미만에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
+ * (이름 옆에 글자 뱃지까지 두면 휴대폰에서 이름이 두 줄로 꺾여서).
+ */
+const markBadge = style([
 	badgeBase,
+	{ '@media': { [narrow]: { padding: 4 } } },
+]);
+
+export const badgeLabel = style({
+	'@media': { [narrow]: { display: 'none' } },
+});
+
+export const strengthBadge = style([
+	markBadge,
 	{ background: vars.color.blue500 },
 ]);
 
 export const weaknessBadge = style([
-	badgeBase,
+	markBadge,
 	{ background: vars.color.orange500 },
 ]);
 
@@ -161,7 +179,8 @@ export const scoreBadge = style([
 	text.number,
 	{
 		padding: '2px 8px',
-		minWidth: 50,
+		width: 60,
+		whiteSpace: 'nowrap',
 		justifyContent: 'center',
 		color: vars.color.grey600,
 		background: tint(vars.color.grey500, 14),
