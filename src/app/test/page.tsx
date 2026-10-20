@@ -139,7 +139,7 @@ export default function TestPage() {
 				<div className={`${layout.container.wide} ${layout.bottomBarInner}`}>
 					{confirming && (
 						<p className={s.confirm} role="alert">
-							아직 안 푼 문제가 {blanks}개 남았어요. 이대로 채점해 볼까요?
+							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도 채점할까요?
 						</p>
 					)}
 					<div className={s.buttonRow}>
@@ -149,7 +149,7 @@ export default function TestPage() {
 								className={layout.secondaryButton}
 								onClick={() => setConfirming(false)}
 							>
-								조금 더 풀래요
+								더 풀기
 							</button>
 						)}
 						<button
@@ -158,8 +158,8 @@ export default function TestPage() {
 							onClick={handleSubmit}
 						>
 							{confirming
-								? '다 풀었어요'
-								: `다 풀었어요 (${answered}/${questions.length})`}
+								? '채점하기'
+								: `채점하기 (${answered}/${questions.length})`}
 						</button>
 					</div>
 				</div>

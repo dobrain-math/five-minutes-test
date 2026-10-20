@@ -44,9 +44,9 @@ export default function ReportPage() {
 		}
 		try {
 			await navigator.clipboard.writeText(url);
-			setNotice('결과 링크를 복사했어요. 메신저에 붙여 넣어 보내 주세요.');
+			setNotice('결과 링크를 복사했습니다. 메신저에 붙여 넣어 보내 주세요.');
 		} catch {
-			setNotice('링크를 복사하지 못했어요. 다시 눌러 주세요.');
+			setNotice('링크를 복사하지 못했습니다. 다시 눌러 주세요.');
 		}
 		setTimeout(() => setNotice(''), 3000);
 	};

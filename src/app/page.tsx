@@ -36,7 +36,7 @@ export default function HomePage() {
 						<ThemeToggle />
 					</div>
 					<p className={layout.subtitle}>
-						이름과 나이를 알려 주고, 풀어 볼 종목을 골라 주세요.
+						이름·나이를 적고 테스트 볼 종목을 골라 주세요.
 					</p>
 				</header>
 
@@ -83,7 +83,7 @@ export default function HomePage() {
 
 				<div className={s.field}>
 					<span id="course-label" className={layout.sectionLabel}>
-						풀어 볼 종목
+						테스트 종목
 					</span>
 					<ul
 						role="radiogroup"
@@ -121,7 +121,7 @@ export default function HomePage() {
 						disabled={!canStart}
 						onClick={handleStart}
 					>
-						시작해 볼까요?
+						테스트 시작
 					</button>
 				</div>
 			</div>

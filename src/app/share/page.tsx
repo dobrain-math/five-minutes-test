@@ -27,10 +27,10 @@ export default function SharePage() {
 			<main className={layout.page}>
 				<div className={`${layout.container.narrow} ${layout.content}`}>
 					<header className={s.header}>
-						<h1 className={layout.title}>결과를 열 수 없어요</h1>
+						<h1 className={layout.title}>결과를 열 수 없습니다</h1>
 						<p className={layout.subtitle}>
-							링크가 잘렸거나 잘못 복사된 것 같아요. 받은 링크 전체를 다시 열어
-							주세요.
+							링크가 잘렸거나 잘못 복사된 것 같습니다. 받은 링크 전체를 다시
+							열어 주세요.
 						</p>
 					</header>
 				</div>

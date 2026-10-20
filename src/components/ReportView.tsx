@@ -54,12 +54,12 @@ export default function ReportView({ report, actions }: Props) {
 					</div>
 
 					<section className={`${layout.card} ${s.block}`}>
-						<h2 className={s.blockTitle}>선생님 한마디</h2>
+						<h2 className={s.blockTitle}>종합 평가</h2>
 						<p className={s.evaluation}>{evaluate(report)}</p>
 					</section>
 
 					<section className={`${layout.card} ${s.block}`}>
-						<h2 className={s.blockTitle}>유형별로 살펴봐요</h2>
+						<h2 className={s.blockTitle}>유형별 정답·오답</h2>
 						{/* NOTE: 세로 막대는 유형 8개의 긴 이름이 휴대폰 폭에 안 들어가 한 줄씩 그린다. */}
 						<ul className={s.sectionList}>
 							{sections.map((sec, i) => {
@@ -115,8 +115,8 @@ export default function ReportView({ report, actions }: Props) {
 					<section className={`${layout.card} ${s.block}`}>
 						{wrong.length === 0 ? (
 							<>
-								<h2 className={s.blockTitle}>다시 볼 문제 0개</h2>
-								<p className={s.allCorrect}>하나도 안 틀렸어요, 정말 멋져요!</p>
+								<h2 className={s.blockTitle}>틀린 문제 0개</h2>
+								<p className={s.allCorrect}>모든 문제를 맞혔습니다!</p>
 							</>
 						) : (
 							<>
@@ -129,7 +129,7 @@ export default function ReportView({ report, actions }: Props) {
 										onClick={() => setShowWrong((v) => !v)}
 									>
 										<span className={s.disclosureTitle}>
-											다시 볼 문제 {wrong.length}개
+											틀린 문제 {wrong.length}개
 										</span>
 										<span className={s.disclosureAction}>
 											{showWrong ? '접기' : '보기'}
@@ -151,7 +151,7 @@ export default function ReportView({ report, actions }: Props) {
 													<div className={s.wrongSection}>{q.sectionTitle}</div>
 												</div>
 												<div className={s.wrongAnswers}>
-													<span className={s.mine}>{q.mine || '안 씀'}</span>
+													<span className={s.mine}>{q.mine || '빈칸'}</span>
 													<span className={s.correctAnswer}>{q.answer}</span>
 												</div>
 											</li>
