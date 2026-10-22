@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type CSSProperties, useState } from 'react';
 import { useNavigate } from 'react-router';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
@@ -16,6 +16,13 @@ export default function HomePage() {
 	const setStudentAge = useTestSessionStore((st) => st.setStudentAge);
 	const start = useTestSessionStore((st) => st.start);
 	const [courseId, setCourseId] = useState<string | null>(null);
+
+	const ageIndex = Math.max(
+		0,
+		AGES.indexOf(studentAge as (typeof AGES)[number]),
+	);
+	const agePicked = studentAge !== '';
+	const pickAge = (i: number) => setStudentAge(AGES[i]);
 
 	const canStart =
 		studentName.trim() !== '' && studentAge !== '' && courseId !== null;
@@ -57,28 +64,50 @@ export default function HomePage() {
 				</div>
 
 				<div className={s.field}>
-					<span id="age-label" className={layout.sectionLabel}>
-						나이(학년)
-					</span>
-					<ul
-						role="radiogroup"
-						aria-labelledby="age-label"
-						className={s.ageGrid}
-					>
-						{AGES.map((age) => (
-							<li key={age}>
-								<button
-									type="button"
-									role="radio"
-									aria-checked={studentAge === age}
-									className={s.ageChip}
-									onClick={() => setStudentAge(age)}
+					<div className={s.ageLabelRow}>
+						<label
+							htmlFor="student-age"
+							className={`${layout.sectionLabel} ${s.ageLabelText}`}
+						>
+							나이(학년)
+						</label>
+						<span className={s.ageValue} data-picked={agePicked}>
+							{agePicked ? studentAge : '막대를 끌어 골라 주세요'}
+						</span>
+					</div>
+					<div className={s.ageCard}>
+						<input
+							id="student-age"
+							type="range"
+							min={0}
+							max={AGES.length - 1}
+							step={1}
+							value={ageIndex}
+							aria-valuetext={agePicked ? studentAge : '선택 안 함'}
+							className={s.ageSlider}
+							data-picked={agePicked}
+							// 막대 칠하기 비율(0~1). page.css.ts 의 ageSlider 가 읽는다
+							style={
+								{ '--age-fill': ageIndex / (AGES.length - 1) } as CSSProperties
+							}
+							onChange={(e) => pickAge(Number(e.target.value))}
+							// 손잡이를 움직이지 않고 누르기만 해도(맨 왼쪽 5세 그대로) 고른 것으로 친다
+							onClick={(e) => pickAge(Number(e.currentTarget.value))}
+						/>
+						<div className={s.ageTicks} aria-hidden>
+							{AGES.map((age, i) => (
+								<span
+									key={age}
+									className={s.ageTick}
+									data-active={agePicked && i === ageIndex}
+									style={{ left: `${(i / (AGES.length - 1)) * 100}%` }}
+									onClick={() => pickAge(i)}
 								>
 									{age}
-								</button>
-							</li>
-						))}
-					</ul>
+								</span>
+							))}
+						</div>
+					</div>
 				</div>
 
 				<div className={s.field}>

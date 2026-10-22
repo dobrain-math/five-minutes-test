@@ -87,42 +87,135 @@ export const courseMeta = style([
 	{ marginTop: 3, color: vars.color.grey500 },
 ]);
 
-// ── 나이·학년 ─────────────────────────────────────────────
+// ── 나이·학년 막대 ─────────────────────────────────────────
 
-export const ageGrid = style({
-	display: 'grid',
-	gridTemplateColumns: 'repeat(5, 1fr)',
-	gap: 8,
-	listStyle: 'none',
+const THUMB = 28; // 손잡이 지름. 눈금 글자도 이 반만큼 안쪽에서 시작해야 손잡이 가운데와 맞는다
+const TRACK = 6;
+
+export const ageLabelRow = style({
+	display: 'flex',
+	alignItems: 'center',
+	minHeight: 26, // 고른 값(17px × 1.5)이 커져도 아래 카드가 밀리지 않게
+	justifyContent: 'space-between',
+	gap: 12,
+	marginBottom: 10,
 });
 
-export const ageChip = style([
-	text.label,
+export const ageValue = style([
+	text.caption,
 	{
-		width: '100%',
-		height: 48,
-		border: 'none',
-		borderRadius: vars.radius.md,
-		color: vars.color.grey700,
-		background: vars.color.layeredBackground,
-		boxShadow: vars.shadow.sm,
-		cursor: 'pointer',
-		transition: 'box-shadow 0.15s, background 0.15s, transform 0.1s',
+		color: vars.color.grey400,
 		selectors: {
-			'&:active': { transform: 'scale(0.97)' },
-			'&[aria-checked="true"]': {
-				color: vars.color.blue600,
+			'&[data-picked="true"]': {
+				fontSize: vars.font.size.t5,
 				fontWeight: vars.font.weight.bold,
-				background: vars.color.blue50,
-				boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
-			},
-		},
-		'@media': {
-			[canHover]: {
-				selectors: {
-					'&:hover:not([aria-checked="true"])': { boxShadow: vars.shadow.md },
-				},
+				color: vars.color.blue500,
 			},
 		},
 	},
 ]);
+
+export const ageCard = style({
+	padding: '6px 18px 14px',
+	borderRadius: vars.radius.lg,
+	background: vars.color.layeredBackground,
+	boxShadow: vars.shadow.sm,
+});
+
+const thumb = {
+	width: THUMB,
+	height: THUMB,
+	border: `1px solid ${vars.color.grey300}`,
+	borderRadius: vars.radius.full,
+	background: '#ffffff',
+	boxShadow: vars.shadow.md,
+	cursor: 'grab',
+	transition: 'border-color 0.15s, transform 0.1s',
+} as const;
+
+// 막대: 손잡이 가운데까지 파랑, 나머지 회색. --age-fill(0~1)은 page.tsx 가 넣는다
+const trackFill = `linear-gradient(to right, ${vars.color.blue500} calc(${THUMB / 2}px + (100% - ${THUMB}px) * var(--age-fill, 0)), ${vars.color.grey200} 0)`;
+
+export const ageSlider = style({
+	display: 'block',
+	width: '100%',
+	height: 44, // 손가락으로 잡기 쉬운 높이
+	margin: 0,
+	background: 'transparent',
+	appearance: 'none',
+	WebkitAppearance: 'none',
+	cursor: 'pointer',
+	outline: 'none',
+	touchAction: 'pan-y',
+	selectors: {
+		'&::-webkit-slider-runnable-track': {
+			height: TRACK,
+			borderRadius: vars.radius.full,
+			background: vars.color.grey200,
+		},
+		'&[data-picked="true"]::-webkit-slider-runnable-track': {
+			background: trackFill,
+		},
+		'&::-moz-range-track': {
+			height: TRACK,
+			borderRadius: vars.radius.full,
+			background: vars.color.grey200,
+		},
+		'&[data-picked="true"]::-moz-range-track': { background: trackFill },
+		'&::-webkit-slider-thumb': {
+			...thumb,
+			WebkitAppearance: 'none',
+			marginTop: (TRACK - THUMB) / 2,
+		},
+		'&::-moz-range-thumb': thumb,
+		'&[data-picked="true"]::-webkit-slider-thumb': {
+			borderColor: vars.color.blue500,
+		},
+		'&[data-picked="true"]::-moz-range-thumb': {
+			borderColor: vars.color.blue500,
+		},
+		'&:active::-webkit-slider-thumb': {
+			cursor: 'grabbing',
+			transform: 'scale(1.08)',
+		},
+		'&:active::-moz-range-thumb': {
+			cursor: 'grabbing',
+			transform: 'scale(1.08)',
+		},
+		'&:focus-visible::-webkit-slider-thumb': {
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, 0 0 0 4px ${vars.color.blue100}`,
+		},
+		'&:focus-visible::-moz-range-thumb': {
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, 0 0 0 4px ${vars.color.blue100}`,
+		},
+	},
+});
+
+// 눈금 글자: 손잡이가 다니는 구간(양 끝에서 손잡이 반지름만큼 안쪽)에 맞춰 놓는다
+export const ageTicks = style({
+	position: 'relative',
+	height: 18,
+	margin: `2px ${THUMB / 2}px 0`,
+});
+
+export const ageTick = style([
+	text.caption2,
+	{
+		position: 'absolute',
+		top: 0,
+		transform: 'translateX(-50%)',
+		whiteSpace: 'nowrap',
+		color: vars.color.grey500,
+		cursor: 'pointer',
+		userSelect: 'none',
+		selectors: {
+			'&[data-active="true"]': {
+				color: vars.color.blue500,
+				fontWeight: vars.font.weight.bold,
+			},
+		},
+	},
+]);
+
+// 공용 sectionLabel 의 아래 여백(10px)은 ageLabelRow 가 대신 준다. && 로 우선순위를 올려 덮어쓴다
+export const ageLabelText = style({ selectors: { '&&': { marginBottom: 0 } } });

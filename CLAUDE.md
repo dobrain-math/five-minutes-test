@@ -31,7 +31,7 @@ src/
   styles/typography.css.ts  text.{title1,display,expression,title2,body1,body2,label,caption,caption2,number} — style([text.x, {...}]) 로 조합
   styles/utility.css.ts page, container.{narrow,medium,wide}, content, card, bottomBar, 버튼, 제목
   app/layout.tsx        BrowserRouter + Routes. 폴더 이름만 Next.js 식이고 라우팅은 react-router — 새 화면은 여기에 Route 추가
-  app/page.tsx          홈: 이름 input + 나이 칩 + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
+  app/page.tsx          홈: 이름 input + 나이 가로 막대(range 드래그, 5세~중1 눈금) + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
   app/test/page.tsx     상단 타이머·진행률, 문제 카드 그리드, 빈칸 있으면 한 번 확인 후 finish → /report/:id
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    ?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
@@ -97,7 +97,7 @@ src/
 - [ ] 실제 휴대폰에서 확인(숫자 키보드, safe-area), 다크모드 화면 점검
 - [x] 다크모드 토글(18042cd), 리포트 PC 대시보드 2단·틀린 문제 접기·반투명 tint(7823a5d)
 - [ ] package.json 에 recharts 가 아직 남아 있음(코드에서는 안 씀) — 빼도 됨
-- [ ] 홈 나이 칩·종목 선택 상태(blue50 바탕)도 다크에서 진해질 수 있음 → 리포트처럼 tint 로
+- [ ] 홈 종목 선택 상태(blue50 바탕)도 다크에서 진해질 수 있음 → 리포트처럼 tint 로 (나이 칩은 2026-10-22 막대로 바뀌어 해당 없음)
 - [x] 유형별 막대 → 10칸 정사각형, 유형 이름 문장형으로 변경
 - [x] 테두리 1px, 경어 중심 문구(해요체에서 조정), 소제목 명사형 복구, 강점·연습 필요 아이콘 뱃지, 아이콘 굵기 2.25, 칸 16px, 리포트 PC 한 단
 - [ ] 7823a5d 이후 커밋(최신 0c9e68d)은 아직 푸시 안 함 — 원장님이 푸시하라 할 때 `git push origin main`
@@ -123,3 +123,4 @@ src/
 - 2026-10-20: 「학습 완료」→「강함」, 「연습 필요」→「취약」, 취약은 주황 → 빨강(아이콘만일 때 주황 별이 칭찬처럼 보여서)
 - 2026-10-20: 리포트 머리 띠(화면 폭 100% 파랑 띠: 「두뇌로수학 테스트 결과 리포트」 + 이름 + 나이·종목 흰 반투명 뱃지), 버튼 「처음으로」(왼쪽·32%)·「테스트 결과 공유」(오른쪽·공유 아이콘), 버튼 줄 본문 폭(800px), 강조 없는 줄 테두리 grey500 16% tint(다크에서도 보임)
 - 2026-10-20: 머리 띠 키움 + 그라데이션·원 장식·그림자, 「처음으로」 강조·「테스트 결과 공유」 보조로 맞바꿈, 떠오르기 애니메이션. 원장님 홈 문구 수정(「두뇌로수학 연산 테스트」「학생명」「나이(학년)」「테스트 유형」) 함께 커밋. vanilla-extract 는 `& > :nth-child` 같은 자식 선택자를 막는다 → globalStyle 로
+- 2026-10-22: 홈 나이 선택을 칩 10개 → 가로 막대 드래그(native range, 한 칸씩 딱 맞춤). 고르기 전엔 회색 손잡이 + 「막대를 끌어 골라 주세요」, 고르면 손잡이 가운데까지 파랑 + 라벨 오른쪽에 고른 값. 손잡이를 누르기만 해도·눈금 글자를 눌러도·키보드 화살표로도 고름. 390·1440·다크·테스트 시작까지 확인
