@@ -7,6 +7,16 @@ const ones = (n: number) => n % 10;
 const tens = (n: number) => Math.floor(n / 10) % 10;
 const digits = (n: number) => String(n).length;
 
+/** 곱셈은 절반을 순서를 뒤집어 내므로(원장님 결정 2026-10-22) 뒤집은 쪽도 맞으면 통과 */
+const either = (rule: (p: Problem) => boolean) => (p: Problem) =>
+	rule(p) || rule({ ...p, left: p.right, right: p.left });
+
+/** 두자리(0으로 안 끝남) × k, 순서는 어느 쪽이든 */
+const fixedTimes = ({ left: a, op, right: b }: Problem, k: number) => {
+	const two = (x: number) => digits(x) === 2 && ones(x) !== 0;
+	return op === '×' && ((two(a) && b === k) || (a === k && two(b)));
+};
+
 /** 각 유형이 지켜야 할 조건. 생성기와 따로 적어서 서로 검증한다. */
 const rules: Record<string, (p: Problem) => boolean> = {
 	// 기본연습
@@ -57,19 +67,23 @@ const rules: Record<string, (p: Problem) => boolean> = {
 		digits(b) === 2 &&
 		ones(a) < ones(b) &&
 		tens(a) - 1 < tens(b),
-	'531-7-1': ({ left: a, op, right: b }) =>
-		op === '×' &&
-		digits(a) === 2 &&
-		digits(b) === 1 &&
-		b >= 2 &&
-		ones(a) * b < 10 &&
-		tens(a) * b < 10,
-	'531-7-2': ({ left: a, op, right: b }) =>
-		op === '×' &&
-		digits(a) === 2 &&
-		digits(b) === 1 &&
-		b >= 2 &&
-		ones(a) * b >= 10,
+	'531-7-1': either(
+		({ left: a, op, right: b }) =>
+			op === '×' &&
+			digits(a) === 2 &&
+			digits(b) === 1 &&
+			b >= 2 &&
+			ones(a) * b < 10 &&
+			tens(a) * b < 10,
+	),
+	'531-7-2': either(
+		({ left: a, op, right: b }) =>
+			op === '×' &&
+			digits(a) === 2 &&
+			digits(b) === 1 &&
+			b >= 2 &&
+			ones(a) * b >= 10,
+	),
 	// 53-1권 곱셈 추가(2026-10-22)
 	'531-8': ({ left: a, op, right: b }) =>
 		op === '×' &&
@@ -85,32 +99,34 @@ const rules: Record<string, (p: Problem) => boolean> = {
 			digits(x) === 2 && ones(x) !== 0 && ones(y) === 0 && y >= 20 && y <= 90;
 		return op === '×' && (tidy(a, b) || tidy(b, a));
 	},
-	'531-10': ({ left: a, op, right: b }) =>
-		op === '×' &&
-		digits(a) === 3 &&
-		tens(a) === 0 &&
-		ones(a) >= 2 &&
-		digits(b) === 1 &&
-		b >= 2,
-	'531-11': ({ left: a, op, right: b }) =>
-		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 5,
-	'531-12': ({ left: a, op, right: b }) =>
-		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 11,
-	'531-13': ({ left: a, op, right: b }) =>
-		op === '×' &&
-		digits(a) === 3 &&
-		ones(a) === 0 &&
-		tens(a) >= 2 &&
-		digits(b) === 1 &&
-		b >= 2,
+	'531-10': either(
+		({ left: a, op, right: b }) =>
+			op === '×' &&
+			digits(a) === 3 &&
+			tens(a) === 0 &&
+			ones(a) >= 2 &&
+			digits(b) === 1 &&
+			b >= 2,
+	),
+	// X5·X11·X99: 정해진 수가 뒤(91 × 11)든 앞(11 × 91)이든 된다
+	'531-11': (p) => fixedTimes(p, 5),
+	'531-12': (p) => fixedTimes(p, 11),
+	'531-13': either(
+		({ left: a, op, right: b }) =>
+			op === '×' &&
+			digits(a) === 3 &&
+			ones(a) === 0 &&
+			tens(a) >= 2 &&
+			digits(b) === 1 &&
+			b >= 2,
+	),
 	'531-14': ({ left: a, op, right: b }) =>
 		op === '×' &&
 		digits(a) === 2 &&
 		ones(a) !== 0 &&
 		digits(b) === 2 &&
 		ones(b) !== 0,
-	'531-15': ({ left: a, op, right: b }) =>
-		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 99,
+	'531-15': (p) => fixedTimes(p, 99),
 };
 
 describe('53-1권 유형 목록', () => {
@@ -154,7 +170,8 @@ describe('유형별 문제 생성', () => {
 				const rule = rules[section.id];
 				expect(rule, `${section.id} 규칙이 없다`).toBeDefined();
 				for (let i = 0; i < 500; i++) {
-					const p = section.generate(Math.random);
+					// i 를 넘겨 짝수·홀수 번째(순서를 뒤집는 절반)를 모두 검사한다
+					const p = section.generate(Math.random, i % 24);
 					expect(rule(p), JSON.stringify(p)).toBe(true);
 					expect(p.left).toBeGreaterThan(0);
 					expect(p.right).toBeGreaterThan(0);
@@ -218,4 +235,39 @@ describe('buildTest', () => {
 		);
 		expect(order).not.toEqual([...order].sort((a, b) => a - b));
 	});
+});
+
+describe('X5·X11·X99: 절반은 정해진 수가 앞(91 × 11 ↔ 11 × 91)', () => {
+	for (const [id, k] of [
+		['531-11', 5],
+		['531-12', 11],
+		['531-15', 99],
+	] as const) {
+		test(`${id}: 짝수 번째는 × ${k}, 홀수 번째는 ${k} ×`, () => {
+			const section = getCourse('53-1')!.sections.find((s) => s.id === id)!;
+			for (let i = 0; i < 24; i++) {
+				const p = section.generate(Math.random, i);
+				if (i % 2 === 0) expect(p.right, JSON.stringify(p)).toBe(k);
+				else expect(p.left, JSON.stringify(p)).toBe(k);
+			}
+		});
+	}
+});
+
+describe('곱셈 유형은 절반을 순서를 뒤집어 낸다(세한곱 → 7 × 405)', () => {
+	const course = getCourse('53-1')!;
+	// 두 수의 자릿수가 다른 곱셈 유형만 자릿수로 순서를 가릴 수 있다(19단·두두곱·X11·X99 는 둘 다 두자리 — X11·X99 는 위 테스트가 검사)
+	const uneven = ['531-7-1', '531-7-2', '531-9', '531-10', '531-11', '531-13'];
+	for (const id of uneven) {
+		test(`${id}: 짝수 번째는 긴 수가 앞, 홀수 번째는 뒤`, () => {
+			const section = course.sections.find((s) => s.id === id)!;
+			for (let i = 0; i < 24; i++) {
+				const p = section.generate(Math.random, i);
+				const longFirst = String(p.left).length >= String(p.right).length;
+				// 두자리 × 몇십은 둘 다 두자리라 «몇십이 뒤면 짝수» 로 가린다
+				const evenShape = id === '531-9' ? p.right % 10 === 0 : longFirst;
+				expect(evenShape, `${i}번째 ${JSON.stringify(p)}`).toBe(i % 2 === 0);
+			}
+		});
+	}
 });

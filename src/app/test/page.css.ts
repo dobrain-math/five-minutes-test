@@ -54,7 +54,8 @@ export const progressTrack = style({
 	flex: 1,
 	height: 6,
 	borderRadius: vars.radius.full,
-	background: vars.color.grey100,
+	// NOTE: 다크에서 grey100 은 상단 바 바탕(layeredBackground)과 같은 색이라 막대가 사라졌다 → 반투명 tint(2026-10-22)
+	background: `color-mix(in srgb, ${vars.color.grey500} 22%, transparent)`,
 	overflow: 'hidden',
 });
 

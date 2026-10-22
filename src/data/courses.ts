@@ -30,6 +30,27 @@ const twoPlusOneCarry = (rng: Rng) => {
 	return add(num(int(rng, 1, 9), o), int(rng, Math.max(2, 10 - o), 9));
 };
 
+/**
+ * 곱셈은 홀수 번째(절반)를 순서를 뒤집어 낸다(405 × 7 ↔ 7 × 405, 원장님 결정 2026-10-22).
+ * 생성기는 «긴 수 × 짧은 수» 모양만 만들고 이 함수로 감싼다.
+ */
+const bothWays =
+	(gen: SectionDef['generate']): SectionDef['generate'] =>
+	(rng, i = 0) => {
+		const p = gen(rng, i);
+		return i % 2 === 0 ? p : mul(p.right, p.left);
+	};
+
+/**
+ * 두자리(0으로 안 끝남) × k. 홀수 번째(절반)는 k 를 앞에 둔다(91 × 11 ↔ 11 × 91, 원장님 결정 2026-10-22).
+ */
+const fixedTimes =
+	(k: number): SectionDef['generate'] =>
+	(rng, i = 0) => {
+		const two = num(int(rng, 1, 9), int(rng, 1, 9));
+		return i % 2 === 0 ? mul(two, k) : mul(k, two);
+	};
+
 // ── 기본연습 ───────────────────────────────────────────────
 
 const basic: Course = {
@@ -172,26 +193,28 @@ const book531: Course = {
 		{
 			id: '531-7-1',
 			title: '올림이 없는 두자리 × 한자리 연산',
-			generate: (rng) => {
+			generate: bothWays((rng) => {
 				const b = int(rng, 2, 4);
 				const max = Math.floor(9 / b);
 				return mul(num(int(rng, 1, max), int(rng, 1, max)), b);
-			},
+			}),
 		},
 		{
 			id: '531-7-2',
 			title: '올림이 있는 두자리 × 한자리 연산',
-			generate: (rng) => {
+			generate: bothWays((rng) => {
 				const b = int(rng, 2, 9);
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
-			},
+			}),
 		},
 		// ── 곱셈 추가(2026-10-22, 원장님 목록 8~15번. 16번 ST 부터는 아직 안 만듦) ──
 		// NOTE: 제목은 원장님이 준 짧은 이름 그대로. 「세한곱」이 둘이라 -1·-2 를 붙였다(이름으로 유형을 찾으므로 겹치면 안 됨).
 		{
 			id: '531-8',
 			title: '19단',
-			generate: (rng) => mul(num(1, int(rng, 1, 9)), num(1, int(rng, 1, 9))),
+			generate: bothWays((rng) =>
+				mul(num(1, int(rng, 1, 9)), num(1, int(rng, 1, 9))),
+			),
 		},
 		{
 			id: '531-9',
@@ -207,39 +230,42 @@ const book531: Course = {
 			id: '531-10',
 			title: '세한곱-1',
 			// 405 × 7 처럼 세자리의 십의자리 0, 일의자리 2~9 / 한자리 2~9
-			generate: (rng) =>
+			generate: bothWays((rng) =>
 				mul(num(int(rng, 1, 9), 0, int(rng, 2, 9)), int(rng, 2, 9)),
+			),
 		},
 		{
 			id: '531-11',
 			title: 'X5',
-			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 5),
+			generate: fixedTimes(5),
 		},
 		{
 			id: '531-12',
 			title: 'X11',
-			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 11),
+			generate: fixedTimes(11),
 		},
 		{
 			id: '531-13',
 			title: '세한곱-2',
 			// 340 × 6 처럼 세자리의 일의자리 0, 십의자리 2~9 / 한자리 2~9(세한곱-1 과 같게)
-			generate: (rng) =>
+			generate: bothWays((rng) =>
 				mul(num(int(rng, 1, 9), int(rng, 2, 9), 0), int(rng, 2, 9)),
+			),
 		},
 		{
 			id: '531-14',
 			title: '두두곱',
-			generate: (rng) =>
+			generate: bothWays((rng) =>
 				mul(
 					num(int(rng, 1, 9), int(rng, 1, 9)),
 					num(int(rng, 1, 9), int(rng, 1, 9)),
 				),
+			),
 		},
 		{
 			id: '531-15',
 			title: 'X99',
-			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 99),
+			generate: fixedTimes(99),
 		},
 	],
 };

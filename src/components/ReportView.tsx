@@ -91,7 +91,7 @@ export default function ReportView({ report, actions }: Props) {
 					{/* NOTE: 한 유형만 풀었으면 이 칸은 없다. 전체 풀기만 레이더 + 유형 목록(2026-10-22). */}
 					{part === undefined && (
 						<section className={`${layout.card} ${s.block}`}>
-							<h2 className={s.blockTitle}>풀이 스타일 분석</h2>
+							<h2 className={s.blockTitle}>강 · 약점분석</h2>
 							<RadarChart sections={sections} marks={marks} />
 							<ul className={s.sectionList}>
 								{sections.map((sec, i) => {
