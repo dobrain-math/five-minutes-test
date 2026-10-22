@@ -65,6 +65,18 @@ export default function TestPage() {
 		}, 120);
 	};
 	useEffect(() => () => window.clearTimeout(blurTimer.current), []);
+	// 안드로이드 «뒤로»로 자판만 내리면 커서가 칸에 남는다 → 화면 높이가 다시 커지면(자판이 내려가면) 버튼 줄을 다시 보인다
+	useEffect(() => {
+		const vv = window.visualViewport;
+		if (!vv) return;
+		let tallest = vv.height;
+		const onResize = () => {
+			tallest = Math.max(tallest, vv.height);
+			if (vv.height > tallest - 120) setTyping(false);
+		};
+		vv.addEventListener('resize', onResize);
+		return () => vv.removeEventListener('resize', onResize);
+	}, []);
 
 	// 홈을 거치지 않고 주소로 바로 들어온 경우에만 새로 출제한다.
 	// (채점한 테스트는 다시 출제하지 않는다 — 리포트가 그 결과를 읽어야 하므로)
@@ -198,6 +210,8 @@ export default function TestPage() {
 								setConfirming(false);
 							}}
 							onFocus={handleFocus}
+							// 자판을 «뒤로»로 내린 뒤 같은 칸을 다시 누르면 focus 가 다시 안 온다 — 눌러도 숨긴다
+							onClick={handleFocus}
 							onBlur={handleBlur}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') {
