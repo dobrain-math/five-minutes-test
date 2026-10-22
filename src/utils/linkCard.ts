@@ -39,7 +39,7 @@ export function linkCard(code: string): Card | null {
 }
 
 /**
- * 카드 제목·설명 문구. 링크 카드와 공유 시트 글(shareMessage)이 함께 쓴다.
+ * 카드 제목·설명 문구. 링크 카드와 공유 시트 글(shareParts)이 함께 쓴다.
  * 원장님 지정 형식(2026-10-20): 「⭐m월 d일(요일) 연산 테스트 리포트」 + 「OOO 학생의 금일 …」
  */
 export function cardText(name: string, finishedAt?: number): Card {

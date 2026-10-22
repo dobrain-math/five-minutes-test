@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { HomeIcon } from '@heroicons/react/24/outline';
+import * as modal from '@/components/Modal.css.ts';
+import Modal from '@/components/Modal.tsx';
 import * as themeButton from '@/components/ThemeToggle.css.ts';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { getCourse } from '@/data/courses.ts';
@@ -46,15 +48,23 @@ export default function TestPage() {
 	const [confirming, setConfirming] = useState(false);
 	const [leaving, setLeaving] = useState(false);
 	const inputs = useRef<(HTMLInputElement | null)[]>([]);
-	const leaveDialog = useRef<HTMLDialogElement>(null);
-	// NOTE: 처음으로 가면 푼 답이 사라지므로 화면 가운데 확인 창(모달)으로 한 번 묻는다(원장님 결정 2026-10-22).
-	// 브라우저 기본 <dialog> 의 showModal 이라 뒤 화면은 눌리지 않고 Esc 로도 닫힌다.
-	useEffect(() => {
-		const dialog = leaveDialog.current;
-		if (!dialog) return;
-		if (leaving && !dialog.open) dialog.showModal();
-		if (!leaving && dialog.open) dialog.close();
-	}, [leaving]);
+	// 답 칸에 커서가 있는 동안(= 휴대폰 자판이 떠 있는 동안) 아래 버튼 줄을 숨긴다(원장님 결정 2026-10-22).
+	// NOTE: 자판 바로 위로 올라온 버튼 줄이 지금 풀 문제를 가렸다. 숨기는 건 터치 기기만(page.css.ts bottomBarAuto).
+	const [typing, setTyping] = useState(false);
+	const blurTimer = useRef<number | undefined>(undefined);
+	const handleFocus = () => {
+		window.clearTimeout(blurTimer.current);
+		setTyping(true);
+	};
+	// 다음 칸으로 옮겨 갈 때 잠깐 생기는 blur 로 버튼이 깜빡이지 않게 조금 기다렸다가 판단한다
+	const handleBlur = () => {
+		window.clearTimeout(blurTimer.current);
+		blurTimer.current = window.setTimeout(() => {
+			if (!inputs.current.includes(document.activeElement as HTMLInputElement))
+				setTyping(false);
+		}, 120);
+	};
+	useEffect(() => () => window.clearTimeout(blurTimer.current), []);
 
 	// 홈을 거치지 않고 주소로 바로 들어온 경우에만 새로 출제한다.
 	// (채점한 테스트는 다시 출제하지 않는다 — 리포트가 그 결과를 읽어야 하므로)
@@ -187,6 +197,8 @@ export default function TestPage() {
 								setAnswer(q.id, e.target.value.replace(/\D/g, ''));
 								setConfirming(false);
 							}}
+							onFocus={handleFocus}
+							onBlur={handleBlur}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter') {
 									e.preventDefault();
@@ -198,7 +210,10 @@ export default function TestPage() {
 				))}
 			</ol>
 
-			<div className={layout.bottomBar}>
+			<div
+				className={`${layout.bottomBar} ${s.bottomBarAuto}`}
+				data-typing={typing}
+			>
 				<div className={`${layout.container.wide} ${layout.bottomBarInner}`}>
 					{confirming && (
 						<p className={s.confirm} role="alert">
@@ -228,43 +243,29 @@ export default function TestPage() {
 				</div>
 			</div>
 
-			<dialog
-				ref={leaveDialog}
-				className={s.modal}
-				aria-labelledby="leave-title"
-				aria-describedby="leave-desc"
+			{/* NOTE: 처음으로 가면 푼 답이 사라지므로 화면 가운데 확인 창으로 한 번 묻는다(원장님 결정 2026-10-22). */}
+			<Modal
+				open={leaving}
 				onClose={() => setLeaving(false)}
-				// 바깥(어두운 바탕)을 누르면 닫는다. 안쪽 여백은 modalBody 가 가져서 창 안 빈 곳을 눌러도 안 닫힌다
-				onClick={(e) => {
-					if (e.target === e.currentTarget) setLeaving(false);
-				}}
+				title="처음 화면으로 이동"
+				description="지금까지 적은 답은 저장되지 않습니다. 처음 화면으로 돌아갈까요?"
 			>
-				<div className={s.modalBody}>
-					<h2 id="leave-title" className={s.modalTitle}>
-						처음 화면으로 이동
-					</h2>
-					<p id="leave-desc" className={s.modalText}>
-						지금까지 적은 답은 저장되지 않습니다. 처음 화면으로 돌아갈까요?
-					</p>
-					<div className={s.modalButtons}>
-						<button
-							type="button"
-							className={`${layout.secondaryButton} ${s.modalSecondary}`}
-							autoFocus
-							onClick={() => setLeaving(false)}
-						>
-							계속 풀기
-						</button>
-						<button
-							type="button"
-							className={layout.primaryButton}
-							onClick={() => navigate('/')}
-						>
-							처음으로
-						</button>
-					</div>
-				</div>
-			</dialog>
+				<button
+					type="button"
+					className={`${layout.secondaryButton} ${modal.modalSecondary}`}
+					data-autofocus
+					onClick={() => setLeaving(false)}
+				>
+					계속 풀기
+				</button>
+				<button
+					type="button"
+					className={layout.primaryButton}
+					onClick={() => navigate('/')}
+				>
+					처음으로
+				</button>
+			</Modal>
 		</main>
 	);
 }

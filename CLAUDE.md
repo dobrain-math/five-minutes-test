@@ -32,12 +32,13 @@ src/
   styles/utility.css.ts page, container.{narrow,medium,wide}, content, card, bottomBar, 버튼, 제목
   app/layout.tsx        BrowserRouter + Routes. 폴더 이름만 Next.js 식이고 라우팅은 react-router — 새 화면은 여기에 Route 추가
   app/page.tsx          홈: 이름 input + 나이 가로 막대(range 드래그, 5세~중1 눈금) + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
-  app/test/page.tsx     상단 홈 버튼(누르면 화면 가운데 확인 창 <dialog> showModal 「처음 화면으로 이동」 → 계속 풀기 / 처음으로. Esc·바깥 누르기로 닫힘)·이름·타이머(이 페이지 시간)·「3 / 8 + 유형 이름」·진행률, 문제 카드 그리드. 전체 풀기는 「다음 유형」으로 페이지 넘김(되돌아가기 없음), 마지막 페이지 「채점하기」. 빈칸 있으면 한 번 확인
+  app/test/page.tsx     상단 홈 버튼(누르면 화면 가운데 확인 창 <dialog> showModal 「처음 화면으로 이동」 → 계속 풀기 / 처음으로. Esc·바깥 누르기로 닫힘)·이름·타이머(이 페이지 시간)·「3 / 8 + 유형 이름」·진행률, 문제 카드 그리드. 전체 풀기는 「다음 유형」으로 페이지 넘김(되돌아가기 없음), 마지막 페이지 「채점하기」. 빈칸 있으면 한 번 확인. 터치 기기에서 답 칸에 커서가 있으면(자판이 떠 있으면) 아래 버튼 줄을 숨김(bottomBarAuto, pointer: coarse 만)
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    /r/6글자(서버에서 받아 옴, 받는 동안 ReportSkeleton)·/s/코드·?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
   components/ReportView 점수·시간, 종합 평가, 「강 · 약점분석」(전체 풀기만: RadarChart + 번호·이름·강점/약점·걸린 시간·맞힌 수 목록), 틀린 문제(접힘 → 보기, 유형별 묶음 utils/groupWrong — 번호·이름·N개 제목, 한 유형 풀이는 제목 생략). 한 유형 풀이는 분석 칸 없음 + 머리 띠에 「n번 유형 · 이름」. 모든 화면 800px 한 단
   components/RadarChart  유형별 정답률 n각형(SVG 직접, 라이브러리 없음). 꼭짓점 = 유형 번호, 강점 파랑·약점 빨강
   components/ReportSkeleton  짧은 링크 로딩 중 리포트 모양 회색 막대(반짝임, reduced-motion 이면 멈춤)
+  components/Modal     가운데 확인 창(<dialog> showModal, Esc·바깥 누르기로 닫힘, data-autofocus 버튼에 커서). 시험 화면 «처음으로»·리포트 «링크 보내기»
   components/ThemeToggle 32px 원형 해·달 버튼(@heroicons/react 24/outline). 홈·리포트 제목 줄, 테스트 상단 바 타이머 옆
   utils/theme.ts        resolveTheme(저장값 > 기기 설정)·toggleTheme. localStorage 'theme' — index.html 인라인 스크립트가 첫 화면 전에 적용
 ```
@@ -65,7 +66,7 @@ src/
 - 리포트마다 다른 카드: 미들웨어(/r/* · /s/* · /share)가 코드에서 이름·실시일만 읽어 og 제목·설명을 바꿔 끼운다. 제목 「⭐m월 d일(요일) 연산 테스트 리포트」, 설명 「OOO 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.」(utils/linkCard.ts). DB 없음. 로컬 vite 에서는 안 돌고 배포 뒤에만 동작. 미들웨어가 가져가는 파일(shareCode·linkCard·formatDate·data/ages)은 '@/' 별칭 없이 상대 경로만
 - 날짜는 모두 한국 시각(formatDate.ts) — Vercel 서버가 UTC 라서
 - 공유 코드 v4(맨 앞 '4', 2026-10-22): v3 머리 + 풀이 범위(0 전체 / n번 유형) + 유형별 걸린 초(버림 — 화면 formatDuration 과 맞춤). 192문제 흔한 결과 200자 이하. v3('3…'): 나이는 목록 번호, 걸린 시간 초·실시일 분, 적은 답은 정답과의 차이. 흔한 결과 165자(v2 201자). v1('e…')·v2('2…') 링크도 계속 읽는다. 유형은 권 뒤에 이어 붙이기만 한다 — 옛 전체 풀기 링크는 앞에서부터 그 개수만큼으로 읽는다(decodeShort). 순서를 바꾸거나 중간에 끼우면 옛 링크 이름이 엇갈린다. ★새 모양 번호를 만들면 server/shortLink.ts 의 CODE_PATTERN 도 넓힐 것(v4 때 빠뜨려 저장이 막힐 뻔함)
-- 공유: 공유 시트·링크 복사 글은 카드와 같은 문구(linkCard.cardText) + 마지막 줄 링크를 «한 덩어리»로(utils/shareMessage.ts). navigator.share 에 url 을 따로 넘기면 카톡이 글을 버리고 링크만 보낸다(2026-10-20 휴대폰 확인) → text 하나만 넘긴다. 공유받은 화면(/share)은 아래 버튼 없음, 잘못된 링크는 버튼 없이 안내 글만 화면 가운데
+- 공유: 카톡 «두 개»로 보낸다(원장님 결정 2026-10-22) — ① 카드와 같은 문구(linkCard.cardText) ② 링크만(utils/shareMessage.ts shareParts). 공유 시트 한 번 = 메시지 한 개이고 아이폰은 누른 직후에만 시트가 열려서, ① 을 보낸 뒤 가운데 창(components/Modal)의 «링크 보내기»를 한 번 더 누른다. 공유 시트 없는 PC 는 같은 두 단계를 복사로(«링크 복사»). navigator.share 에 url 칸을 따로 넘기면 카톡이 글을 버린 적이 있어(2026-10-20) 둘 다 text 로만 넘긴다. 공유받은 화면(/share)은 아래 버튼 없음, 잘못된 링크는 버튼 없이 안내 글만 화면 가운데
 - 리포트는 PC 에서도 한 단(800px)으로 내려 읽는다. 2단 대시보드는 줄이 안 맞아 없앴다(2026-10-20)
 - 색 테두리·선택 링·포커스 링은 모두 1px
 - 문구는 경어(~니다) 중심, 「~요」는 가끔만(평가문은 ~요 문장 최대 1개 — evaluate.test.ts 가 검사). 요청 문장의 「~주세요」·「~할까요?」 정도만 허용
@@ -138,3 +139,4 @@ src/
 - 2026-10-22: 덧셈도 절반 순서 뒤집기(bothWays 를 연산 기호 유지로 일반화), 유형 이름 12개를 문장형 → «짧은 이름(조건)»(두두덧셈(받아올림O) 등). TDD(이름 목록·뒤집기·같은 난수 짝)
 - 2026-10-22: 유형 이름과 괄호 사이 한 칸 띄움(두두덧셈 (받아올림O))
 - 2026-10-22: 시험 화면 홈 버튼 확인을 아래 버튼 줄 → 가운데 모달(<dialog> showModal, 어두운 바탕·떠오르기, reduced-motion 이면 끔). main.css 의 margin 0 이 dialog 가운데 정렬을 지워 margin auto 를 다시 줌. 390·1440·다크·Esc·바깥 누르기·처음으로 브라우저 확인
+- 2026-10-22: 휴대폰 자판이 떠 있는 동안 시험 화면 아래 버튼 줄 숨김(원장님 A안), 공유를 카톡 두 개(안내 글 → «링크 보내기» 창 → 링크)로(shareParts TDD), 확인 창을 components/Modal 로 분리. 저장소(Upstash) 는 배포 사이트에 아직 미연결(503 확인). 브라우저 확인: 버튼 숨김 판정·두 단계 공유(공유 시트 흉내)·PC 복사·취소·Esc

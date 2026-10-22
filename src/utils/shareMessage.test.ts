@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Report } from '@/@types/test';
-import { shareMessage } from './shareMessage.ts';
+import { shareParts } from './shareMessage.ts';
 
 const report: Report = {
 	studentName: '김하늘',
@@ -17,17 +17,20 @@ const report: Report = {
 
 const url = 'https://five-minutes-test.vercel.app/s/3abc';
 
-describe('shareMessage', () => {
-	test('링크 카드와 같은 제목·안내 다음 줄에 링크를 붙인 «한 덩어리 글»', () => {
-		expect(shareMessage(report, url)).toBe(
-			'⭐10월 20일(화) 연산 테스트 리포트\n' +
-				'김하늘 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.\n' +
-				url,
-		);
+describe('shareParts', () => {
+	test('카톡 두 개로 보낸다: 첫째는 카드와 같은 제목·안내(링크 없음), 둘째는 링크만', () => {
+		expect(shareParts(report, url)).toEqual({
+			message:
+				'⭐10월 20일(화) 연산 테스트 리포트\n' +
+				'김하늘 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.',
+			link: url,
+		});
 	});
 
 	test('날짜가 없는 옛 결과는 날짜 없이', () => {
 		const { finishedAt: _, ...old } = report;
-		expect(shareMessage(old, url).split('\n')[0]).toBe('⭐연산 테스트 리포트');
+		expect(shareParts(old, url).message.split('\n')[0]).toBe(
+			'⭐연산 테스트 리포트',
+		);
 	});
 });
