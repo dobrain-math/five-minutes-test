@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { globalStyle, keyframes, style } from '@vanilla-extract/css';
 import { canHover, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 
@@ -262,3 +262,65 @@ export const partTitle = style([
 	text.body2,
 	{ fontWeight: vars.font.weight.semibold, color: vars.color.grey900 },
 ]);
+
+// ── 전체 풀기 / 유형별 풀기 ─────────────────────────────────
+
+export const modeGrid = style({
+	display: 'grid',
+	gridTemplateColumns: '1fr 1fr',
+	gap: 8,
+});
+
+// courseItem 과 함께 쓴다
+export const modeItem = style({
+	gap: 10,
+	minHeight: 64,
+	padding: '12px 14px',
+	borderRadius: vars.radius.md,
+});
+
+/**
+ * 유형 목록 펼치기: 높이 0fr → 1fr 로 늘린다(높이를 몰라도 부드럽게 열리고 닫힌다).
+ * NOTE: 움직임 줄이기 설정이면 바로 열고 닫는다.
+ */
+export const partReveal = style({
+	display: 'grid',
+	gridTemplateRows: '0fr',
+	opacity: 0,
+	transition:
+		'grid-template-rows 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s',
+	selectors: {
+		'&[data-open="true"]': { gridTemplateRows: '1fr', opacity: 1 },
+	},
+	'@media': {
+		'(prefers-reduced-motion: reduce)': { transition: 'none' },
+	},
+});
+
+// NOTE: overflow hidden 이 카드 그림자를 자르지 않게 양옆을 조금 넓혀 두고 목록 안쪽 여백으로 되돌린다.
+export const partRevealInner = style({
+	minHeight: 0,
+	overflow: 'hidden',
+	margin: '0 -8px',
+});
+
+globalStyle(`${partRevealInner} > ul`, { padding: '10px 8px 8px' });
+
+/** 펼칠 때 줄들이 위에서 차례로 내려온다 */
+const dropIn = keyframes({
+	from: { opacity: 0, transform: 'translateY(-8px)' },
+	to: { opacity: 1, transform: 'none' },
+});
+
+for (let n = 1; n <= 12; n++) {
+	globalStyle(`${partReveal}[data-open="true"] li:nth-child(${n})`, {
+		'@media': {
+			'(prefers-reduced-motion: no-preference)': {
+				animation: `${dropIn} 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) ${60 + (n - 1) * 30}ms both`,
+			},
+		},
+	});
+}
+
+// 유형별을 눌러 이 칸으로 스크롤할 때 위에 살짝 여백을 남긴다
+export const modeField = style({ scrollMarginTop: 16 });

@@ -364,16 +364,49 @@ export const sectionTime = style([
 
 // ── 틀린 문제 ─────────────────────────────────────────────
 
+/** 유형별 묶음들. 「보기」를 누르면 살짝 떠오르며 펼쳐진다 */
+export const wrongGroups = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 18,
+	marginTop: 14,
+	animation: riseAnimation(0),
+	'@media': {
+		'(prefers-reduced-motion: reduce)': { animation: 'none' },
+	},
+});
+
+/** 묶음 제목: 번호 동그라미 + 유형 이름 + 틀린 개수 */
+export const wrongGroupTitle = style([
+	text.body2,
+	{
+		display: 'flex',
+		alignItems: 'center',
+		gap: 0,
+		marginBottom: 8,
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey800,
+	},
+]);
+
+export const wrongGroupName = style({ minWidth: 0, wordBreak: 'keep-all' });
+
+export const wrongGroupCount = style([
+	text.caption,
+	{
+		flexShrink: 0,
+		marginLeft: 6,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.red500,
+	},
+]);
+
 export const wrongList = style({
 	display: 'grid',
 	gridTemplateColumns: '1fr',
 	gap: 8,
-	marginTop: 14,
 	listStyle: 'none',
-	// NOTE: 「보기」를 누르면 목록이 살짝 떠오르며 펼쳐진다.
-	animation: riseAnimation(0),
 	'@media': {
-		'(prefers-reduced-motion: reduce)': { animation: 'none' },
 		[breakpoints.tablet]: { gridTemplateColumns: 'repeat(2, 1fr)' },
 	},
 });
@@ -444,11 +477,6 @@ export const wrongExpr = style([
 	text.expression,
 	text.number,
 	{ fontSize: vars.font.size.t4, color: vars.color.grey900 },
-]);
-
-export const wrongSection = style([
-	text.caption2,
-	{ marginTop: 2, color: vars.color.grey500 },
 ]);
 
 export const wrongAnswers = style([

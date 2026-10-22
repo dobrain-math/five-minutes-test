@@ -12,7 +12,7 @@ const SIZE = 300;
 const CENTER = SIZE / 2;
 const RADIUS = 104;
 /** 꼭짓점 번호 동그라미가 놓이는 거리 */
-const LABEL_RADIUS = RADIUS + 22;
+const LABEL_RADIUS = RADIUS + 17;
 const RINGS = [0.25, 0.5, 0.75, 1];
 
 /** i 번째 축(맨 위에서 시계 방향)에서 중심으로부터 r 만큼 떨어진 점 */
@@ -99,7 +99,7 @@ export default function RadarChart({ sections, marks }: Props) {
 				const [x, y] = point(i, count, LABEL_RADIUS);
 				return (
 					<g key={i} data-mark={marks[i] ?? undefined} className={s.vertex}>
-						<circle className={s.vertexCircle} cx={x} cy={y} r={12} />
+						<circle className={s.vertexCircle} cx={x} cy={y} r={9} />
 						<text className={s.vertexText} x={x} y={y}>
 							{i + 1}
 						</text>

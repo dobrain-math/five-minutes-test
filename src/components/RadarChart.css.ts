@@ -73,7 +73,7 @@ export const vertexCircle = style({
 
 export const vertexText = style({
 	fill: vars.color.grey700,
-	fontSize: 12,
+	fontSize: 10,
 	fontWeight: 700,
 	fontFamily: vars.font.family,
 	textAnchor: 'middle',

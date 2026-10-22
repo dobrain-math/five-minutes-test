@@ -6,6 +6,7 @@ import * as layout from '@/styles/utility.css.ts';
 import { evaluate } from '@/utils/evaluate.ts';
 import { formatTestDate } from '@/utils/formatDate.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
+import { groupWrong } from '@/utils/groupWrong.ts';
 import { highlightSections } from '@/utils/highlightSections.ts';
 import RadarChart from './RadarChart.tsx';
 import * as s from './ReportView.css.ts';
@@ -185,21 +186,47 @@ export default function ReportView({ report, actions }: Props) {
 										</span>
 									</button>
 								</h2>
+								{/* NOTE: 유형별로 묶어 보여 준다(2026-10-22). 한 유형 풀이는 묶음이 하나라 제목 줄을 생략한다. */}
 								{showWrong && (
-									<ul id="wrong-list" className={s.wrongList}>
-										{wrong.map((q, i) => (
-											<li key={i} className={s.wrongItem}>
-												<div>
-													<div className={s.wrongExpr}>{q.text}</div>
-													<div className={s.wrongSection}>{q.sectionTitle}</div>
-												</div>
-												<div className={s.wrongAnswers}>
-													<span className={s.mine}>{q.mine || '빈칸'}</span>
-													<span className={s.correctAnswer}>{q.answer}</span>
-												</div>
-											</li>
+									<div id="wrong-list" className={s.wrongGroups}>
+										{groupWrong(sections, wrong).map((group) => (
+											<div key={group.title}>
+												{part === undefined && (
+													<h3 className={s.wrongGroupTitle}>
+														{group.number !== null && (
+															<span
+																className={s.sectionNumber}
+																data-mark={marks[group.number - 1] ?? undefined}
+															>
+																{group.number}
+															</span>
+														)}
+														<span className={s.wrongGroupName}>
+															{group.title}
+														</span>
+														<span className={s.wrongGroupCount}>
+															{group.items.length}개
+														</span>
+													</h3>
+												)}
+												<ul className={s.wrongList}>
+													{group.items.map((q, i) => (
+														<li key={i} className={s.wrongItem}>
+															<div className={s.wrongExpr}>{q.text}</div>
+															<div className={s.wrongAnswers}>
+																<span className={s.mine}>
+																	{q.mine || '빈칸'}
+																</span>
+																<span className={s.correctAnswer}>
+																	{q.answer}
+																</span>
+															</div>
+														</li>
+													))}
+												</ul>
+											</div>
 										))}
-									</ul>
+									</div>
 								)}
 							</>
 						)}
