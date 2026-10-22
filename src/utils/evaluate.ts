@@ -15,7 +15,7 @@ const percent = (r: number) => `${Math.round(r * 100)}%`;
 
 /**
  * 「두두덧셈 연산」처럼 뒤에 「연산」을 붙인다.
- * NOTE: 새 유형 이름은 「…한자리 연산」으로 끝나서 그대로 둔다. 예전 공유 링크는 옛 이름이 그대로 온다.
+ * NOTE: 지금 유형 이름(「두두덧셈(받아올림O)」 2026-10-22)은 「연산」을 붙인다. 2026-10-20 문장형 이름(「…한자리 연산」)이 담긴 옛 v1 링크는 그대로 둔다.
  */
 const asOperation = (scores: SectionScore[]) => {
 	const titles = joinTitles(scores);

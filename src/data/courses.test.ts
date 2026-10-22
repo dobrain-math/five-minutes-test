@@ -7,7 +7,7 @@ const ones = (n: number) => n % 10;
 const tens = (n: number) => Math.floor(n / 10) % 10;
 const digits = (n: number) => String(n).length;
 
-/** 곱셈은 절반을 순서를 뒤집어 내므로(원장님 결정 2026-10-22) 뒤집은 쪽도 맞으면 통과 */
+/** 곱셈·덧셈은 절반을 순서를 뒤집어 내므로(원장님 결정 2026-10-22) 뒤집은 쪽도 맞으면 통과 */
 const either = (rule: (p: Problem) => boolean) => (p: Problem) =>
 	rule(p) || rule({ ...p, left: p.right, right: p.left });
 
@@ -34,16 +34,20 @@ const rules: Record<string, (p: Problem) => boolean> = {
 		digits(a) === 2 &&
 		digits(b) === 1 &&
 		ones(a) < b,
-	'basic-6': ({ left: a, op, right: b }) =>
-		op === '+' && digits(a) === 2 && digits(b) === 1 && ones(a) + b >= 10,
+	'basic-6': either(
+		({ left: a, op, right: b }) =>
+			op === '+' && digits(a) === 2 && digits(b) === 1 && ones(a) + b >= 10,
+	),
 	'basic-7': ({ left: a, op, right: b }) =>
 		op === '-' && digits(a) === 2 && digits(b) === 1 && ones(a) < b,
 	'basic-8': ({ left: a, op, right: b }) =>
 		op === '-' && digits(a) === 2 && ones(a) === 0 && digits(b) === 1,
 
 	// 53-1권
-	'531-1': ({ left: a, op, right: b }) =>
-		op === '+' && digits(a) === 2 && digits(b) === 1 && ones(a) + b >= 10,
+	'531-1': either(
+		({ left: a, op, right: b }) =>
+			op === '+' && digits(a) === 2 && digits(b) === 1 && ones(a) + b >= 10,
+	),
 	'531-2': ({ left: a, op, right: b }) =>
 		op === '-' && digits(a) === 2 && digits(b) === 1 && ones(a) < b,
 	'531-3': ({ left: a, op, right: b }) =>
@@ -54,13 +58,15 @@ const rules: Record<string, (p: Problem) => boolean> = {
 		digits(b) === 2 &&
 		a > b &&
 		ones(a) < ones(b),
-	'531-5': ({ left: a, op, right: b }) =>
-		op === '+' &&
-		digits(a) === 3 &&
-		tens(a) === 9 &&
-		ones(a) >= 6 &&
-		digits(b) === 2 &&
-		ones(a) + ones(b) >= 10,
+	'531-5': either(
+		({ left: a, op, right: b }) =>
+			op === '+' &&
+			digits(a) === 3 &&
+			tens(a) === 9 &&
+			ones(a) >= 6 &&
+			digits(b) === 2 &&
+			ones(a) + ones(b) >= 10,
+	),
 	'531-6': ({ left: a, op, right: b }) =>
 		op === '-' &&
 		digits(a) === 3 &&
@@ -130,12 +136,26 @@ const rules: Record<string, (p: Problem) => boolean> = {
 };
 
 describe('53-1권 유형 목록', () => {
-	test('8번 19단부터 15번 X99까지 기존 8개 뒤에 이어 붙는다(16번 ST부터는 아직 없음)', () => {
-		expect(
-			getCourse('53-1')!
-				.sections.slice(8)
-				.map((s) => s.title),
-		).toEqual([
+	test('유형 이름은 짧은 이름 + 괄호 조건(원장님 결정 2026-10-22, 16번 ST부터는 아직 없음)', () => {
+		expect(getCourse('basic')!.sections.map((s) => s.title)).toEqual([
+			'한한덧셈(받아올림X)',
+			'한한덧셈(받아올림O)',
+			'한한뺄셈(받아내림X)',
+			'두한뺄셈(받아내림X)',
+			'십몇한뺄셈(받아내림O)',
+			'두한덧셈(받아올림O)',
+			'두한뺄셈(받아내림O)',
+			'몇십한뺄셈(받아내림O)',
+		]);
+		expect(getCourse('53-1')!.sections.map((s) => s.title)).toEqual([
+			'두한덧셈(받아올림O)',
+			'두한뺄셈(받아내림O)',
+			'두두덧셈(받아올림O)',
+			'두두뺄셈(받아내림O)',
+			'셋둘덧셈(받아올림O)',
+			'셋둘뺄셈(받아내림 두 번)',
+			'두한곱셈(올림X)',
+			'두한곱셈(올림O)',
 			'19단',
 			'두자리 × 몇십',
 			'세한곱-1',
@@ -254,19 +274,47 @@ describe('X5·X11·X99: 절반은 정해진 수가 앞(91 × 11 ↔ 11 × 91)', 
 	}
 });
 
-describe('곱셈 유형은 절반을 순서를 뒤집어 낸다(세한곱 → 7 × 405)', () => {
-	const course = getCourse('53-1')!;
+describe('곱셈·덧셈 유형은 절반을 순서를 뒤집어 낸다(세한곱 → 7 × 405, 두한덧셈 → 7 + 48)', () => {
+	const sectionOf = (id: string) =>
+		courses.flatMap((c) => c.sections).find((s) => s.id === id)!;
 	// 두 수의 자릿수가 다른 곱셈 유형만 자릿수로 순서를 가릴 수 있다(19단·두두곱·X11·X99 는 둘 다 두자리 — X11·X99 는 위 테스트가 검사)
-	const uneven = ['531-7-1', '531-7-2', '531-9', '531-10', '531-11', '531-13'];
+	// 한한덧셈·두두덧셈·19단·두두곱은 두 수의 자릿수가 같아 아래 «같은 난수면 뒤집힌 짝» 테스트가 검사
+	const uneven = [
+		'basic-6',
+		'531-1',
+		'531-5',
+		'531-7-1',
+		'531-7-2',
+		'531-9',
+		'531-10',
+		'531-11',
+		'531-13',
+	];
 	for (const id of uneven) {
 		test(`${id}: 짝수 번째는 긴 수가 앞, 홀수 번째는 뒤`, () => {
-			const section = course.sections.find((s) => s.id === id)!;
+			const section = sectionOf(id);
 			for (let i = 0; i < 24; i++) {
 				const p = section.generate(Math.random, i);
 				const longFirst = String(p.left).length >= String(p.right).length;
 				// 두자리 × 몇십은 둘 다 두자리라 «몇십이 뒤면 짝수» 로 가린다
 				const evenShape = id === '531-9' ? p.right % 10 === 0 : longFirst;
 				expect(evenShape, `${i}번째 ${JSON.stringify(p)}`).toBe(i % 2 === 0);
+			}
+		});
+	}
+
+	// 같은 난수를 넣으면 홀수 번째는 짝수 번째를 뒤집은 식이어야 한다
+	const seeded = (seed: number) => {
+		let x = seed;
+		return () => (x = (x * 9301 + 49297) % 233280) / 233280;
+	};
+	for (const id of ['basic-1', 'basic-2', '531-3', '531-8', '531-14']) {
+		test(`${id}: 같은 난수면 홀수 번째는 짝수 번째를 뒤집은 식`, () => {
+			const section = sectionOf(id);
+			for (let n = 1; n <= 50; n++) {
+				const a = section.generate(seeded(n), 0);
+				const b = section.generate(seeded(n), 1);
+				expect(b).toEqual({ ...a, left: a.right, right: a.left });
 			}
 		});
 	}

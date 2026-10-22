@@ -24,22 +24,22 @@ const mul = (left: number, right: number): Problem => ({
 
 // ── 공통 생성기 ────────────────────────────────────────────
 
-/** 두자리 + 한자리, 받아올림 o */
-const twoPlusOneCarry = (rng: Rng) => {
-	const o = int(rng, 1, 9);
-	return add(num(int(rng, 1, 9), o), int(rng, Math.max(2, 10 - o), 9));
-};
-
 /**
- * 곱셈은 홀수 번째(절반)를 순서를 뒤집어 낸다(405 × 7 ↔ 7 × 405, 원장님 결정 2026-10-22).
- * 생성기는 «긴 수 × 짧은 수» 모양만 만들고 이 함수로 감싼다.
+ * 곱셈·덧셈은 홀수 번째(절반)를 순서를 뒤집어 낸다(405 × 7 ↔ 7 × 405, 48 + 7 ↔ 7 + 48, 원장님 결정 2026-10-22).
+ * 생성기는 «긴 수 ○ 짧은 수» 모양만 만들고 이 함수로 감싼다. 뺄셈은 뒤집으면 답이 바뀌므로 쓰지 않는다.
  */
 const bothWays =
 	(gen: SectionDef['generate']): SectionDef['generate'] =>
 	(rng, i = 0) => {
 		const p = gen(rng, i);
-		return i % 2 === 0 ? p : mul(p.right, p.left);
+		return i % 2 === 0 ? p : { ...p, left: p.right, right: p.left };
 	};
+
+/** 두자리 + 한자리, 받아올림 o */
+const twoPlusOneCarry = bothWays((rng) => {
+	const o = int(rng, 1, 9);
+	return add(num(int(rng, 1, 9), o), int(rng, Math.max(2, 10 - o), 9));
+});
 
 /**
  * 두자리(0으로 안 끝남) × k. 홀수 번째(절반)는 k 를 앞에 둔다(91 × 11 ↔ 11 × 91, 원장님 결정 2026-10-22).
@@ -59,23 +59,23 @@ const basic: Course = {
 	sections: [
 		{
 			id: 'basic-1',
-			title: '받아올림이 없는 한 + 한 연산',
-			generate: (rng) => {
+			title: '한한덧셈(받아올림X)',
+			generate: bothWays((rng) => {
 				const a = int(rng, 1, 8);
 				return add(a, int(rng, 1, 9 - a));
-			},
+			}),
 		},
 		{
 			id: 'basic-2',
-			title: '받아올림이 있는 한자리 + 한자리 연산',
-			generate: (rng) => {
+			title: '한한덧셈(받아올림O)',
+			generate: bothWays((rng) => {
 				const a = int(rng, 1, 9);
 				return add(a, int(rng, 10 - a, 9));
-			},
+			}),
 		},
 		{
 			id: 'basic-3',
-			title: '받아내림이 없는 한자리 - 한자리 연산',
+			title: '한한뺄셈(받아내림X)',
 			generate: (rng) => {
 				const a = int(rng, 2, 9);
 				return sub(a, int(rng, 1, a - 1));
@@ -83,7 +83,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-4',
-			title: '받아내림이 없는 두자리 - 한자리 연산',
+			title: '두한뺄셈(받아내림X)',
 			generate: (rng) => {
 				const o = int(rng, 1, 9);
 				return sub(num(int(rng, 1, 9), o), int(rng, 1, o));
@@ -91,7 +91,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-5',
-			title: '받아내림이 있는 11~18 - 한자리 연산',
+			title: '십몇한뺄셈(받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(1, o), int(rng, o + 1, 9));
@@ -99,12 +99,12 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-6',
-			title: '받아올림이 있는 두자리 + 한자리 연산',
+			title: '두한덧셈(받아올림O)',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: 'basic-7',
-			title: '받아내림이 있는 두자리 - 한자리 연산',
+			title: '두한뺄셈(받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(int(rng, 2, 9), o), int(rng, o + 1, 9));
@@ -112,7 +112,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-8',
-			title: '0으로 끝나는 두자리 - 한자리 연산',
+			title: '몇십한뺄셈(받아내림O)',
 			generate: (rng) => sub(num(int(rng, 1, 9), 0), int(rng, 1, 9)),
 		},
 	],
@@ -143,12 +143,12 @@ const book531: Course = {
 	sections: [
 		{
 			id: '531-1',
-			title: '받아올림이 있는 두자리 + 한자리 연산',
+			title: '두한덧셈(받아올림O)',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: '531-2',
-			title: '받아내림이 있는 두자리 - 한자리 연산',
+			title: '두한뺄셈(받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 0, 8);
 				return sub(num(int(rng, 1, 9), o), int(rng, o + 1, 9));
@@ -156,18 +156,18 @@ const book531: Course = {
 		},
 		{
 			id: '531-3',
-			title: '받아올림이 있는 두자리 + 두자리 연산',
-			generate: (rng) => {
+			title: '두두덧셈(받아올림O)',
+			generate: bothWays((rng) => {
 				const oa = int(rng, 1, 9);
 				return add(
 					num(int(rng, 1, 9), oa),
 					num(int(rng, 1, 9), int(rng, 10 - oa, 9)),
 				);
-			},
+			}),
 		},
 		{
 			id: '531-4',
-			title: '받아내림이 있는 두자리 - 두자리 연산',
+			title: '두두뺄셈(받아내림O)',
 			generate: (rng) => {
 				const ta = int(rng, 2, 9);
 				const oa = int(rng, 0, 8);
@@ -176,23 +176,23 @@ const book531: Course = {
 		},
 		{
 			id: '531-5',
-			title: '받아올림이 있는 세자리 + 두자리 연산',
-			generate: (rng) => {
+			title: '셋둘덧셈(받아올림O)',
+			generate: bothWays((rng) => {
 				const o = int(rng, 6, 9);
 				return add(
 					num(int(rng, 1, 9), 9, o),
 					num(int(rng, 1, 9), int(rng, 10 - o, 9)),
 				);
-			},
+			}),
 		},
 		{
 			id: '531-6',
-			title: '받아내림이 두 번 있는 세자리 - 두자리 연산',
+			title: '셋둘뺄셈(받아내림 두 번)',
 			generate: threeMinusTwo,
 		},
 		{
 			id: '531-7-1',
-			title: '올림이 없는 두자리 × 한자리 연산',
+			title: '두한곱셈(올림X)',
 			generate: bothWays((rng) => {
 				const b = int(rng, 2, 4);
 				const max = Math.floor(9 / b);
@@ -201,14 +201,14 @@ const book531: Course = {
 		},
 		{
 			id: '531-7-2',
-			title: '올림이 있는 두자리 × 한자리 연산',
+			title: '두한곱셈(올림O)',
 			generate: bothWays((rng) => {
 				const b = int(rng, 2, 9);
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
 			}),
 		},
 		// ── 곱셈 추가(2026-10-22, 원장님 목록 8~15번. 16번 ST 부터는 아직 안 만듦) ──
-		// NOTE: 제목은 원장님이 준 짧은 이름 그대로. 「세한곱」이 둘이라 -1·-2 를 붙였다(이름으로 유형을 찾으므로 겹치면 안 됨).
+		// NOTE: 제목은 원장님이 준 짧은 이름 그대로(앞 유형들도 2026-10-22 「두두덧셈(받아올림O)」 꼴 짧은 이름으로 바꿈). 「세한곱」이 둘이라 -1·-2 를 붙였다(이름으로 유형을 찾으므로 겹치면 안 됨).
 		{
 			id: '531-8',
 			title: '19단',
