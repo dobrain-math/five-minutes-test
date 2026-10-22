@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
+import { HomeIcon } from '@heroicons/react/24/outline';
+import * as themeButton from '@/components/ThemeToggle.css.ts';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { getCourse } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
@@ -42,6 +44,7 @@ export default function TestPage() {
 		finish,
 	} = useTestSessionStore();
 	const [confirming, setConfirming] = useState(false);
+	const [leaving, setLeaving] = useState(false);
 	const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
 	// 홈을 거치지 않고 주소로 바로 들어온 경우에만 새로 출제한다.
@@ -100,6 +103,22 @@ export default function TestPage() {
 			<div className={s.topBar}>
 				<div className={layout.container.wide}>
 					<div className={s.topRow}>
+						<button
+							type="button"
+							className={themeButton.button}
+							aria-label="처음 화면으로"
+							title="처음 화면으로"
+							onClick={() => {
+								setConfirming(false);
+								setLeaving(true);
+							}}
+						>
+							<HomeIcon
+								className={themeButton.icon}
+								strokeWidth={2.25}
+								aria-hidden
+							/>
+						</button>
 						<span className={s.courseName}>
 							{studentName} · {course.title}
 						</span>
@@ -172,31 +191,58 @@ export default function TestPage() {
 
 			<div className={layout.bottomBar}>
 				<div className={`${layout.container.wide} ${layout.bottomBarInner}`}>
-					{confirming && (
-						<p className={s.confirm} role="alert">
-							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
-							{isLastPage ? '채점할까요' : '다음 유형으로 넘어갈까요'}?
-						</p>
+					{/* NOTE: 처음으로 가면 푼 답이 사라지므로 한 번 묻는다. 브라우저 확인 창 대신 화면 안에서 묻는다. */}
+					{leaving ? (
+						<>
+							<p className={s.confirm} role="alert">
+								지금까지 적은 답은 저장되지 않습니다. 처음 화면으로 돌아갈까요?
+							</p>
+							<div className={s.buttonRow}>
+								<button
+									type="button"
+									className={layout.secondaryButton}
+									onClick={() => setLeaving(false)}
+								>
+									계속 풀기
+								</button>
+								<button
+									type="button"
+									className={layout.primaryButton}
+									onClick={() => navigate('/')}
+								>
+									처음으로
+								</button>
+							</div>
+						</>
+					) : (
+						<>
+							{confirming && (
+								<p className={s.confirm} role="alert">
+									아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
+									{isLastPage ? '채점할까요' : '다음 유형으로 넘어갈까요'}?
+								</p>
+							)}
+							<div className={s.buttonRow}>
+								{confirming && (
+									<button
+										type="button"
+										className={layout.secondaryButton}
+										onClick={() => setConfirming(false)}
+									>
+										더 풀기
+									</button>
+								)}
+								<button
+									type="button"
+									className={layout.primaryButton}
+									onClick={handleSubmit}
+								>
+									{isLastPage ? '채점하기' : '다음 유형'}
+									{!confirming && ` (${answered}/${pageQuestions.length})`}
+								</button>
+							</div>
+						</>
 					)}
-					<div className={s.buttonRow}>
-						{confirming && (
-							<button
-								type="button"
-								className={layout.secondaryButton}
-								onClick={() => setConfirming(false)}
-							>
-								더 풀기
-							</button>
-						)}
-						<button
-							type="button"
-							className={layout.primaryButton}
-							onClick={handleSubmit}
-						>
-							{isLastPage ? '채점하기' : '다음 유형'}
-							{!confirming && ` (${answered}/${pageQuestions.length})`}
-						</button>
-					</div>
 				</div>
 			</div>
 		</main>

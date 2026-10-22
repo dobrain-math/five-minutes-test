@@ -186,6 +186,61 @@ const book531: Course = {
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
 			},
 		},
+		// ── 곱셈 추가(2026-10-22, 원장님 목록 8~15번. 16번 ST 부터는 아직 안 만듦) ──
+		// NOTE: 제목은 원장님이 준 짧은 이름 그대로. 「세한곱」이 둘이라 -1·-2 를 붙였다(이름으로 유형을 찾으므로 겹치면 안 됨).
+		{
+			id: '531-8',
+			title: '19단',
+			generate: (rng) => mul(num(1, int(rng, 1, 9)), num(1, int(rng, 1, 9))),
+		},
+		{
+			id: '531-9',
+			title: '두자리 × 몇십',
+			// 두자리(0으로 안 끝남) × 몇십(20~90). 홀수 번째(절반)는 몇십을 앞에 둔다.
+			generate: (rng, i = 0) => {
+				const two = num(int(rng, 1, 9), int(rng, 1, 9));
+				const tensOf = num(int(rng, 2, 9), 0);
+				return i % 2 === 0 ? mul(two, tensOf) : mul(tensOf, two);
+			},
+		},
+		{
+			id: '531-10',
+			title: '세한곱-1',
+			// 405 × 7 처럼 세자리의 십의자리 0, 일의자리 2~9 / 한자리 2~9
+			generate: (rng) =>
+				mul(num(int(rng, 1, 9), 0, int(rng, 2, 9)), int(rng, 2, 9)),
+		},
+		{
+			id: '531-11',
+			title: 'X5',
+			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 5),
+		},
+		{
+			id: '531-12',
+			title: 'X11',
+			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 11),
+		},
+		{
+			id: '531-13',
+			title: '세한곱-2',
+			// 340 × 6 처럼 세자리의 일의자리 0, 십의자리 2~9 / 한자리 2~9(세한곱-1 과 같게)
+			generate: (rng) =>
+				mul(num(int(rng, 1, 9), int(rng, 2, 9), 0), int(rng, 2, 9)),
+		},
+		{
+			id: '531-14',
+			title: '두두곱',
+			generate: (rng) =>
+				mul(
+					num(int(rng, 1, 9), int(rng, 1, 9)),
+					num(int(rng, 1, 9), int(rng, 1, 9)),
+				),
+		},
+		{
+			id: '531-15',
+			title: 'X99',
+			generate: (rng) => mul(num(int(rng, 1, 9), int(rng, 1, 9)), 99),
+		},
 	],
 };
 

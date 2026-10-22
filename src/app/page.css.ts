@@ -271,13 +271,64 @@ export const modeGrid = style({
 	gap: 8,
 });
 
-// courseItem 과 함께 쓴다
-export const modeItem = style({
-	gap: 10,
-	minHeight: 64,
-	padding: '12px 14px',
+/**
+ * 전체 풀기 / 유형별 풀기: 라디오 동그라미 없는 버튼 모양(원장님 결정 2026-10-22).
+ * 고르면 파랑으로 채워지고 글자가 흰색이 된다.
+ */
+export const modeButton = style({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	gap: 4,
+	minHeight: 72,
+	padding: '12px 10px',
+	border: 'none',
 	borderRadius: vars.radius.md,
+	textAlign: 'center',
+	wordBreak: 'keep-all',
+	color: vars.color.grey900,
+	background: vars.color.layeredBackground,
+	boxShadow: vars.shadow.sm,
+	cursor: 'pointer',
+	transition: 'background 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s',
+	selectors: {
+		'&:active': { transform: 'scale(0.98)' },
+		'&[aria-checked="true"]': {
+			color: '#ffffff',
+			background: vars.color.blue500,
+			boxShadow: vars.shadow.md,
+		},
+		'&:focus-visible': {
+			outline: 'none',
+			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
+		},
+	},
+	'@media': {
+		[canHover]: {
+			selectors: {
+				'&:hover:not([aria-checked="true"])': { boxShadow: vars.shadow.md },
+			},
+		},
+	},
 });
+
+export const modeTitle = style([
+	text.body1,
+	{ fontWeight: vars.font.weight.bold },
+]);
+
+export const modeMeta = style([
+	text.caption,
+	{
+		color: vars.color.grey500,
+		selectors: {
+			[`${modeButton}[aria-checked="true"] &`]: {
+				color: 'rgba(255, 255, 255, 0.85)',
+			},
+		},
+	},
+]);
 
 /**
  * 유형 목록 펼치기: 높이 0fr → 1fr 로 늘린다(높이를 몰라도 부드럽게 열리고 닫힌다).
@@ -312,7 +363,7 @@ const dropIn = keyframes({
 	to: { opacity: 1, transform: 'none' },
 });
 
-for (let n = 1; n <= 12; n++) {
+for (let n = 1; n <= 20; n++) {
 	globalStyle(`${partReveal}[data-open="true"] li:nth-child(${n})`, {
 		'@media': {
 			'(prefers-reduced-motion: no-preference)': {

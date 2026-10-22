@@ -146,14 +146,14 @@ function decodeShort(code: string): Report | null {
 
 	// v4 부터 한 유형 풀이가 있다. 그 전 코드는 늘 전체(유형을 섞은 80문제).
 	const partCode = head.version === 4 ? r.num() : 0;
+	const count = r.num();
+	// NOTE: 유형은 권 뒤에 이어 붙이기만 한다(2026-10-22 53-1권 8 → 16개). 그 전에 보낸 전체 풀기 링크는
+	// 유형 수가 적으니 앞에서부터 그 개수만큼으로 읽는다. 순서를 바꾸거나 중간에 끼우면 옛 링크 이름이 엇갈린다.
 	const solved =
 		partCode === 0
-			? course.sections
+			? course.sections.slice(0, count)
 			: course.sections.slice(partCode - 1, partCode);
-	if (solved.length === 0) return null;
-
-	const count = r.num();
-	if (count !== solved.length) return null;
+	if (solved.length === 0 || count !== solved.length) return null;
 	const common = head.version >= 3 ? r.num() : 0;
 	const sections: SectionScore[] = solved.map((sec) => {
 		const correct = r.num();

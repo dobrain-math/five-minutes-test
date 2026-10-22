@@ -23,6 +23,7 @@ export const topRow = style({
 export const courseName = style([
 	text.title2,
 	{
+		flex: 1,
 		minWidth: 0,
 		overflow: 'hidden',
 		textOverflow: 'ellipsis',

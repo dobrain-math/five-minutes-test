@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Report } from '@/@types/test';
-import { getCourse } from '@/data/courses.ts';
+import { courses, getCourse } from '@/data/courses.ts';
 import { decodeReport, encodeReport, shareUrl } from './shareLink.ts';
 
 const toBase64Url = (text: string) =>
@@ -11,7 +11,8 @@ const toBase64Url = (text: string) =>
 
 // 실제 종목(53-1권)으로 만든 리포트. 짧은 코드는 유형 이름을 싣지 않고 종목에서 되찾는다.
 const course = getCourse('53-1')!;
-const titles = course.sections.map((sec) => sec.title);
+// NOTE: 유형이 8개이던 때(2026-10-22 이전) 모양. 그 뒤 53-1권 유형이 16개로 늘었지만 이 모양의 옛 링크도 열려야 한다.
+const titles = course.sections.slice(0, 8).map((sec) => sec.title);
 const corrects = [10, 7, 9, 3, 8, 10, 6, 9];
 
 const report: Report = {
@@ -258,5 +259,30 @@ describe('shareUrl', () => {
 		expect(shareUrl('https://five.app', 'abc_-1')).toBe(
 			'https://five.app/s/abc_-1',
 		);
+	});
+
+	test('53-1권 16개 유형 전체 풀기(마지막 유형에서 틀린 문제 포함)도 되살린다', () => {
+		const sixteen: Report = {
+			...report,
+			total: 16 * 24,
+			correct: 16 * 20,
+			sections: course.sections.map((sec, i) => ({
+				title: sec.title,
+				correct: 20,
+				total: 24,
+				durationMs: (30 + i) * 1000,
+			})),
+			wrong: [
+				{ text: '99 × 99', mine: '9800', answer: '9801', sectionTitle: 'X99' },
+				{ text: '13 × 17', mine: '', answer: '221', sectionTitle: '19단' },
+			],
+		};
+		expect(course.sections).toHaveLength(16);
+		expect(decodeReport(encodeReport(sixteen))).toEqual(sixteen);
+	});
+
+	test('모든 권의 유형이 16개 이하다(틀린 문제의 유형 번호를 4비트에 담는다)', () => {
+		// NOTE: 53-1권이 16개로 한도에 찼다. 17번째(원장님 목록 16번 ST)를 넣기 전에 코드 모양(v5)부터 바꿀 것.
+		for (const c of courses) expect(c.sections.length).toBeLessThanOrEqual(16);
 	});
 });

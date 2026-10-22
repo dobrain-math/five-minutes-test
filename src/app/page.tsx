@@ -195,15 +195,12 @@ export default function HomePage() {
 								type="button"
 								role="radio"
 								aria-checked={mode === 'all'}
-								className={`${s.courseItem} ${s.modeItem}`}
+								className={s.modeButton}
 								onClick={() => setMode('all')}
 							>
-								<span className={s.radio} aria-hidden />
-								<span>
-									<div className={s.partTitle}>전체 풀기</div>
-									<div className={s.courseMeta}>
-										{course.sections.length * PER_SECTION}문제
-									</div>
+								<span className={s.modeTitle}>전체 풀기</span>
+								<span className={s.modeMeta}>
+									{course.sections.length * PER_SECTION}문제 · 강약점 분석 포함
 								</span>
 							</button>
 							<button
@@ -212,15 +209,12 @@ export default function HomePage() {
 								aria-checked={mode === 'each'}
 								aria-expanded={mode === 'each'}
 								aria-controls="part-list"
-								className={`${s.courseItem} ${s.modeItem}`}
+								className={s.modeButton}
 								onClick={openEach}
 							>
-								<span className={s.radio} aria-hidden />
-								<span>
-									<div className={s.partTitle}>유형별 풀기</div>
-									<div className={s.courseMeta}>
-										{course.sections.length}개 중 하나 · {PER_SECTION}문제
-									</div>
+								<span className={s.modeTitle}>유형별 풀기</span>
+								<span className={s.modeMeta}>
+									{course.sections.length}개 중 하나 · {PER_SECTION}문제
 								</span>
 							</button>
 						</div>

@@ -70,7 +70,82 @@ const rules: Record<string, (p: Problem) => boolean> = {
 		digits(b) === 1 &&
 		b >= 2 &&
 		ones(a) * b >= 10,
+	// 53-1권 곱셈 추가(2026-10-22)
+	'531-8': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 2 &&
+		tens(a) === 1 &&
+		ones(a) !== 0 &&
+		digits(b) === 2 &&
+		tens(b) === 1 &&
+		ones(b) !== 0,
+	// 두자리(0으로 안 끝남) × 몇십(20~90), 순서는 절반씩 뒤집힌다
+	'531-9': ({ left: a, op, right: b }) => {
+		const tidy = (x: number, y: number) =>
+			digits(x) === 2 && ones(x) !== 0 && ones(y) === 0 && y >= 20 && y <= 90;
+		return op === '×' && (tidy(a, b) || tidy(b, a));
+	},
+	'531-10': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 3 &&
+		tens(a) === 0 &&
+		ones(a) >= 2 &&
+		digits(b) === 1 &&
+		b >= 2,
+	'531-11': ({ left: a, op, right: b }) =>
+		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 5,
+	'531-12': ({ left: a, op, right: b }) =>
+		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 11,
+	'531-13': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 3 &&
+		ones(a) === 0 &&
+		tens(a) >= 2 &&
+		digits(b) === 1 &&
+		b >= 2,
+	'531-14': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 2 &&
+		ones(a) !== 0 &&
+		digits(b) === 2 &&
+		ones(b) !== 0,
+	'531-15': ({ left: a, op, right: b }) =>
+		op === '×' && digits(a) === 2 && ones(a) !== 0 && b === 99,
 };
+
+describe('53-1권 유형 목록', () => {
+	test('8번 19단부터 15번 X99까지 기존 8개 뒤에 이어 붙는다(16번 ST부터는 아직 없음)', () => {
+		expect(
+			getCourse('53-1')!
+				.sections.slice(8)
+				.map((s) => s.title),
+		).toEqual([
+			'19단',
+			'두자리 × 몇십',
+			'세한곱-1',
+			'X5',
+			'X11',
+			'세한곱-2',
+			'두두곱',
+			'X99',
+		]);
+	});
+
+	test('유형 이름이 겹치지 않는다(리포트·공유 링크가 이름으로 유형을 찾는다)', () => {
+		for (const course of courses) {
+			const titles = course.sections.map((s) => s.title);
+			expect(new Set(titles).size).toBe(titles.length);
+		}
+	});
+
+	test('두자리 × 몇십: 24문제 중 절반은 몇십이 뒤, 절반은 앞', () => {
+		const questions = buildTest(getCourse('53-1')!, 9);
+		const tensLast = questions.filter((q) =>
+			q.text.split(' ')[2].endsWith('0'),
+		);
+		expect(tensLast).toHaveLength(12);
+	});
+});
 
 describe('유형별 문제 생성', () => {
 	for (const course of courses) {
