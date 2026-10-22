@@ -59,7 +59,7 @@ const basic: Course = {
 	sections: [
 		{
 			id: 'basic-1',
-			title: '한한덧셈(받아올림X)',
+			title: '한한덧셈 (받아올림X)',
 			generate: bothWays((rng) => {
 				const a = int(rng, 1, 8);
 				return add(a, int(rng, 1, 9 - a));
@@ -67,7 +67,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-2',
-			title: '한한덧셈(받아올림O)',
+			title: '한한덧셈 (받아올림O)',
 			generate: bothWays((rng) => {
 				const a = int(rng, 1, 9);
 				return add(a, int(rng, 10 - a, 9));
@@ -75,7 +75,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-3',
-			title: '한한뺄셈(받아내림X)',
+			title: '한한뺄셈 (받아내림X)',
 			generate: (rng) => {
 				const a = int(rng, 2, 9);
 				return sub(a, int(rng, 1, a - 1));
@@ -83,7 +83,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-4',
-			title: '두한뺄셈(받아내림X)',
+			title: '두한뺄셈 (받아내림X)',
 			generate: (rng) => {
 				const o = int(rng, 1, 9);
 				return sub(num(int(rng, 1, 9), o), int(rng, 1, o));
@@ -91,7 +91,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-5',
-			title: '십몇한뺄셈(받아내림O)',
+			title: '십몇한뺄셈 (받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(1, o), int(rng, o + 1, 9));
@@ -99,12 +99,12 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-6',
-			title: '두한덧셈(받아올림O)',
+			title: '두한덧셈 (받아올림O)',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: 'basic-7',
-			title: '두한뺄셈(받아내림O)',
+			title: '두한뺄셈 (받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 1, 8);
 				return sub(num(int(rng, 2, 9), o), int(rng, o + 1, 9));
@@ -112,7 +112,7 @@ const basic: Course = {
 		},
 		{
 			id: 'basic-8',
-			title: '몇십한뺄셈(받아내림O)',
+			title: '몇십한뺄셈 (받아내림O)',
 			generate: (rng) => sub(num(int(rng, 1, 9), 0), int(rng, 1, 9)),
 		},
 	],
@@ -143,12 +143,12 @@ const book531: Course = {
 	sections: [
 		{
 			id: '531-1',
-			title: '두한덧셈(받아올림O)',
+			title: '두한덧셈 (받아올림O)',
 			generate: twoPlusOneCarry,
 		},
 		{
 			id: '531-2',
-			title: '두한뺄셈(받아내림O)',
+			title: '두한뺄셈 (받아내림O)',
 			generate: (rng) => {
 				const o = int(rng, 0, 8);
 				return sub(num(int(rng, 1, 9), o), int(rng, o + 1, 9));
@@ -156,7 +156,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-3',
-			title: '두두덧셈(받아올림O)',
+			title: '두두덧셈 (받아올림O)',
 			generate: bothWays((rng) => {
 				const oa = int(rng, 1, 9);
 				return add(
@@ -167,7 +167,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-4',
-			title: '두두뺄셈(받아내림O)',
+			title: '두두뺄셈 (받아내림O)',
 			generate: (rng) => {
 				const ta = int(rng, 2, 9);
 				const oa = int(rng, 0, 8);
@@ -176,7 +176,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-5',
-			title: '셋둘덧셈(받아올림O)',
+			title: '셋둘덧셈 (받아올림O)',
 			generate: bothWays((rng) => {
 				const o = int(rng, 6, 9);
 				return add(
@@ -187,12 +187,12 @@ const book531: Course = {
 		},
 		{
 			id: '531-6',
-			title: '셋둘뺄셈(받아내림 두 번)',
+			title: '셋둘뺄셈 (받아내림 두 번)',
 			generate: threeMinusTwo,
 		},
 		{
 			id: '531-7-1',
-			title: '두한곱셈(올림X)',
+			title: '두한곱셈 (올림X)',
 			generate: bothWays((rng) => {
 				const b = int(rng, 2, 4);
 				const max = Math.floor(9 / b);
@@ -201,7 +201,7 @@ const book531: Course = {
 		},
 		{
 			id: '531-7-2',
-			title: '두한곱셈(올림O)',
+			title: '두한곱셈 (올림O)',
 			generate: bothWays((rng) => {
 				const b = int(rng, 2, 9);
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
