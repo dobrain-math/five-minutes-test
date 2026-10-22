@@ -46,6 +46,15 @@ export default function TestPage() {
 	const [confirming, setConfirming] = useState(false);
 	const [leaving, setLeaving] = useState(false);
 	const inputs = useRef<(HTMLInputElement | null)[]>([]);
+	const leaveDialog = useRef<HTMLDialogElement>(null);
+	// NOTE: 처음으로 가면 푼 답이 사라지므로 화면 가운데 확인 창(모달)으로 한 번 묻는다(원장님 결정 2026-10-22).
+	// 브라우저 기본 <dialog> 의 showModal 이라 뒤 화면은 눌리지 않고 Esc 로도 닫힌다.
+	useEffect(() => {
+		const dialog = leaveDialog.current;
+		if (!dialog) return;
+		if (leaving && !dialog.open) dialog.showModal();
+		if (!leaving && dialog.open) dialog.close();
+	}, [leaving]);
 
 	// 홈을 거치지 않고 주소로 바로 들어온 경우에만 새로 출제한다.
 	// (채점한 테스트는 다시 출제하지 않는다 — 리포트가 그 결과를 읽어야 하므로)
@@ -191,60 +200,71 @@ export default function TestPage() {
 
 			<div className={layout.bottomBar}>
 				<div className={`${layout.container.wide} ${layout.bottomBarInner}`}>
-					{/* NOTE: 처음으로 가면 푼 답이 사라지므로 한 번 묻는다. 브라우저 확인 창 대신 화면 안에서 묻는다. */}
-					{leaving ? (
-						<>
-							<p className={s.confirm} role="alert">
-								지금까지 적은 답은 저장되지 않습니다. 처음 화면으로 돌아갈까요?
-							</p>
-							<div className={s.buttonRow}>
-								<button
-									type="button"
-									className={layout.secondaryButton}
-									onClick={() => setLeaving(false)}
-								>
-									계속 풀기
-								</button>
-								<button
-									type="button"
-									className={layout.primaryButton}
-									onClick={() => navigate('/')}
-								>
-									처음으로
-								</button>
-							</div>
-						</>
-					) : (
-						<>
-							{confirming && (
-								<p className={s.confirm} role="alert">
-									아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
-									{isLastPage ? '채점할까요' : '다음 유형으로 넘어갈까요'}?
-								</p>
-							)}
-							<div className={s.buttonRow}>
-								{confirming && (
-									<button
-										type="button"
-										className={layout.secondaryButton}
-										onClick={() => setConfirming(false)}
-									>
-										더 풀기
-									</button>
-								)}
-								<button
-									type="button"
-									className={layout.primaryButton}
-									onClick={handleSubmit}
-								>
-									{isLastPage ? '채점하기' : '다음 유형'}
-									{!confirming && ` (${answered}/${pageQuestions.length})`}
-								</button>
-							</div>
-						</>
+					{confirming && (
+						<p className={s.confirm} role="alert">
+							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
+							{isLastPage ? '채점할까요' : '다음 유형으로 넘어갈까요'}?
+						</p>
 					)}
+					<div className={s.buttonRow}>
+						{confirming && (
+							<button
+								type="button"
+								className={layout.secondaryButton}
+								onClick={() => setConfirming(false)}
+							>
+								더 풀기
+							</button>
+						)}
+						<button
+							type="button"
+							className={layout.primaryButton}
+							onClick={handleSubmit}
+						>
+							{isLastPage ? '채점하기' : '다음 유형'}
+							{!confirming && ` (${answered}/${pageQuestions.length})`}
+						</button>
+					</div>
 				</div>
 			</div>
+
+			<dialog
+				ref={leaveDialog}
+				className={s.modal}
+				aria-labelledby="leave-title"
+				aria-describedby="leave-desc"
+				onClose={() => setLeaving(false)}
+				// 바깥(어두운 바탕)을 누르면 닫는다. 안쪽 여백은 modalBody 가 가져서 창 안 빈 곳을 눌러도 안 닫힌다
+				onClick={(e) => {
+					if (e.target === e.currentTarget) setLeaving(false);
+				}}
+			>
+				<div className={s.modalBody}>
+					<h2 id="leave-title" className={s.modalTitle}>
+						처음 화면으로 이동
+					</h2>
+					<p id="leave-desc" className={s.modalText}>
+						지금까지 적은 답은 저장되지 않습니다. 처음 화면으로 돌아갈까요?
+					</p>
+					<div className={s.modalButtons}>
+						<button
+							type="button"
+							className={`${layout.secondaryButton} ${s.modalSecondary}`}
+							autoFocus
+							onClick={() => setLeaving(false)}
+						>
+							계속 풀기
+						</button>
+						<button
+							type="button"
+							className={layout.primaryButton}
+							onClick={() => navigate('/')}
+						>
+							처음으로
+						</button>
+					</div>
+				</div>
+			</dialog>
 		</main>
 	);
 }

@@ -32,7 +32,7 @@ src/
   styles/utility.css.ts page, container.{narrow,medium,wide}, content, card, bottomBar, 버튼, 제목
   app/layout.tsx        BrowserRouter + Routes. 폴더 이름만 Next.js 식이고 라우팅은 react-router — 새 화면은 여기에 Route 추가
   app/page.tsx          홈: 이름 input + 나이 가로 막대(range 드래그, 5세~중1 눈금) + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
-  app/test/page.tsx     상단 홈 버튼(누르면 아래에서 「답은 저장되지 않습니다」 확인 → 계속 풀기 / 처음으로)·이름·타이머(이 페이지 시간)·「3 / 8 + 유형 이름」·진행률, 문제 카드 그리드. 전체 풀기는 「다음 유형」으로 페이지 넘김(되돌아가기 없음), 마지막 페이지 「채점하기」. 빈칸 있으면 한 번 확인
+  app/test/page.tsx     상단 홈 버튼(누르면 화면 가운데 확인 창 <dialog> showModal 「처음 화면으로 이동」 → 계속 풀기 / 처음으로. Esc·바깥 누르기로 닫힘)·이름·타이머(이 페이지 시간)·「3 / 8 + 유형 이름」·진행률, 문제 카드 그리드. 전체 풀기는 「다음 유형」으로 페이지 넘김(되돌아가기 없음), 마지막 페이지 「채점하기」. 빈칸 있으면 한 번 확인
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    /r/6글자(서버에서 받아 옴, 받는 동안 ReportSkeleton)·/s/코드·?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
   components/ReportView 점수·시간, 종합 평가, 「강 · 약점분석」(전체 풀기만: RadarChart + 번호·이름·강점/약점·걸린 시간·맞힌 수 목록), 틀린 문제(접힘 → 보기, 유형별 묶음 utils/groupWrong — 번호·이름·N개 제목, 한 유형 풀이는 제목 생략). 한 유형 풀이는 분석 칸 없음 + 머리 띠에 「n번 유형 · 이름」. 모든 화면 800px 한 단
@@ -137,3 +137,4 @@ src/
 - 2026-10-22: 곱셈 모든 유형 절반을 순서 뒤집기(bothWays·fixedTimes, TDD), 리포트 소제목 「풀이 스타일 분석」 → 「강 · 약점분석」, 다크에서 안 보이던 시험 화면 진행 막대 바탕을 grey500 tint 로
 - 2026-10-22: 덧셈도 절반 순서 뒤집기(bothWays 를 연산 기호 유지로 일반화), 유형 이름 12개를 문장형 → «짧은 이름(조건)»(두두덧셈(받아올림O) 등). TDD(이름 목록·뒤집기·같은 난수 짝)
 - 2026-10-22: 유형 이름과 괄호 사이 한 칸 띄움(두두덧셈 (받아올림O))
+- 2026-10-22: 시험 화면 홈 버튼 확인을 아래 버튼 줄 → 가운데 모달(<dialog> showModal, 어두운 바탕·떠오르기, reduced-motion 이면 끔). main.css 의 margin 0 이 dialog 가운데 정렬을 지워 margin auto 를 다시 줌. 390·1440·다크·Esc·바깥 누르기·처음으로 브라우저 확인

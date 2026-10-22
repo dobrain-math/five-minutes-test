@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { breakpoints, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 
@@ -230,3 +230,63 @@ export const sectionTitle = style([
 		color: vars.color.grey700,
 	},
 ]);
+
+// ── 처음으로 확인 창(모달, 2026-10-22) ─────────────────────
+const modalIn = keyframes({
+	from: { opacity: 0, transform: 'translateY(12px) scale(0.97)' },
+	to: { opacity: 1, transform: 'none' },
+});
+const backdropIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
+
+export const modal = style({
+	// NOTE: 전체 초기화(margin 0)가 <dialog> 의 가운데 정렬을 지워서 다시 준다
+	margin: 'auto',
+	width: 'calc(100% - 32px)',
+	maxWidth: 400,
+	padding: 0,
+	border: 'none',
+	borderRadius: vars.radius.xl,
+	color: vars.color.grey900,
+	background: vars.color.floatedBackground,
+	boxShadow: vars.shadow.lg,
+	selectors: {
+		'&[open]': { animation: `${modalIn} 0.22s ease-out` },
+		'&::backdrop': {
+			background: 'rgba(0, 0, 0, 0.45)',
+			animation: `${backdropIn} 0.22s ease-out`,
+		},
+	},
+	'@media': {
+		'(prefers-reduced-motion: reduce)': {
+			selectors: {
+				'&[open]': { animation: 'none' },
+				'&::backdrop': { animation: 'none' },
+			},
+		},
+	},
+});
+
+export const modalBody = style({ padding: '28px 20px 20px' });
+
+export const modalTitle = style([
+	text.title2,
+	{ margin: 0, textAlign: 'center', color: vars.color.grey900 },
+]);
+
+export const modalText = style([
+	text.body2,
+	{
+		margin: '10px 0 24px',
+		textAlign: 'center',
+		color: vars.color.grey600,
+		wordBreak: 'keep-all',
+	},
+]);
+
+export const modalButtons = style({ display: 'flex', gap: 8 });
+
+/** 창 바탕이 흰색이라 보조 버튼은 회색 바탕으로 구분한다 */
+export const modalSecondary = style({
+	background: vars.color.grey100,
+	boxShadow: 'none',
+});
