@@ -45,6 +45,8 @@ export type SectionScore = {
 	title: string;
 	correct: number;
 	total: number;
+	/** 이 유형(전체 풀기의 한 페이지)에 걸린 시간. 페이지별 시간을 재기 전 옛 링크에는 없다. */
+	durationMs?: number;
 };
 
 export type WrongAnswer = {
@@ -62,6 +64,8 @@ export type Report = {
 	/** 종목 id. 짧은 공유 코드는 유형 이름 대신 이것만 싣는다. 예전(v1) 공유 링크에는 없다. */
 	courseId?: string;
 	courseTitle: string;
+	/** 한 유형만 풀었으면 그 유형 번호(0부터, sections 는 그 유형 하나). 없으면 전체 풀기. */
+	part?: number;
 	correct: number;
 	total: number;
 	durationMs: number;

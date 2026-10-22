@@ -70,4 +70,30 @@ describe('buildReport', () => {
 			{ text: '15 - 8', mine: '', answer: '7', sectionTitle: '뺄셈' },
 		]);
 	});
+
+	test('전체 풀기는 유형마다 걸린 시간(페이지 시간)을 담는다', () => {
+		const r = buildReport(course, {
+			...session,
+			part: null,
+			pageTimes: [20_000, 40_000],
+		});
+		expect(r.part).toBeUndefined();
+		expect(r.sections.map((sec) => sec.durationMs)).toEqual([20_000, 40_000]);
+	});
+
+	test('한 유형만 풀었으면 그 유형 하나와 유형 번호만 담는다', () => {
+		const only = questions.filter((q) => q.sectionId === 'b');
+		const r = buildReport(course, {
+			...session,
+			questions: only,
+			part: 1,
+			pageTimes: [60_000],
+		});
+		expect(r.part).toBe(1);
+		expect(r.sections).toEqual([
+			{ title: '뺄셈', correct: 1, total: 2, durationMs: 60_000 },
+		]);
+		expect(r.total).toBe(2);
+		expect(r.wrong.map((w) => w.sectionTitle)).toEqual(['뺄셈']);
+	});
 });

@@ -7,10 +7,11 @@ import { evaluate } from '@/utils/evaluate.ts';
 import { formatTestDate } from '@/utils/formatDate.ts';
 import { formatDuration } from '@/utils/formatDuration.ts';
 import { highlightSections } from '@/utils/highlightSections.ts';
+import RadarChart from './RadarChart.tsx';
 import * as s from './ReportView.css.ts';
 import ThemeToggle from './ThemeToggle.tsx';
 
-const MARK_LABEL = { strong: '강함', weak: '취약' } as const;
+const MARK_LABEL = { strong: '강점', weak: '약점' } as const;
 
 type Props = {
 	report: Report;
@@ -20,8 +21,15 @@ type Props = {
 
 /** 리포트 본문. 방금 푼 결과(/report)와 공유 링크(/share)가 함께 쓴다. */
 export default function ReportView({ report, actions }: Props) {
-	const { studentName, studentAge, courseTitle, finishedAt, sections, wrong } =
-		report;
+	const {
+		studentName,
+		studentAge,
+		courseTitle,
+		part,
+		finishedAt,
+		sections,
+		wrong,
+	} = report;
 	const marks = highlightSections(sections);
 	// 틀린 문제는 길어서 처음엔 접어 두고, 눌렀을 때만 펼친다.
 	const [showWrong, setShowWrong] = useState(false);
@@ -40,6 +48,12 @@ export default function ReportView({ report, actions }: Props) {
 						{studentAge && <span className={s.heroBadge}>{studentAge}</span>}
 						<span className={s.heroBadge}>{courseTitle}</span>
 					</div>
+					{/* NOTE: 한 유형만 풀었으면 어떤 유형인지 머리 띠에 적는다(2026-10-22). */}
+					{part !== undefined && (
+						<p className={s.heroPart}>
+							{part + 1}번 유형 · {sections[0]?.title}
+						</p>
+					)}
 					{/* NOTE: 날짜를 싣기 전에 만든 옛 공유 링크에는 실시일이 없다. */}
 					{finishedAt !== undefined && (
 						<p className={s.heroDate}>
@@ -73,72 +87,73 @@ export default function ReportView({ report, actions }: Props) {
 						<p className={s.evaluation}>{evaluate(report)}</p>
 					</section>
 
-					<section className={`${layout.card} ${s.block}`}>
-						<h2 className={s.blockTitle}>유형별 정답·오답</h2>
-						{/* NOTE: 세로 막대는 유형 8개의 긴 이름이 휴대폰 폭에 안 들어가 한 줄씩 그린다. */}
-						<ul className={s.sectionList}>
-							{sections.map((sec, i) => {
-								const mark = marks[i];
-								return (
-									<li
-										key={sec.title}
-										className={s.sectionRow}
-										data-mark={mark ?? undefined}
-									>
-										{/* NOTE: 이름(왼쪽) + 강함·취약(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
-										<div className={s.sectionHead}>
-											<span className={s.sectionName}>{sec.title}</span>
-											{mark && (
-												<span
-													className={
-														mark === 'strong'
-															? s.strengthBadge
-															: s.weaknessBadge
-													}
-													title={MARK_LABEL[mark]}
-													aria-label={MARK_LABEL[mark]}
-												>
-													{mark === 'strong' ? (
-														<HandThumbUpIcon
-															className={s.badgeIcon}
-															aria-hidden
-														/>
-													) : (
-														<StarIcon className={s.badgeIcon} aria-hidden />
-													)}
-													<span className={s.badgeLabel} aria-hidden>
-														{MARK_LABEL[mark]}
-													</span>
-												</span>
-											)}
-										</div>
-										{/* NOTE: 이름 줄 아래에 «10칸(왼쪽) · 맞힌 수(오른쪽)»를 나란히 둔다. */}
-										<div className={s.sectionBody}>
-											{/* NOTE: 1문제 = 1칸. 맞힌 칸을 앞에서부터 채운다(출제 순서는 아님). */}
-											<div
-												className={s.cells}
-												role="img"
-												aria-label={`${sec.total}문제 중 ${sec.correct}문제 정답`}
-											>
-												{Array.from({ length: sec.total }, (_, n) => (
+					{/* NOTE: 한 유형만 풀었으면 이 칸은 없다. 전체 풀기만 레이더 + 유형 목록(2026-10-22). */}
+					{part === undefined && (
+						<section className={`${layout.card} ${s.block}`}>
+							<h2 className={s.blockTitle}>풀이 스타일 분석</h2>
+							<RadarChart sections={sections} marks={marks} />
+							<ul className={s.sectionList}>
+								{sections.map((sec, i) => {
+									const mark = marks[i];
+									return (
+										<li
+											key={sec.title}
+											className={s.sectionRow}
+											data-mark={mark ?? undefined}
+										>
+											{/* NOTE: 번호·이름(왼쪽) + 강점·약점(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
+											<div className={s.sectionHead}>
+												<span className={s.sectionName}>
 													<span
-														key={n}
-														className={s.cell}
-														data-correct={n < sec.correct}
-													/>
-												))}
+														className={s.sectionNumber}
+														data-mark={mark ?? undefined}
+													>
+														{i + 1}
+													</span>
+													{sec.title}
+												</span>
+												{mark && (
+													<span
+														className={
+															mark === 'strong'
+																? s.strengthBadge
+																: s.weaknessBadge
+														}
+														title={MARK_LABEL[mark]}
+														aria-label={MARK_LABEL[mark]}
+													>
+														{mark === 'strong' ? (
+															<HandThumbUpIcon
+																className={s.badgeIcon}
+																aria-hidden
+															/>
+														) : (
+															<StarIcon className={s.badgeIcon} aria-hidden />
+														)}
+														<span className={s.badgeLabel} aria-hidden>
+															{MARK_LABEL[mark]}
+														</span>
+													</span>
+												)}
 											</div>
-											{/* NOTE: 맞힌 수 뱃지는 폭이 고정이라 줄마다 칸 크기·위치가 같다. */}
-											<span className={s.scoreBadge}>
-												<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
-												{sec.total}
-											</span>
-										</div>
-									</li>
-								);
-							})}
-						</ul>
-					</section>
+											{/* NOTE: 이름 줄 아래에 «걸린 시간(왼쪽) · 맞힌 수(오른쪽)». 옛 링크는 시간이 없다. */}
+											<div className={s.sectionBody}>
+												<span className={s.sectionTime}>
+													{sec.durationMs !== undefined &&
+														`걸린 시간 ${formatDuration(sec.durationMs)}`}
+												</span>
+												{/* NOTE: 맞힌 수 뱃지는 폭이 고정이라 줄마다 칸 크기·위치가 같다. */}
+												<span className={s.scoreBadge}>
+													<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
+													{sec.total}
+												</span>
+											</div>
+										</li>
+									);
+								})}
+							</ul>
+						</section>
+					)}
 
 					<section className={`${layout.card} ${s.block}`}>
 						{wrong.length === 0 ? (

@@ -28,6 +28,8 @@ const asOperation = (scores: SectionScore[]) => {
  */
 export function evaluate(report: Report) {
 	const { studentName, correct, total, durationMs, sections } = report;
+	// 한 유형만 풀었으면(report.part) «모든 유형» 대신 «이 유형»으로 쓴다(2026-10-22)
+	const single = report.part !== undefined;
 	const overall = total === 0 ? 0 : correct / total;
 	const seconds = total === 0 ? 0 : Math.round(durationMs / 1000 / total);
 	const rates = sections.map(rate);
@@ -36,7 +38,7 @@ export function evaluate(report: Report) {
 	// NOTE: 학부모가 읽으므로 경어(~니다) 중심으로 쓰되, 마지막 격려 한 문장만 ~요로 부드럽게 맺는다.
 	// 「기초부터」 문장과 「조금 더 연습」 문장은 함께 나오지 않으므로 ~요는 많아야 하나다.
 	const lines = [
-		`${studentName} 학생은 ${report.courseTitle} ${total}문제 중 ${correct}문제를 맞혀 정답률 ${percent(overall)}를 기록했습니다.`,
+		`${studentName} 학생은 ${report.courseTitle}${single ? ` 「${sections[0]?.title}」` : ''} ${total}문제 중 ${correct}문제를 맞혀 정답률 ${percent(overall)}를 기록했습니다.`,
 	];
 
 	const pace =
@@ -51,18 +53,22 @@ export function evaluate(report: Report) {
 		`한 문제에 평균 ${seconds}초가 걸렸습니다.${pace ? ` ${pace}` : ''}`,
 	);
 
-	// NOTE: 칭찬·연습 권유는 리포트 뱃지(강함 8개↑ / 취약 3개↓)와 같은 기준을 쓴다.
+	// NOTE: 칭찬·연습 권유는 리포트 뱃지(강점 80%↑ / 약점 30%↓)와 같은 기준을 쓴다.
 	const marks = highlightSections(sections);
 	const strong = sections.filter((_, i) => marks[i] === 'strong');
 	const weak = sections.filter((_, i) => marks[i] === 'weak');
 
 	if (best < BASIC_LINE) {
 		lines.push(
-			'아직 손에 익은 유형이 없습니다. 쉬운 유형부터 차근차근 기초를 다져 가면 금방 좋아질 거예요.',
+			single
+				? '아직 이 유형이 손에 익지 않았습니다. 앞 단계 유형부터 차근차근 다시 풀어 보면 금방 좋아질 거예요.'
+				: '아직 손에 익은 유형이 없습니다. 쉬운 유형부터 차근차근 기초를 다져 가면 금방 좋아질 거예요.',
 		);
 	} else if (strong.length === sections.length) {
 		lines.push(
-			'모든 유형을 고르게 잘 풀었습니다. 다음 단계에 도전해 보아도 좋겠습니다.',
+			single
+				? '이 유형을 잘 익혔습니다. 다음 유형에 도전해 보아도 좋겠습니다.'
+				: '모든 유형을 고르게 잘 풀었습니다. 다음 단계에 도전해 보아도 좋겠습니다.',
 		);
 	} else {
 		if (strong.length > 0) {

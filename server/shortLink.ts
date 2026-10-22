@@ -8,8 +8,9 @@
 const ID_CHARS =
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const ID_LENGTH = 6;
-/** 공유 코드(v2·v3)만 받는다. 아무 글이나 저장되는 것을 막는다 */
-const CODE_PATTERN = /^[23][A-Za-z0-9_-]{8,2000}$/;
+/** 공유 코드(v2·v3·v4)만 받는다. 아무 글이나 저장되는 것을 막는다 */
+// NOTE: 맨 앞 = 코드 모양 번호. 새 모양을 만들면 여기도 넓힌다(2026-10-22 v4 를 빠뜨려 저장이 막힐 뻔함).
+const CODE_PATTERN = /^[234][A-Za-z0-9_-]{8,2000}$/;
 
 export const isShortId = (id: string) =>
 	new RegExp(`^[A-Za-z0-9]{${ID_LENGTH}}$`).test(id);

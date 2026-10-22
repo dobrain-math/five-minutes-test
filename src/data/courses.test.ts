@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Problem } from '@/@types/test';
-import { buildTest } from '@/utils/buildTest.ts';
+import { PER_SECTION, buildTest } from '@/utils/buildTest.ts';
 import { courses, getCourse } from './courses.ts';
 
 const ones = (n: number) => n % 10;
@@ -91,19 +91,32 @@ describe('유형별 문제 생성', () => {
 
 describe('buildTest', () => {
 	for (const course of courses) {
-		test(`${course.title}: 80문제, 유형마다 같은 개수, 유형 안 중복 없음`, () => {
+		test(`${course.title} 전체 풀기: 유형마다 24문제씩 목차 순서대로, 유형 안 중복 없음`, () => {
 			const questions = buildTest(course);
-			expect(questions).toHaveLength(80);
+			expect(questions).toHaveLength(24 * course.sections.length);
 
-			const perSection = 80 / course.sections.length;
-			for (const section of course.sections) {
-				const mine = questions.filter((q) => q.sectionId === section.id);
-				expect(mine).toHaveLength(perSection);
-				expect(new Set(mine.map((q) => q.text)).size).toBe(perSection);
-			}
-			expect(new Set(questions.map((q) => q.id)).size).toBe(80);
+			// 유형 목차 순서대로 24문제씩 묶여 나온다(전체 풀기는 유형마다 한 페이지)
+			course.sections.forEach((section, i) => {
+				const page = questions.slice(i * 24, (i + 1) * 24);
+				expect(page.every((q) => q.sectionId === section.id)).toBe(true);
+				expect(new Set(page.map((q) => q.text)).size).toBe(24);
+			});
+			expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
+		});
+
+		test(`${course.title} 한 유형: 그 유형 24문제만`, () => {
+			course.sections.forEach((section, i) => {
+				const questions = buildTest(course, i);
+				expect(questions).toHaveLength(PER_SECTION);
+				expect(questions.every((q) => q.sectionId === section.id)).toBe(true);
+				expect(new Set(questions.map((q) => q.text)).size).toBe(24);
+			});
 		});
 	}
+
+	test('없는 유형 번호면 오류', () => {
+		expect(() => buildTest(getCourse('basic')!, 8)).toThrow();
+	});
 
 	test('정답은 실제 계산값이다', () => {
 		for (const q of buildTest(getCourse('53-1')!)) {
@@ -116,9 +129,7 @@ describe('buildTest', () => {
 	});
 
 	test('셋둘뺄셈은 절반이 「십의자리 9 · 일의자리 4~9」인 세 자리 수다', () => {
-		const questions = buildTest(getCourse('53-1')!).filter(
-			(q) => q.sectionId === '531-6',
-		);
+		const questions = buildTest(getCourse('53-1')!, 5);
 		const special = questions.filter((q) => {
 			const a = Number(q.text.split(' ')[0]);
 			return tens(a) === 9 && ones(a) >= 4;
@@ -126,9 +137,10 @@ describe('buildTest', () => {
 		expect(special).toHaveLength(questions.length / 2);
 	});
 
-	test('섞여서 나온다 (유형 순서대로 묶여 있지 않다)', () => {
-		const ids = buildTest(getCourse('basic')!).map((q) => q.sectionId);
-		const sorted = [...ids].sort();
-		expect(ids).not.toEqual(sorted);
+	test('유형 안에서는 섞여서 나온다(만든 순서 그대로가 아니다)', () => {
+		const order = buildTest(getCourse('basic')!, 0).map((q) =>
+			Number(q.id.split('#')[1]),
+		);
+		expect(order).not.toEqual([...order].sort((a, b) => a - b));
 	});
 });

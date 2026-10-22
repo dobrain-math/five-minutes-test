@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import ReportSkeleton from '@/components/ReportSkeleton.tsx';
 import ReportView from '@/components/ReportView.tsx';
 import * as layout from '@/styles/utility.css.ts';
 import { decodeReport } from '@/utils/shareLink.ts';
@@ -26,8 +27,7 @@ export default function SharePage() {
 		};
 	}, [id]);
 
-	if (id && fetched === undefined)
-		return <main className={`${layout.page} ${s.brokenPage}`} aria-busy />;
+	if (id && fetched === undefined) return <ReportSkeleton />;
 
 	const report = decodeReport((id ? fetched : (code ?? params.get('r'))) ?? '');
 

@@ -1,8 +1,8 @@
-import type { Report } from '@/@types/test';
+import type { Report, SectionScore } from '@/@types/test';
 import { getCourse } from '@/data/courses.ts';
 import {
 	type Reader,
-	V3,
+	V4,
 	Writer,
 	base64UrlToBytes,
 	bytesToBase64Url,
@@ -43,7 +43,7 @@ const isPlainNumber = (s: string) => /^(0|[1-9]\d{0,14})$/.test(s);
 const zigzag = (d: number) => (d >= 0 ? d * 2 : -d * 2 - 1);
 const unzigzag = (z: number) => (z % 2 === 0 ? z / 2 : -(z + 1) / 2);
 
-// ── 쓰기(v3) ─────────────────────────────────────────────
+// ── 쓰기(v4) ─────────────────────────────────────────────
 
 /**
  * 적은 답: 0 = 빈칸, 1 = 글자 그대로(뒤따름), 그 밖 = «정답과의 차이» + 2.
@@ -61,7 +61,7 @@ function writeMine(w: Writer, mine: string, answer: string) {
 }
 
 /**
- * 리포트 → 링크에 붙일 코드(v3).
+ * 리포트 → 링크에 붙일 코드(v4 — v3 에 풀이 범위·유형별 시간을 더함).
  * 유형·종목 이름은 싣지 않고(courses.ts 에서 되찾는다) 숫자는 바이트로 묶는다.
  * 틀린 문제의 정답은 식에서 다시 계산하고, 적은 답은 정답과의 차이만 싣는다.
  * NOTE: lz-string 압축도 재 봤지만 흔한 결과가 337자로 이 방식보다 길었다.
@@ -72,7 +72,8 @@ export function encodeReport(report: Report) {
 	w.str(report.courseId ?? '');
 	w.str(report.studentName);
 	writeAge(w, report.studentAge);
-	w.num(Math.round(report.durationMs / 1000));
+	// NOTE: 화면(formatDuration)이 초를 버림하므로 링크도 버림 — 반올림하면 받은 쪽이 1초 길게 보였다(2026-10-22).
+	w.num(Math.floor(report.durationMs / 1000));
 	// 실시일은 분 단위로 충분하다. 0 = 없음
 	w.num(
 		report.finishedAt === undefined
@@ -80,7 +81,10 @@ export function encodeReport(report: Report) {
 			: Math.round(report.finishedAt / 60_000),
 	);
 
-	// 유형마다 문제 수가 같으면(늘 10) 한 번만 적는다. 0 = 유형마다 따로
+	// 풀이 범위: 0 = 전체 풀기, n = n번 유형 하나(1부터)
+	w.num(report.part === undefined ? 0 : report.part + 1);
+
+	// 유형마다 문제 수가 같으면(늘 24) 한 번만 적는다. 0 = 유형마다 따로
 	const totals = new Set(report.sections.map((sec) => sec.total));
 	const common = totals.size === 1 ? [...totals][0] : 0;
 	w.num(report.sections.length);
@@ -88,6 +92,14 @@ export function encodeReport(report: Report) {
 	for (const sec of report.sections) {
 		w.num(sec.correct);
 		if (common === 0) w.num(sec.total);
+	}
+
+	// 유형(페이지)마다 걸린 초. 0 = 없음, 1 = 뒤따름
+	const timed = report.sections.every((sec) => sec.durationMs !== undefined);
+	w.num(timed ? 1 : 0);
+	if (timed) {
+		for (const sec of report.sections)
+			w.num(Math.floor((sec.durationMs ?? 0) / 1000));
 	}
 
 	const index = new Map(report.sections.map((sec, i) => [sec.title, i]));
@@ -111,12 +123,12 @@ export function encodeReport(report: Report) {
 		}
 		writeMine(w, q.mine, q.answer);
 	}
-	return V3 + bytesToBase64Url(w.bytes);
+	return V4 + bytesToBase64Url(w.bytes);
 }
 
-// ── 읽기(v2·v3) ──────────────────────────────────────────
+// ── 읽기(v2·v3·v4) ──────────────────────────────────────────
 
-function readMine(r: Reader, version: 2 | 3, answer: string) {
+function readMine(r: Reader, version: 2 | 3 | 4, answer: string) {
 	const v = r.num();
 	if (v === 0) return '';
 	if (v === 1) return r.str();
@@ -132,13 +144,24 @@ function decodeShort(code: string): Report | null {
 	const course = getCourse(head.courseId);
 	if (!course) return null;
 
+	// v4 부터 한 유형 풀이가 있다. 그 전 코드는 늘 전체(유형을 섞은 80문제).
+	const partCode = head.version === 4 ? r.num() : 0;
+	const solved =
+		partCode === 0
+			? course.sections
+			: course.sections.slice(partCode - 1, partCode);
+	if (solved.length === 0) return null;
+
 	const count = r.num();
-	if (count !== course.sections.length) return null;
-	const common = head.version === 3 ? r.num() : 0;
-	const sections = course.sections.map((sec) => {
+	if (count !== solved.length) return null;
+	const common = head.version >= 3 ? r.num() : 0;
+	const sections: SectionScore[] = solved.map((sec) => {
 		const correct = r.num();
 		return { title: sec.title, correct, total: common || r.num() };
 	});
+	if (head.version === 4 && r.num() === 1) {
+		for (const sec of sections) sec.durationMs = r.num() * 1000;
+	}
 
 	const wrong = Array.from({ length: r.num() }, () => {
 		const h = r.num();
@@ -165,6 +188,7 @@ function decodeShort(code: string): Report | null {
 		studentAge: head.studentAge,
 		courseId: head.courseId,
 		courseTitle: course.title,
+		...(partCode > 0 && { part: partCode - 1 }),
 		correct: sections.reduce((sum, sec) => sum + sec.correct, 0),
 		total: sections.reduce((sum, sec) => sum + sec.total, 0),
 		durationMs: head.durationMs,

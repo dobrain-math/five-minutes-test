@@ -55,4 +55,15 @@ describe('highlightSections', () => {
 			null,
 		]);
 	});
+
+	test('24문제 유형: 20개↑ strong · 19개 없음, 7개↓ weak · 8개 없음', () => {
+		expect(
+			highlightSections([
+				sec('가', 20, 24),
+				sec('나', 19, 24),
+				sec('다', 7, 24),
+				sec('라', 8, 24),
+			]),
+		).toEqual(['strong', null, 'weak', null]);
+	});
 });

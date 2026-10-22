@@ -59,8 +59,9 @@ function base64UrlToBytes(code) {
 }
 var V2 = "2";
 var V3 = "3";
+var V4 = "4";
 function readHead(code) {
-  const version = code[0] === V2 ? 2 : code[0] === V3 ? 3 : null;
+  const version = code[0] === V2 ? 2 : code[0] === V3 ? 3 : code[0] === V4 ? 4 : null;
   if (version === null)
     return null;
   const reader = new Reader(base64UrlToBytes(code.slice(1)));
@@ -138,7 +139,7 @@ function injectCard(html, card, url) {
 // server/shortLink.ts
 var ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 var ID_LENGTH = 6;
-var CODE_PATTERN = /^[23][A-Za-z0-9_-]{8,2000}$/;
+var CODE_PATTERN = /^[234][A-Za-z0-9_-]{8,2000}$/;
 var isShortId = (id) => new RegExp(`^[A-Za-z0-9]{${ID_LENGTH}}$`).test(id);
 function credentials() {
   const url = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;

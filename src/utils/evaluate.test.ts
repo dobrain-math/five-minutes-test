@@ -129,4 +129,42 @@ describe('evaluate', () => {
 		);
 		expect(text.length).toBeLessThanOrEqual(350);
 	});
+
+	describe('한 유형만 풀었을 때', () => {
+		const single = (correct: number): Report => ({
+			...make(
+				[sec('받아올림이 있는 두자리 + 한자리 연산', correct, 24)],
+				120_000,
+			),
+			part: 5,
+		});
+
+		test('첫 문장에 유형 이름을 적는다', () => {
+			expect(evaluate(single(18))).toContain(
+				'53-1권 「받아올림이 있는 두자리 + 한자리 연산」 24문제 중 18문제',
+			);
+		});
+
+		test('잘 풀었으면 «모든 유형» 대신 «이 유형»으로 다음 유형을 권한다', () => {
+			const text = evaluate(single(22));
+			expect(text).toContain('이 유형을 잘 익혔습니다');
+			expect(text).not.toContain('모든 유형');
+		});
+
+		test('많이 틀렸으면 «손에 익은 유형이 없다» 대신 «이 유형»으로 쓴다', () => {
+			const text = evaluate(single(5));
+			expect(text).toContain('이 유형');
+			expect(text).not.toContain('손에 익은 유형이 없습니다');
+		});
+
+		test('경어 중심, ~요 문장은 많아야 하나', () => {
+			for (const n of [0, 5, 8, 12, 19, 20, 24]) {
+				const sentences = evaluate(single(n)).split(/(?<=[.!])\s+/);
+				const yo = sentences.filter((x) => /요[.!]$/.test(x));
+				const formal = sentences.filter((x) => /니다[.!]$/.test(x));
+				expect(yo.length).toBeLessThanOrEqual(1);
+				expect(formal.length + yo.length).toBe(sentences.length);
+			}
+		});
+	});
 });

@@ -219,3 +219,46 @@ export const ageTick = style([
 
 // 공용 sectionLabel 의 아래 여백(10px)은 ageLabelRow 가 대신 준다. && 로 우선순위를 올려 덮어쓴다
 export const ageLabelText = style({ selectors: { '&&': { marginBottom: 0 } } });
+
+// ── 유형(권을 고르면 펼쳐짐) ─────────────────────────────────
+
+export const partList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 8,
+	listStyle: 'none',
+});
+
+// courseItem 과 함께 쓴다 — 줄이 많아 높이·둥글기만 줄인다
+export const partItem = style({
+	gap: 10,
+	minHeight: 52,
+	padding: '12px 16px',
+	borderRadius: vars.radius.md,
+});
+
+export const partNumber = style([
+	text.caption,
+	{
+		flexShrink: 0,
+		display: 'grid',
+		placeItems: 'center',
+		width: 24,
+		height: 24,
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey600,
+		background: vars.color.grey100,
+		selectors: {
+			[`${courseItem}[aria-checked="true"] &`]: {
+				color: '#ffffff',
+				background: vars.color.blue500,
+			},
+		},
+	},
+]);
+
+export const partTitle = style([
+	text.body2,
+	{ fontWeight: vars.font.weight.semibold, color: vars.color.grey900 },
+]);

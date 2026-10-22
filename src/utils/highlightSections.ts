@@ -2,9 +2,9 @@ import type { SectionScore } from '@/@types/test';
 
 export type Highlight = 'strong' | 'weak' | null;
 
-/** 이 정답률 이상이면 충분히 익힌 유형(10문제 중 8개 이상) */
+/** 이 정답률 이상이면 강점(24문제 중 20개↑, 옛 10문제 링크는 8개↑) */
 const STRONG_RATE = 0.8;
-/** 이 정답률 이하면 연습이 필요한 유형(10문제 중 3개 이하) */
+/** 이 정답률 이하면 약점(24문제 중 7개↓, 옛 10문제 링크는 3개↓) */
 const WEAK_RATE = 0.3;
 
 /**

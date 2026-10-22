@@ -12,27 +12,28 @@ import { encodeReport, shareUrl } from '@/utils/shareLink.ts';
 import { shareMessage } from '@/utils/shareMessage.ts';
 
 export default function ReportPage() {
-	const { testId } = useParams();
+	const { testId, part: partParam } = useParams();
 	const navigate = useNavigate();
 	const course = getCourse(testId);
 	const session = useTestSessionStore();
 	const [notice, setNotice] = useState('');
 
-	const { courseId, startedAt, finishedAt } = session;
+	const { courseId, part, startedAt, finishedAt } = session;
+	// 주소 끝 번호(1부터) = 한 유형 풀이. 지금 세션과 다르면 홈으로
+	const urlPart = partParam === undefined ? null : Number(partParam) - 1;
 	const ready =
-		course && courseId === testId && startedAt !== null && finishedAt !== null;
+		course &&
+		courseId === testId &&
+		part === urlPart &&
+		startedAt !== null &&
+		finishedAt !== null;
 	const code = ready
 		? encodeReport(buildReport(course, { ...session, startedAt, finishedAt }))
 		: null;
 	// 짧은 링크(/r/6글자)는 미리 만들어 둔다. 준비 전·실패면 긴 링크(/s/코드)로 보낸다.
 	const shortUrl = useShortShareUrl(code);
 
-	if (
-		!course ||
-		courseId !== testId ||
-		startedAt === null ||
-		finishedAt === null
-	) {
+	if (!ready) {
 		return <Navigate to="/" replace />;
 	}
 

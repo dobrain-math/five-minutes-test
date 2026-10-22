@@ -170,6 +170,89 @@ describe('encodeReport / decodeReport', () => {
 	});
 });
 
+// v3(2026-10-20 ~ 10-22 배포) 코드 — 기본연습 80문제, 이바다·7세, 3문제 틀림
+const V3_CODE =
+	'3BWJhc2ljCeydtOuwlOuLpAOtAoK0nw4ICgkJCQoKCgoKAwEECAMUDwgAAAIDBA';
+
+describe('v4 — 유형별 24문제(2026-10-22)', () => {
+	const basic = getCourse('basic')!;
+
+	test('먼저 배포한 v3 짧은 링크도 그대로 열린다', () => {
+		const r = decodeReport(V3_CODE)!;
+		expect(r).toMatchObject({
+			studentName: '이바다',
+			studentAge: '7세',
+			courseTitle: basic.title,
+			correct: 77,
+			total: 80,
+			durationMs: 301_000,
+		});
+		expect(r.part).toBeUndefined();
+		expect(r.sections.map((sec) => sec.correct)).toEqual([
+			9, 9, 9, 10, 10, 10, 10, 10,
+		]);
+		expect(r.sections[0].durationMs).toBeUndefined();
+		expect(r.wrong[1]).toEqual({
+			text: '15 − 8',
+			mine: '',
+			answer: '7',
+			sectionTitle: basic.sections[4].title,
+		});
+	});
+
+	const all: Report = {
+		...report,
+		total: 192,
+		correct: 150,
+		sections: titles.map((title, i) => ({
+			title,
+			correct: [24, 20, 19, 7, 22, 18, 21, 19][i],
+			total: 24,
+			durationMs: (60 + i * 7) * 1000,
+		})),
+	};
+
+	test('새 코드는 4 로 시작한다', () => {
+		expect(encodeReport(all)[0]).toBe('4');
+	});
+
+	test('전체 풀기: 유형마다 걸린 시간까지 되살린다', () => {
+		expect(decodeReport(encodeReport(all))).toEqual(all);
+	});
+
+	test('한 유형 풀이: 유형 번호와 그 유형 하나만 되살린다', () => {
+		const single: Report = {
+			...report,
+			part: 3,
+			correct: 17,
+			total: 24,
+			durationMs: 95_000,
+			sections: [
+				{ title: titles[3], correct: 17, total: 24, durationMs: 95_000 },
+			],
+			wrong: report.wrong
+				.slice(0, 7)
+				.map((w) => ({ ...w, sectionTitle: titles[3] })),
+		};
+		expect(decodeReport(encodeReport(single))).toEqual(single);
+	});
+
+	test('192문제 중 18문제 틀린 흔한 결과의 코드가 200자 이하다', () => {
+		expect(encodeReport(all).length).toBeLessThanOrEqual(200);
+	});
+
+	test('걸린 시간은 화면처럼 초를 버림해 싣는다(받은 쪽이 1초 길게 보이지 않게)', () => {
+		const odd: Report = {
+			...all,
+			durationMs: 61_900,
+			sections: all.sections.map((sec) => ({ ...sec, durationMs: 17_600 })),
+		};
+		const r = decodeReport(encodeReport(odd))!;
+		expect(r.durationMs).toBe(61_000);
+		expect(r.sections[0].durationMs).toBe(17_000);
+	});
+});
+
 describe('shareUrl', () => {
 	test('주어진 주소 뒤에 /s/코드 를 붙인다(예전 /share?r= 보다 짧게)', () => {
 		expect(shareUrl('https://five.app', 'abc_-1')).toBe(

@@ -101,6 +101,18 @@ export const heroDate = style([
 	},
 ]);
 
+/** 한 유형만 풀었을 때 「3번 유형 · 유형 이름」 */
+export const heroPart = style([
+	text.body2,
+	{
+		marginTop: 14,
+		fontWeight: vars.font.weight.semibold,
+		color: '#ffffff',
+		wordBreak: 'keep-all',
+		...rise(120),
+	},
+]);
+
 /** 나이·종목 뱃지: 흰 반투명 알약 */
 export const heroBadge = style([
 	text.label,
@@ -179,10 +191,10 @@ export const blockTitle = style([
 	{ marginBottom: 14, color: vars.color.grey900 },
 ]);
 
-// ── 유형별 정답률 ─────────────────────────────────────────
+// ── 풀이 스타일 분석(유형별 정답률) ─────────────────────────────────────────
 
 /**
- * 강함·취약 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
+ * 강점·약점 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
  * 휴대폰(1열)과 768px 이상은 글자까지 보인다(원장님 결정 2026-10-20).
  * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터.
  */
@@ -203,8 +215,8 @@ export const sectionList = style({
 
 /**
  * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
- * 강함(8개 이상)·취약(3개 이하) 줄은 옅은 색 바탕 + 색 테두리.
- * 안은 «이름 + 강함·취약(sectionHead)» 아래 «10칸 + 맞힌 수(sectionBody)».
+ * 강점(80%↑, 24문제 중 20개↑)·약점(30%↓, 7개↓) 줄은 옅은 색 바탕 + 색 테두리.
+ * 안은 «번호·이름 + 강점·약점(sectionHead)» 아래 «걸린 시간 + 맞힌 수(sectionBody)».
  */
 export const sectionRow = style({
 	display: 'flex',
@@ -225,7 +237,7 @@ export const sectionRow = style({
 	},
 });
 
-/** 이름(왼쪽) + 강함·취약 뱃지(오른쪽) 한 줄 */
+/** 번호·이름(왼쪽) + 강점·약점 뱃지(오른쪽) 한 줄 */
 export const sectionHead = style({
 	display: 'flex',
 	alignItems: 'flex-start',
@@ -260,7 +272,7 @@ const badgeBase = style([
 ]);
 
 /**
- * 이름 아래 한 줄: 10칸(왼쪽) · 맞힌 수(오른쪽).
+ * 이름 아래 한 줄: 걸린 시간(왼쪽) · 맞힌 수(오른쪽).
  * 2열일 때 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 높이가 맞는다.
  */
 export const sectionBody = style({
@@ -274,7 +286,7 @@ export const sectionBody = style({
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
 /**
- * 강함·취약 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
+ * 강점·약점 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
  * (2열 한 칸이 좁아 글자 뱃지까지 두면 이름이 두 줄로 꺾여서).
  */
 const markBadge = style([
@@ -296,7 +308,7 @@ export const weaknessBadge = style([
 	{ background: vars.color.red500 },
 ]);
 
-/** 맞힌 수 「8 / 10」. 다른 뱃지와 같은 알약 모양에 회색 반투명 바탕(다크에서도 옅게) */
+/** 맞힌 수 「20 / 24」. 다른 뱃지와 같은 알약 모양에 회색 반투명 바탕(다크에서도 옅게) */
 export const scoreBadge = style([
 	badgeBase,
 	text.number,
@@ -315,35 +327,40 @@ export const sectionCorrect = style({
 	color: vars.color.grey900,
 });
 
-/**
- * 1문제 = 1칸. 칸은 최대 16px, 휴대폰처럼 좁으면 뱃지 자리를 남기고 함께 작아진다.
- */
-export const cells = style({
-	display: 'grid',
-	gridAutoFlow: 'column',
-	gridAutoColumns: 'minmax(0, 16px)',
-	gap: 3,
-	flex: '1 1 auto',
-	minWidth: 0,
-});
-
-/** 맞힌 칸은 꽉 찬 초록(강함 줄은 파랑), 틀린 칸은 반투명 빨강 + 안쪽 1px 테두리 */
-export const cell = style({
-	width: '100%',
-	aspectRatio: '1',
-	borderRadius: 4,
-	background: tint(vars.color.red400, 12),
-	boxShadow: `inset 0 0 0 1px ${tint(vars.color.red400, 20)}`,
-	selectors: {
-		'&[data-correct="true"]': {
-			background: vars.color.green400,
-			boxShadow: 'none',
-		},
-		[`${sectionRow}[data-mark="strong"] &[data-correct="true"]`]: {
-			background: vars.color.blue500,
+/** 유형 번호 동그라미 — 레이더 꼭짓점 번호와 같은 색(강점 파랑·약점 빨강) */
+export const sectionNumber = style([
+	text.caption2,
+	text.number,
+	{
+		display: 'inline-grid',
+		placeItems: 'center',
+		width: 18,
+		height: 18,
+		marginRight: 6,
+		verticalAlign: '1px',
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey700,
+		background: tint(vars.color.grey500, 14),
+		selectors: {
+			'&[data-mark="strong"]': {
+				color: '#ffffff',
+				background: vars.color.blue500,
+			},
+			'&[data-mark="weak"]': {
+				color: '#ffffff',
+				background: vars.color.red500,
+			},
 		},
 	},
-});
+]);
+
+/** 이 유형(전체 풀기의 한 페이지)에 걸린 시간 */
+export const sectionTime = style([
+	text.caption,
+	text.number,
+	{ color: vars.color.grey500 },
+]);
 
 // ── 틀린 문제 ─────────────────────────────────────────────
 

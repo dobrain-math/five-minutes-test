@@ -195,3 +195,36 @@ export const topActions = style({
 	flexShrink: 0,
 	gap: 8,
 });
+
+// 유형 줄: 「3 / 8」 뱃지 + 지금 유형 이름
+export const sectionRow = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 8,
+	marginBottom: 10,
+});
+
+export const pageBadge = style([
+	text.caption,
+	text.number,
+	{
+		flexShrink: 0,
+		padding: '2px 8px',
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey700,
+		background: vars.color.grey100,
+	},
+]);
+
+export const sectionTitle = style([
+	text.body2,
+	{
+		minWidth: 0,
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey700,
+	},
+]);
