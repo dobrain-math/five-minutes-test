@@ -1,8 +1,34 @@
 import { globalStyle, keyframes, style } from '@vanilla-extract/css';
-import { canHover, vars } from '@/styles/theme.css.ts';
+import { breakpoints, canHover, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 
-export const header = style({ marginBottom: 28 });
+/**
+ * 머리 띠 안쪽. 리포트(36/40, 태블릿 56/60)보다 낮게 — 홈은 입력이 주인공이라 띠는 브랜드만 보여 준다(원장님 «너무 과하지 않게» 2026-10-27).
+ * 띠 바탕은 styles/brand.css.ts brandBand.
+ */
+export const heroInner = style({
+	position: 'relative',
+	paddingTop: 28,
+	paddingBottom: 30,
+	'@media': {
+		[breakpoints.tablet]: { paddingTop: 40, paddingBottom: 44 },
+	},
+});
+
+export const heroTitle = style([
+	text.title1,
+	{ color: '#ffffff', wordBreak: 'keep-all' },
+]);
+
+export const heroSubtitle = style([
+	text.body2,
+	{
+		marginTop: 8,
+		fontSize: vars.font.size.t5,
+		color: 'rgba(255, 255, 255, 0.82)',
+		wordBreak: 'keep-all',
+	},
+]);
 
 export const field = style({ marginBottom: 28 });
 

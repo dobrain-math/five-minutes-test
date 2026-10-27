@@ -29,9 +29,10 @@ src/
   styles/palette.ts     원시 컬러(라이트 + 다크: 스케일 50↔900 뒤집기). 컴포넌트는 직접 쓰지 않는다
   styles/theme.css.ts   vars.color / vars.shadow(xs~lg, 다크 대응) / vars.font(family·size t1~t8·weight·lineHeight) / vars.radius, breakpoints, canHover
   styles/typography.css.ts  text.{title1,display,expression,title2,body1,body2,label,caption,caption2,number} — style([text.x, {...}]) 로 조합
+  styles/brand.css.ts   brandBand — 리포트·홈 공용 파랑 머리 띠(그라데이션·원 장식·그림자)
   styles/utility.css.ts page, container.{narrow,medium,wide}, content, card, bottomBar, 버튼, 제목
   app/layout.tsx        BrowserRouter + Routes. 폴더 이름만 Next.js 식이고 라우팅은 react-router — 새 화면은 여기에 Route 추가
-  app/page.tsx          홈: 이름 input + 나이 가로 막대(range 드래그, 5세~중1 눈금) + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
+  app/page.tsx          홈: 맨 위 파랑 머리 띠(brandBand, 리포트보다 낮게) + 이름 input + 나이 가로 막대(range 드래그, 5세~중1 눈금) + 세로 종목 리스트(radiogroup) → start(courseId) 후 /test/:id
   app/test/page.tsx     상단 홈 버튼(누르면 화면 가운데 확인 창 <dialog> showModal 「처음 화면으로 이동」 → 계속 풀기 / 처음으로. Esc·바깥 누르기로 닫힘)·이름·타이머(이 페이지 시간)·「3 / 8 + 유형 이름」·진행률, 문제 카드 그리드. 전체 풀기는 「다음 유형」으로 페이지 넘김(되돌아가기 없음), 마지막 페이지 「채점하기」. 빈칸 있으면 한 번 확인. 터치 기기에서 답 칸에 커서가 있으면(자판이 떠 있으면) 아래 버튼 줄을 숨김(bottomBarAuto, pointer: coarse 만). 안드로이드 «뒤로»로 자판만 내리면(커서는 칸에 남음) visualViewport 높이가 돌아올 때 다시 보임
   app/report/page.tsx   buildReport → ReportView + 「결과 공유」(휴대폰 공유 시트, 안 되면 링크 복사)·「처음으로」
   app/share/page.tsx    /r/6글자(서버에서 받아 옴, 받는 동안 ReportSkeleton)·/s/코드·?r= 코드를 decodeReport → ReportView. 깨진 링크는 안내 화면
@@ -144,3 +145,4 @@ src/
 
 - 2026-10-27: 공유를 한 덩어리(🍀 원장님 문구 + 링크)로, 공유 창에 글 고치는 칸 + 복사하기·취소(shareMessage TDD, 두 단계·공유 시트 제거). 미리보기 그림 og-v2.png(제목 「두뇌로수학 연산 테스트」). PC 1247·390 브라우저 확인(고친 글 그대로 복사)
 - 2026-10-27: 공유 창 복사 뒤 창 유지 + «복사 완료!» 토스트, 「취소」→「닫기」, 쓰지 않게 된 리포트 notice 삭제. PC·다크 브라우저 확인
+- 2026-10-27: 홈에도 리포트와 같은 파랑 머리 띠(styles/brand.css.ts brandBand 로 공용화, 홈은 여백 28/30·태블릿 40/44로 낮게). PC·다크·390 확인

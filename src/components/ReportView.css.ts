@@ -1,4 +1,5 @@
 import { globalStyle, keyframes, style } from '@vanilla-extract/css';
+import { brandBand } from '@/styles/brand.css.ts';
 import { breakpoints, canHover, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 import { container as layoutContainer } from '@/styles/utility.css.ts';
@@ -33,30 +34,8 @@ const rise = (delayMs: number) => ({
 	},
 });
 
-/**
- * 대제목·학생 정보 띠. 본문(옅은 회색 바탕 + 흰 카드)과 색으로 확실히 나눈다.
- * 단색이면 밋밋해서 대각선 그라데이션 + 옅은 원 장식 + 아래로 번지는 파란 그림자로 깊이를 준다.
- * NOTE: 더 진한 쪽은 blue700 대신 blue500 에 검정을 섞는다 — 다크 팔레트는 50↔900 뒤집기라 blue700 이 밝아진다.
- */
-export const hero = style({
-	position: 'relative',
-	overflow: 'hidden',
-	color: '#ffffff',
-	background: `linear-gradient(135deg, ${vars.color.blue500} 0%, color-mix(in srgb, ${vars.color.blue500} 72%, #000) 100%)`,
-	borderRadius: `0 0 ${vars.radius.xl} ${vars.radius.xl}`,
-	boxShadow: `0 10px 30px -12px ${tint(vars.color.blue500, 60)}`,
-	selectors: {
-		'&::before, &::after': {
-			content: '""',
-			position: 'absolute',
-			borderRadius: '50%',
-			background: 'rgba(255, 255, 255, 0.08)',
-			pointerEvents: 'none',
-		},
-		'&::before': { width: 260, height: 260, top: -120, right: -60 },
-		'&::after': { width: 160, height: 160, bottom: -90, right: 120 },
-	},
-});
+/** 대제목·학생 정보 띠. 모양은 홈 머리 띠와 같은 brandBand */
+export const hero = brandBand;
 
 export const heroInner = style({
 	position: 'relative',
