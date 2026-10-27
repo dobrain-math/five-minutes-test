@@ -13,24 +13,16 @@ import * as s from './page.css.ts';
 
 const OP_SYMBOL: Record<Operator, string> = { '+': '+', '-': '−', '×': '×' };
 
-/**
- * 권 카드 오른쪽 연산 기호(그 권에 나오는 + − ×)와 대표 문제 하나(실험 C).
- * NOTE: 화면을 열 때 한 번만 뽑는다 — 다시 그릴 때마다 예시 문제가 바뀌면 어지럽다.
- */
-const COURSE_PREVIEW: Record<string, { ops: Operator[]; sample: string }> =
-	Object.fromEntries(
-		courses.map((course) => {
-			const problems = course.sections.map((sec) =>
-				sec.generate(Math.random, 0),
-			);
-			const ops = (['+', '-', '×'] as const).filter((op) =>
-				problems.some((p) => p.op === op),
-			);
-			// 마지막 유형 = 그 권에서 가장 어려운 쪽
-			const { left, op, right } = problems[problems.length - 1];
-			return [course.id, { ops, sample: `${left} ${OP_SYMBOL[op]} ${right}` }];
-		}),
-	);
+/** 권 카드 오른쪽 연산 기호 — 그 권에 나오는 + − × (예시 문제 줄은 원장님 요청으로 뺌 2026-10-27) */
+const COURSE_PREVIEW: Record<string, { ops: Operator[] }> = Object.fromEntries(
+	courses.map((course) => {
+		const problems = course.sections.map((sec) => sec.generate(Math.random, 0));
+		const ops = (['+', '-', '×'] as const).filter((op) =>
+			problems.some((p) => p.op === op),
+		);
+		return [course.id, { ops }];
+	}),
+);
 
 /** 단계 번호 동그라미. 그 단계를 다 고르면 파랑 체크로 바뀐다(실험 B) */
 function Step({ n, done }: { n: number; done: boolean }) {
@@ -214,9 +206,6 @@ export default function HomePage() {
 										<div className={s.courseMeta}>
 											{course.sections.length}개 유형 · 유형마다 {PER_SECTION}
 											문제
-										</div>
-										<div className={s.courseSample}>
-											예) {COURSE_PREVIEW[course.id].sample}
 										</div>
 									</span>
 									<span className={s.courseOps} aria-hidden>

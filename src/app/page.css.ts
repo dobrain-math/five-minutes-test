@@ -117,17 +117,6 @@ export const courseMeta = style([
 
 export const courseBody = style({ flex: 1, minWidth: 0 });
 
-/** 「예) 48 × 6」 — 어떤 문제가 나오는지 미리 */
-export const courseSample = style([
-	text.caption,
-	text.number,
-	{
-		marginTop: 6,
-		fontWeight: vars.font.weight.semibold,
-		color: vars.color.grey700,
-	},
-]);
-
 export const courseOps = style({ display: 'flex', gap: 4, flexShrink: 0 });
 
 const opColor = {
