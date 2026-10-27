@@ -481,3 +481,103 @@ export const step = style([
 ]);
 
 export const stepCheck = style({ width: 14, height: 14 });
+
+// ── 실험 D: PC 2단(왼쪽 안내 + 오른쪽 입력) ─────────────────
+
+/**
+ * 머리 띠·본문·아래 버튼 줄이 같은 폭을 쓴다. 휴대폰·태블릿은 지금처럼 560px 한 단,
+ * PC(960px~)는 «안내 | 입력(560px)» 두 단.
+ */
+export const shell = style({
+	width: '100%',
+	maxWidth: 560,
+	margin: '0 auto',
+	paddingInline: 20,
+	'@media': {
+		[breakpoints.tablet]: { paddingInline: 32 },
+		[breakpoints.laptop]: { maxWidth: 1104 },
+	},
+});
+
+export const columns = style({
+	'@media': {
+		[breakpoints.laptop]: {
+			display: 'grid',
+			gridTemplateColumns: '1fr 560px',
+			columnGap: 64,
+			alignItems: 'start',
+		},
+	},
+});
+
+/** 입력 칸들·시작 버튼. PC 에서는 오른쪽 단 */
+export const formColumn = style({
+	minWidth: 0,
+	'@media': { [breakpoints.laptop]: { gridColumn: 2 } },
+});
+
+export const intro = style({
+	display: 'none',
+	'@media': {
+		[breakpoints.laptop]: {
+			display: 'block',
+			position: 'sticky',
+			top: 32,
+		},
+	},
+});
+
+export const introEyebrow = style([
+	text.label,
+	{ fontWeight: vars.font.weight.bold, color: vars.color.blue500 },
+]);
+
+export const introTitle = style([
+	text.title1,
+	{ marginTop: 10, color: vars.color.grey900, wordBreak: 'keep-all' },
+]);
+
+export const introList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 12,
+	marginTop: 28,
+	listStyle: 'none',
+});
+
+export const introItem = style({
+	display: 'flex',
+	alignItems: 'flex-start',
+	gap: 14,
+	padding: '18px 20px',
+	borderRadius: vars.radius.lg,
+	background: vars.color.layeredBackground,
+	boxShadow: vars.shadow.sm,
+});
+
+export const introIcon = style({
+	flexShrink: 0,
+	width: 24,
+	height: 24,
+	color: vars.color.blue500,
+	strokeWidth: 2,
+});
+
+export const introItemTitle = style([
+	text.body1,
+	{
+		display: 'block',
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey900,
+	},
+]);
+
+export const introItemText = style([
+	text.body2,
+	{
+		display: 'block',
+		marginTop: 4,
+		color: vars.color.grey600,
+		wordBreak: 'keep-all',
+	},
+]);
