@@ -1,24 +1,22 @@
 import type { Report } from '@/@types/test';
-import { cardText } from '@/utils/linkCard.ts';
+import { formatCardDate } from '@/utils/formatDate.ts';
 
 /**
- * 공유는 카톡 «두 개»로 보낸다(원장님 결정 2026-10-22): 첫째 = 카드와 같은 제목·안내, 둘째 = 링크만.
- * NOTE: 공유 시트 한 번 = 메시지 한 개라서 리포트 화면이 공유 시트를 두 번 띄운다(report/page.tsx).
- * 공유 시트에 text·url 을 함께 넘기면 카톡이 글을 버리고 링크만 보냈다(2026-10-20 휴대폰 확인) — 각각 text 로만 넘긴다.
+ * 카톡으로 보내는 공유 글(원장님 문구 2026-10-27). 안내 글과 링크를 «한 덩어리»로 보낸다 —
+ * 카톡은 글 안의 링크를 알아보고 그 아래 링크 카드를 붙인다(2026-10-22 의 «두 개로 보내기»는 폐기).
+ * 리포트 화면의 공유 창에서 이 글을 고친 뒤 복사한다(report/page.tsx).
  */
-export function shareParts(report: Report, url: string) {
-	const { title, description } = cardText(
-		report.studentName,
-		report.finishedAt,
-	);
-	return { message: `${title}\n${description}`, link: url };
-}
-
-/**
- * 공유 시트는 터치 기기(휴대폰·태블릿)에서만 쓴다.
- * NOTE: 윈도 크롬·엣지에도 navigator.share 가 있지만, 윈도 공유 창에는 PC 카카오톡도 «복사»도 없다(2026-10-27).
- * 그래서 PC(마우스, pointer: fine)는 공유 시트가 있어도 복사 두 단계로 보낸다.
- */
-export function shouldUseShareSheet(hasShare: boolean, isTouch: boolean) {
-	return hasShare && isTouch;
+export function shareMessage(report: Report, url: string) {
+	const date =
+		report.finishedAt === undefined
+			? ''
+			: `${formatCardDate(report.finishedAt)} `;
+	return [
+		`🍀 ${date}연산 테스트 리포트`,
+		'',
+		`${report.studentName} 학생의 두뇌로수학 테스트 결과를 보내드립니다.`,
+		'클릭해 자세한 내용을 확인해 보세요.',
+		'',
+		url,
+	].join('\n');
 }

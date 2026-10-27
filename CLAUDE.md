@@ -62,11 +62,11 @@ src/
 - 저장소: Upstash Redis(Vercel → Storage 에서 프로젝트에 연결, 환경 변수 KV_REST_API_URL·KV_REST_API_TOKEN 또는 UPSTASH_REDIS_REST_*). 키 `r:6글자` = 공유 코드, 기한 없음. SDK 없이 REST(server/shortLink.ts). Supabase 는 무료가 1주 미사용 시 일시정지라 안 씀
 - 서버 코드는 server/handle.ts(링크 카드 + /api/share). ★고치면 `bun run build:server` 로 server/handle.gen.js 를 다시 묶어 함께 커밋 — middleware.ts 는 이 JS 하나만 불러온다. .ts 를 불러오면 Vercel 에서 매번 MIDDLEWARE_INVOCATION_FAILED(2026-10-20 배포 사고, 오답노트). handle.gen.test.ts 가 묶음 최신 여부를 검사
 - 리포트 머리 띠에 「테스트 실시일 2026년 10월 20일」(Report.finishedAt, 옛 링크엔 없음)
-- 미리보기 카드: public/og.png(1200×630, 예시 점수 카드 없음) + index.html og 메타(기본값), 도메인 https://five-minutes-test.vercel.app
+- 미리보기 카드: public/og-v2.png(1200×630, 제목 「두뇌로수학 연산 테스트」, 점수 카드 없음, 2026-10-27) + index.html og 메타(기본값), 도메인 https://five-minutes-test.vercel.app. ★그림을 바꾸면 파일 이름 번호를 올린다 — 카톡이 같은 주소의 옛 그림을 캐시해 둔다. 옛 og.png 는 남겨 둠
 - 리포트마다 다른 카드: 미들웨어(/r/* · /s/* · /share)가 코드에서 이름·실시일만 읽어 og 제목·설명을 바꿔 끼운다. 제목 「⭐m월 d일(요일) 연산 테스트 리포트」, 설명 「OOO 학생의 금일 테스트 결과입니다. 클릭해 자세한 리포트를 확인해 보세요.」(utils/linkCard.ts). DB 없음. 로컬 vite 에서는 안 돌고 배포 뒤에만 동작. 미들웨어가 가져가는 파일(shareCode·linkCard·formatDate·data/ages)은 '@/' 별칭 없이 상대 경로만
 - 날짜는 모두 한국 시각(formatDate.ts) — Vercel 서버가 UTC 라서
 - 공유 코드 v4(맨 앞 '4', 2026-10-22): v3 머리 + 풀이 범위(0 전체 / n번 유형) + 유형별 걸린 초(버림 — 화면 formatDuration 과 맞춤). 192문제 흔한 결과 200자 이하. v3('3…'): 나이는 목록 번호, 걸린 시간 초·실시일 분, 적은 답은 정답과의 차이. 흔한 결과 165자(v2 201자). v1('e…')·v2('2…') 링크도 계속 읽는다. 유형은 권 뒤에 이어 붙이기만 한다 — 옛 전체 풀기 링크는 앞에서부터 그 개수만큼으로 읽는다(decodeShort). 순서를 바꾸거나 중간에 끼우면 옛 링크 이름이 엇갈린다. ★새 모양 번호를 만들면 server/shortLink.ts 의 CODE_PATTERN 도 넓힐 것(v4 때 빠뜨려 저장이 막힐 뻔함)
-- 공유: 카톡 «두 개»로 보낸다(원장님 결정 2026-10-22) — ① 카드와 같은 문구(linkCard.cardText) ② 링크만(utils/shareMessage.ts shareParts). 공유 시트 한 번 = 메시지 한 개이고 아이폰은 누른 직후에만 시트가 열려서, ① 을 보낸 뒤 가운데 창(components/Modal)의 «링크 보내기»를 한 번 더 누른다. 공유 시트 없는 PC 는 같은 두 단계를 복사로(«링크 복사»). navigator.share 에 url 칸을 따로 넘기면 카톡이 글을 버린 적이 있어(2026-10-20) 둘 다 text 로만 넘긴다. 공유받은 화면(/share)은 아래 버튼 없음, 잘못된 링크는 버튼 없이 안내 글만 화면 가운데
+- 공유: 안내 글 + 링크를 «한 덩어리»로(원장님 결정 2026-10-27, 2026-10-22 «두 개로 보내기»는 폐기) — 카톡이 글 안 링크 아래 카드를 붙인다. 문구는 utils/shareMessage.ts shareMessage(「🍀 m월 d일(요일) 연산 테스트 리포트」 / 빈 줄 / 「OOO 학생의 두뇌로수학 테스트 결과를 보내드립니다.」「클릭해 자세한 내용을 확인해 보세요.」 / 빈 줄 / 링크). 「테스트 결과 공유」 → 가운데 창(components/Modal content)에 글 고치는 칸(textarea) + 「복사하기」·「취소」. 휴대폰·PC 모두 복사 — 공유 시트(navigator.share)는 안 씀(윈도 공유 창에 PC 카톡·복사가 없음, 2026-10-27). 복사가 막히면 글을 골라 두고 직접 복사 안내. 링크 카드 제목·설명(linkCard.cardText, ⭐)은 그대로. 공유받은 화면(/share)은 아래 버튼 없음, 잘못된 링크는 버튼 없이 안내 글만 화면 가운데
 - 리포트는 PC 에서도 한 단(800px)으로 내려 읽는다. 2단 대시보드는 줄이 안 맞아 없앴다(2026-10-20)
 - 색 테두리·선택 링·포커스 링은 모두 1px
 - 문구는 경어(~니다) 중심, 「~요」는 가끔만(평가문은 ~요 문장 최대 1개 — evaluate.test.ts 가 검사). 요청 문장의 「~주세요」·「~할까요?」 정도만 허용
@@ -141,3 +141,5 @@ src/
 - 2026-10-22: 시험 화면 홈 버튼 확인을 아래 버튼 줄 → 가운데 모달(<dialog> showModal, 어두운 바탕·떠오르기, reduced-motion 이면 끔). main.css 의 margin 0 이 dialog 가운데 정렬을 지워 margin auto 를 다시 줌. 390·1440·다크·Esc·바깥 누르기·처음으로 브라우저 확인
 - 2026-10-22: 휴대폰 자판이 떠 있는 동안 시험 화면 아래 버튼 줄 숨김(원장님 A안), 공유를 카톡 두 개(안내 글 → «링크 보내기» 창 → 링크)로(shareParts TDD), 확인 창을 components/Modal 로 분리. 저장소(Upstash) 는 배포 사이트에 아직 미연결(503 확인). 브라우저 확인: 버튼 숨김 판정·두 단계 공유(공유 시트 흉내)·PC 복사·취소·Esc
 - 2026-10-27: PC 공유가 윈도 공유 창(카톡·복사 없음)으로 빠지던 문제 — 공유 시트는 터치 기기(pointer: coarse)에서만, PC 는 복사 두 단계(shouldUseShareSheet TDD). PC 크롬에서 안내 글 복사 → «링크 복사» 확인
+
+- 2026-10-27: 공유를 한 덩어리(🍀 원장님 문구 + 링크)로, 공유 창에 글 고치는 칸 + 복사하기·취소(shareMessage TDD, 두 단계·공유 시트 제거). 미리보기 그림 og-v2.png(제목 「두뇌로수학 연산 테스트」). PC 1247·390 브라우저 확인(고친 글 그대로 복사)

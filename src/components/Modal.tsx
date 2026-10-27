@@ -10,12 +10,15 @@ export default function Modal({
 	onClose,
 	title,
 	description,
+	content,
 	children,
 }: {
 	open: boolean;
 	onClose: () => void;
 	title: string;
 	description: string;
+	/** 설명과 버튼 사이에 넣을 것(예: 리포트 공유 글 고치는 칸) */
+	content?: ReactNode;
 	children: ReactNode;
 }) {
 	const ref = useRef<HTMLDialogElement>(null);
@@ -51,6 +54,7 @@ export default function Modal({
 				<p id={`${id}-desc`} className={s.modalText}>
 					{description}
 				</p>
+				{content}
 				<div className={s.modalButtons}>{children}</div>
 			</div>
 		</dialog>

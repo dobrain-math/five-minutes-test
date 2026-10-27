@@ -56,6 +56,25 @@ export const modalText = style([
 
 export const modalButtons = style({ display: 'flex', gap: 8 });
 
+/** 창 안 글 고치는 칸(리포트 공유 글). 창 바탕이 흰색이라 회색 바탕으로 구분한다 */
+export const modalTextarea = style([
+	text.body2,
+	{
+		display: 'block',
+		width: '100%',
+		minHeight: 196,
+		margin: '-8px 0 20px',
+		padding: '14px 16px',
+		border: 'none',
+		borderRadius: vars.radius.md,
+		color: vars.color.grey900,
+		background: vars.color.grey100,
+		resize: 'vertical',
+		outline: 'none',
+		':focus': { boxShadow: `0 0 0 1px ${vars.color.blue500}` },
+	},
+]);
+
 /** 창 바탕이 흰색이라 보조 버튼은 회색 바탕으로 구분한다 */
 export const modalSecondary = style({
 	background: vars.color.grey100,
