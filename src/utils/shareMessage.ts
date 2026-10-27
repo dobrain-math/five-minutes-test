@@ -13,3 +13,12 @@ export function shareParts(report: Report, url: string) {
 	);
 	return { message: `${title}\n${description}`, link: url };
 }
+
+/**
+ * 공유 시트는 터치 기기(휴대폰·태블릿)에서만 쓴다.
+ * NOTE: 윈도 크롬·엣지에도 navigator.share 가 있지만, 윈도 공유 창에는 PC 카카오톡도 «복사»도 없다(2026-10-27).
+ * 그래서 PC(마우스, pointer: fine)는 공유 시트가 있어도 복사 두 단계로 보낸다.
+ */
+export function shouldUseShareSheet(hasShare: boolean, isTouch: boolean) {
+	return hasShare && isTouch;
+}

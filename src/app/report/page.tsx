@@ -11,7 +11,7 @@ import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { buildReport } from '@/utils/buildReport.ts';
 import { encodeReport, shareUrl } from '@/utils/shareLink.ts';
-import { shareParts } from '@/utils/shareMessage.ts';
+import { shareParts, shouldUseShareSheet } from '@/utils/shareMessage.ts';
 
 export default function ReportPage() {
 	const { testId, part: partParam } = useParams();
@@ -57,11 +57,16 @@ export default function ReportPage() {
 	 * 공유는 카톡 두 개: ① 안내 글 → ② 링크(원장님 결정 2026-10-22).
 	 * NOTE: 공유 시트 한 번에 메시지 한 개만 간다. 그리고 공유 시트는 «누른 직후»에만 열린다(아이폰 사파리) —
 	 * 그래서 ① 을 보낸 뒤 창을 띄워 «링크 보내기»를 한 번 더 누르게 한다.
-	 * 휴대폰은 공유 시트(카카오톡 등), 공유 시트가 없는 PC 브라우저는 복사로 같은 두 단계를 밟는다.
+	 * 휴대폰은 공유 시트(카카오톡 등), PC 는 공유 시트가 있어도 복사로 같은 두 단계를 밟는다(shouldUseShareSheet).
 	 */
+	const sheetAvailable = () =>
+		shouldUseShareSheet(
+			typeof navigator.share === 'function',
+			window.matchMedia('(pointer: coarse)').matches,
+		);
 	const handleShare = async () => {
 		const { message } = parts();
-		if (navigator.share) {
+		if (sheetAvailable()) {
 			try {
 				await navigator.share({ text: message });
 				setLinkStep('share');
@@ -82,7 +87,7 @@ export default function ReportPage() {
 	const handleLink = async () => {
 		const { link } = parts();
 		setLinkStep(null);
-		if (linkStep === 'share' && navigator.share) {
+		if (linkStep === 'share' && sheetAvailable()) {
 			try {
 				// NOTE: url 칸이 아니라 text 로 넘긴다(카톡이 url 칸을 따로 다룬 적이 있어 ① 과 같은 방식으로)
 				await navigator.share({ text: link });

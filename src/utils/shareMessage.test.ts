@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Report } from '@/@types/test';
-import { shareParts } from './shareMessage.ts';
+import { shareParts, shouldUseShareSheet } from './shareMessage.ts';
 
 const report: Report = {
 	studentName: '김하늘',
@@ -32,5 +32,19 @@ describe('shareParts', () => {
 		expect(shareParts(old, url).message.split('\n')[0]).toBe(
 			'⭐연산 테스트 리포트',
 		);
+	});
+});
+
+describe('shouldUseShareSheet', () => {
+	test('터치 기기에 공유 시트가 있으면 공유 시트를 쓴다', () => {
+		expect(shouldUseShareSheet(true, true)).toBe(true);
+	});
+
+	test('PC(마우스)는 공유 시트가 있어도 복사로 보낸다 — 윈도 공유 창엔 카톡·복사가 없음', () => {
+		expect(shouldUseShareSheet(true, false)).toBe(false);
+	});
+
+	test('공유 시트가 없으면 터치 기기여도 복사로 보낸다', () => {
+		expect(shouldUseShareSheet(false, true)).toBe(false);
 	});
 });
