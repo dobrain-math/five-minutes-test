@@ -3,30 +3,21 @@ import { breakpoints, canHover, vars } from '@/styles/theme.css.ts';
 import { text } from '@/styles/typography.css.ts';
 
 /**
- * 머리 띠 안쪽. 리포트(36/40, 태블릿 56/60)보다 낮게 — 홈은 입력이 주인공이라 띠는 브랜드만 보여 준다(원장님 «너무 과하지 않게» 2026-10-27).
- * 띠 바탕은 styles/brand.css.ts brandBand.
+ * 홈 제목 줄. 띠 없이 회색 바탕 위에 진한 글자로(원장님 2026-10-27 «띠가 촌스럽다», «글자가 살짝 크다»).
+ * 휴대폰 22px · 태블릿 26px(리포트 대제목 title1 26/30 보다 한 단계 작게). 아래 본문(content)이 위 여백 28/48 을 가진다.
  */
 export const heroInner = style({
-	position: 'relative',
-	paddingTop: 28,
-	paddingBottom: 30,
-	'@media': {
-		[breakpoints.tablet]: { paddingTop: 40, paddingBottom: 44 },
-	},
+	paddingTop: 'calc(20px + env(safe-area-inset-top))',
+	'@media': { [breakpoints.tablet]: { paddingTop: 40 } },
 });
 
 export const heroTitle = style([
 	text.title1,
-	{ color: '#ffffff', wordBreak: 'keep-all' },
-]);
-
-export const heroSubtitle = style([
-	text.body2,
 	{
-		marginTop: 8,
-		fontSize: vars.font.size.t5,
-		color: 'rgba(255, 255, 255, 0.82)',
+		fontSize: vars.font.size.t3,
+		color: vars.color.grey900,
 		wordBreak: 'keep-all',
+		'@media': { [breakpoints.tablet]: { fontSize: vars.font.size.t2 } },
 	},
 ]);
 

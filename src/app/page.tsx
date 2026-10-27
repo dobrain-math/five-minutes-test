@@ -6,7 +6,6 @@ import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
-import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { PER_SECTION } from '@/utils/buildTest.ts';
 import * as s from './page.css.ts';
@@ -96,16 +95,11 @@ export default function HomePage() {
 
 	return (
 		<main className={layout.page}>
-			{/* 리포트와 같은 파랑 머리 띠(brandBand) — 홈에도 브랜드가 보이게(2026-10-27) */}
-			<header className={brand.brandBand}>
-				<div className={`${layout.container.narrow} ${s.heroInner}`}>
-					<div className={layout.titleRow}>
-						<h1 className={s.heroTitle}>두뇌로수학 연산 테스트</h1>
-						<ThemeToggle />
-					</div>
-					<p className={s.heroSubtitle}>
-						이름과 나이를 입력하고 테스트 권과 유형을 골라 주세요.
-					</p>
+			{/* 머리 띠·안내 문장 없이 회색 바탕 위 제목만(원장님 2026-10-27 «띠·문구가 촌스럽다»). 단계 번호가 할 일을 알려 준다 */}
+			<header className={`${layout.container.narrow} ${s.heroInner}`}>
+				<div className={layout.titleRow}>
+					<h1 className={s.heroTitle}>두뇌로수학 연산 테스트</h1>
+					<ThemeToggle />
 				</div>
 			</header>
 
