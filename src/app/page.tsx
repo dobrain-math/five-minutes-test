@@ -200,7 +200,6 @@ export default function HomePage() {
 									className={s.courseItem}
 									onClick={() => pickCourse(course.id)}
 								>
-									<span className={s.radio} aria-hidden />
 									<span className={s.courseBody}>
 										<div className={s.courseTitle}>{course.title}</div>
 										<div className={s.courseMeta}>
@@ -302,7 +301,6 @@ export default function HomePage() {
 												className={`${s.courseItem} ${s.partItem}`}
 												onClick={() => setPart(i)}
 											>
-												<span className={s.radio} aria-hidden />
 												<span className={s.partNumber}>{i + 1}</span>
 												<span>
 													<div className={s.partTitle}>{section.title}</div>

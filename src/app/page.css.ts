@@ -62,6 +62,10 @@ export const courseList = style({
 	listStyle: 'none',
 });
 
+/**
+ * 권·유형 카드. 라디오 동그라미 없이 카드 전체가 선택 표시(파랑 옅은 바탕 + 1px 파랑 테두리)를 맡는다
+ * (원장님 «라디오 버튼이 부담스럽다» 2026-10-27, 실험 exp/no-radio).
+ */
 export const courseItem = style({
 	display: 'flex',
 	alignItems: 'center',
@@ -88,20 +92,6 @@ export const courseItem = style({
 			selectors: {
 				'&:hover:not([aria-checked="true"])': { boxShadow: vars.shadow.md },
 			},
-		},
-	},
-});
-
-export const radio = style({
-	flexShrink: 0,
-	width: 24,
-	height: 24,
-	border: `1px solid ${vars.color.grey300}`,
-	borderRadius: vars.radius.full,
-	transition: 'border 0.15s',
-	selectors: {
-		[`${courseItem}[aria-checked="true"] &`]: {
-			border: `7px solid ${vars.color.blue500}`,
 		},
 	},
 });
