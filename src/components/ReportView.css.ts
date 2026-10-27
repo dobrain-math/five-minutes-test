@@ -543,17 +543,3 @@ export const shareButton = style({
 });
 
 export const shareIcon = style({ width: 20, height: 20, flexShrink: 0 });
-
-/** 링크 복사 결과를 버튼 위에 잠깐 띄운다 */
-export const notice = style([
-	text.label,
-	{
-		margin: '0 0 10px',
-		padding: '14px 16px',
-		borderRadius: vars.radius.md,
-		textAlign: 'center',
-		color: vars.color.grey800,
-		background: vars.color.layeredBackground,
-		boxShadow: vars.shadow.md,
-	},
-]);

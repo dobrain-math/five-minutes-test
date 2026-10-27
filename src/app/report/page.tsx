@@ -21,11 +21,13 @@ export default function ReportPage() {
 	const navigate = useNavigate();
 	const course = getCourse(testId);
 	const session = useTestSessionStore();
-	const [notice, setNotice] = useState('');
 	// 공유 창에서 고치는 글. null = 창 닫힘
 	const [draft, setDraft] = useState<string | null>(null);
 	const [hint, setHint] = useState(SHARE_HINT);
 	const draftRef = useRef<HTMLTextAreaElement>(null);
+	// 복사한 뒤 창은 그대로 두고 잠깐 띄우는 «복사 완료!» 토스트
+	const [copied, setCopied] = useState(false);
+	const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
 	const { courseId, part, startedAt, finishedAt } = session;
 	// 주소 끝 번호(1부터) = 한 유형 풀이. 지금 세션과 다르면 홈으로
@@ -48,16 +50,17 @@ export default function ReportPage() {
 
 	const report = buildReport(course, { ...session, startedAt, finishedAt });
 
-	const flash = (text: string) => {
-		setNotice(text);
-		setTimeout(() => setNotice(''), 3000);
-	};
-
 	/**
 	 * 공유: 안내 글 + 링크 한 덩어리를 창에서 보여 주고, 고친 뒤 «복사하기»(원장님 결정 2026-10-27).
 	 * 카톡에 붙여 넣으면 글 아래 링크 카드가 붙는다. 휴대폰·PC 모두 같은 창 —
 	 * NOTE: 윈도 크롬·엣지의 공유 창에는 PC 카카오톡도 «복사»도 없어서 공유 시트(navigator.share)는 쓰지 않는다.
 	 */
+	const closeShare = () => {
+		clearTimeout(copiedTimer.current);
+		setCopied(false);
+		setDraft(null);
+	};
+
 	const openShare = () => {
 		setHint(SHARE_HINT);
 		setDraft(
@@ -74,8 +77,10 @@ export default function ReportPage() {
 		if (draft === null) return;
 		try {
 			await navigator.clipboard.writeText(draft);
-			setDraft(null);
-			flash('공유 글을 복사했습니다. 카카오톡 대화방에 붙여 넣어 보내 주세요.');
+			// 창은 닫지 않는다(원장님 결정 2026-10-27) — 다시 고쳐 복사하거나 «닫기»로 닫는다
+			clearTimeout(copiedTimer.current);
+			setCopied(true);
+			copiedTimer.current = setTimeout(() => setCopied(false), 1800);
 		} catch {
 			// 복사가 막힌 브라우저: 글을 골라 두고 직접 복사하게 한다
 			draftRef.current?.select();
@@ -88,11 +93,6 @@ export default function ReportPage() {
 			report={report}
 			actions={
 				<>
-					{notice && (
-						<p className={s.notice} role="status">
-							{notice}
-						</p>
-					)}
 					<div className={s.buttonRow}>
 						<button
 							type="button"
@@ -116,17 +116,23 @@ export default function ReportPage() {
 					</div>
 					<Modal
 						open={draft !== null}
-						onClose={() => setDraft(null)}
+						onClose={closeShare}
 						title="테스트 결과 공유"
 						description={hint}
 						content={
-							<textarea
-								ref={draftRef}
-								className={modal.modalTextarea}
-								aria-label="보낼 글"
-								value={draft ?? ''}
-								onChange={(e) => setDraft(e.target.value)}
-							/>
+							<>
+								<textarea
+									ref={draftRef}
+									className={modal.modalTextarea}
+									aria-label="보낼 글"
+									value={draft ?? ''}
+									onChange={(e) => setDraft(e.target.value)}
+								/>
+								{/* NOTE: 창(<dialog>)이 화면 맨 위 층이라 토스트도 창 «안»에 둬야 보인다 */}
+								<p className={modal.modalToast} role="status" hidden={!copied}>
+									복사 완료!
+								</p>
+							</>
 						}
 					>
 						<button
@@ -140,9 +146,9 @@ export default function ReportPage() {
 						<button
 							type="button"
 							className={`${layout.secondaryButton} ${modal.modalSecondary}`}
-							onClick={() => setDraft(null)}
+							onClick={closeShare}
 						>
-							취소
+							닫기
 						</button>
 					</Modal>
 				</>

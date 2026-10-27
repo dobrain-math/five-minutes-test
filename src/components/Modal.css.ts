@@ -81,6 +81,37 @@ export const modalSecondary = style({
 	boxShadow: 'none',
 });
 
+const toastIn = keyframes({
+	from: { opacity: 0, transform: 'translate(-50%, 8px)' },
+	to: { opacity: 1, transform: 'translate(-50%, 0)' },
+});
+
+/**
+ * 창 안에서 띄우는 토스트(«복사 완료!»). 화면 아래 가운데에 떠오른다.
+ * 라이트·다크 모두 진한 바탕 + 흰 글자(토스풍 토스트)라 테마 색 대신 고정색을 쓴다.
+ */
+export const modalToast = style([
+	text.label,
+	{
+		position: 'fixed',
+		left: '50%',
+		bottom: 'calc(32px + env(safe-area-inset-bottom))',
+		transform: 'translateX(-50%)',
+		margin: 0,
+		padding: '12px 20px',
+		borderRadius: 999,
+		whiteSpace: 'nowrap',
+		color: '#fff',
+		background: 'rgba(25, 31, 40, 0.92)',
+		boxShadow: vars.shadow.lg,
+		animation: `${toastIn} 0.2s ease-out`,
+		selectors: { '&[hidden]': { display: 'none' } },
+		'@media': {
+			'(prefers-reduced-motion: reduce)': { animation: 'none' },
+		},
+	},
+]);
+
 // 포커스 링도 1px(색 테두리·포커스 링은 모두 1px 규칙). 브라우저 기본 굵은 검정 링 대신
 globalStyle(`${modal} button:focus-visible`, {
 	outline: `1px solid ${vars.color.blue500}`,
