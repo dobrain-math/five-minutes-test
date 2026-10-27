@@ -77,6 +77,26 @@ export const progressText = style([
 ]);
 
 // 모바일 1열 → 태블릿 2열 → 노트북 3열 → 데스크톱 4열
+/**
+ * 시험 화면 폭. 넓은 화면에서 카드가 늘어나 식(n + m =)과 답 칸이 멀어지지 않게
+ * 카드 한 칸이 300px 안팎이 되도록 열 수(1·2·3·4)에 맞춰 최대 폭을 둔다(원장님 2026-10-27).
+ * 위 막대·문제 그리드·아래 버튼 줄이 같은 폭을 써서 좌우 끝이 맞는다.
+ */
+export const shell = style({
+	width: '100%',
+	maxWidth: 480,
+	margin: '0 auto',
+	paddingInline: 20,
+	'@media': {
+		// 2열: 300 × 2 + 간격 12 + 좌우 여백 64
+		[breakpoints.tablet]: { maxWidth: 676, paddingInline: 32 },
+		// 3열: 300 × 3 + 12 × 2 + 64
+		[breakpoints.laptop]: { maxWidth: 988 },
+		// 4열: 300 × 4 + 12 × 3 + 64
+		[breakpoints.desktop]: { maxWidth: 1300 },
+	},
+});
+
 export const grid = style({
 	display: 'grid',
 	gridTemplateColumns: '1fr',

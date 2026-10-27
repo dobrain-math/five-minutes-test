@@ -132,7 +132,7 @@ export default function TestPage() {
 	return (
 		<main className={layout.page}>
 			<div className={s.topBar}>
-				<div className={layout.container.wide}>
+				<div className={s.shell}>
 					<div className={s.topRow}>
 						<button
 							type="button"
@@ -181,7 +181,7 @@ export default function TestPage() {
 				</div>
 			</div>
 
-			<ol className={`${layout.container.wide} ${s.grid}`}>
+			<ol className={`${s.shell} ${s.grid}`}>
 				{pageQuestions.map((q, i) => (
 					<li
 						key={q.id}
@@ -228,7 +228,7 @@ export default function TestPage() {
 				className={`${layout.bottomBar} ${s.bottomBarAuto}`}
 				data-typing={typing}
 			>
-				<div className={`${layout.container.wide} ${layout.bottomBarInner}`}>
+				<div className={`${s.shell} ${layout.bottomBarInner}`}>
 					{confirming && (
 						<p className={s.confirm} role="alert">
 							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
