@@ -1,5 +1,7 @@
 import { type CSSProperties, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { CheckIcon } from '@heroicons/react/16/solid';
+import type { Operator } from '@/@types/test';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
@@ -8,6 +10,36 @@ import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { PER_SECTION } from '@/utils/buildTest.ts';
 import * as s from './page.css.ts';
+
+const OP_SYMBOL: Record<Operator, string> = { '+': '+', '-': '−', '×': '×' };
+
+/**
+ * 권 카드 오른쪽 연산 기호(그 권에 나오는 + − ×)와 대표 문제 하나(실험 C).
+ * NOTE: 화면을 열 때 한 번만 뽑는다 — 다시 그릴 때마다 예시 문제가 바뀌면 어지럽다.
+ */
+const COURSE_PREVIEW: Record<string, { ops: Operator[]; sample: string }> =
+	Object.fromEntries(
+		courses.map((course) => {
+			const problems = course.sections.map((sec) =>
+				sec.generate(Math.random, 0),
+			);
+			const ops = (['+', '-', '×'] as const).filter((op) =>
+				problems.some((p) => p.op === op),
+			);
+			// 마지막 유형 = 그 권에서 가장 어려운 쪽
+			const { left, op, right } = problems[problems.length - 1];
+			return [course.id, { ops, sample: `${left} ${OP_SYMBOL[op]} ${right}` }];
+		}),
+	);
+
+/** 단계 번호 동그라미. 그 단계를 다 고르면 파랑 체크로 바뀐다(실험 B) */
+function Step({ n, done }: { n: number; done: boolean }) {
+	return (
+		<span className={s.step} data-done={done} aria-hidden>
+			{done ? <CheckIcon className={s.stepCheck} /> : n}
+		</span>
+	);
+}
 
 export default function HomePage() {
 	const navigate = useNavigate();
@@ -87,7 +119,11 @@ export default function HomePage() {
 
 			<div className={`${layout.container.narrow} ${layout.content}`}>
 				<div className={s.field}>
-					<label htmlFor="student-name" className={layout.sectionLabel}>
+					<label
+						htmlFor="student-name"
+						className={`${layout.sectionLabel} ${s.stepLabel}`}
+					>
+						<Step n={1} done={studentName.trim() !== ''} />
 						학생명
 					</label>
 					<input
@@ -106,8 +142,9 @@ export default function HomePage() {
 					<div className={s.ageLabelRow}>
 						<label
 							htmlFor="student-age"
-							className={`${layout.sectionLabel} ${s.ageLabelText}`}
+							className={`${layout.sectionLabel} ${s.ageLabelText} ${s.stepLabel}`}
 						>
+							<Step n={2} done={agePicked} />
 							나이(학년)
 						</label>
 						<span className={s.ageValue} data-picked={agePicked}>
@@ -150,7 +187,11 @@ export default function HomePage() {
 				</div>
 
 				<div className={s.field}>
-					<span id="course-label" className={layout.sectionLabel}>
+					<span
+						id="course-label"
+						className={`${layout.sectionLabel} ${s.stepLabel}`}
+					>
+						<Step n={3} done={courseId !== null} />
 						테스트 권
 					</span>
 					<ul
@@ -168,12 +209,22 @@ export default function HomePage() {
 									onClick={() => pickCourse(course.id)}
 								>
 									<span className={s.radio} aria-hidden />
-									<span>
+									<span className={s.courseBody}>
 										<div className={s.courseTitle}>{course.title}</div>
 										<div className={s.courseMeta}>
 											{course.sections.length}개 유형 · 유형마다 {PER_SECTION}
 											문제
 										</div>
+										<div className={s.courseSample}>
+											예) {COURSE_PREVIEW[course.id].sample}
+										</div>
+									</span>
+									<span className={s.courseOps} aria-hidden>
+										{COURSE_PREVIEW[course.id].ops.map((op) => (
+											<span key={op} className={s.courseOp} data-op={op}>
+												{OP_SYMBOL[op]}
+											</span>
+										))}
 									</span>
 								</button>
 							</li>
@@ -187,7 +238,14 @@ export default function HomePage() {
 				 */}
 				{course && (
 					<div ref={modeField} className={`${s.field} ${s.modeField}`}>
-						<span id="mode-label" className={layout.sectionLabel}>
+						<span
+							id="mode-label"
+							className={`${layout.sectionLabel} ${s.stepLabel}`}
+						>
+							<Step
+								n={4}
+								done={mode === 'all' || (mode === 'each' && part !== null)}
+							/>
 							테스트 유형
 						</span>
 						<div

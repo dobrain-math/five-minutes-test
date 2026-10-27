@@ -113,6 +113,52 @@ export const courseMeta = style([
 	{ marginTop: 3, color: vars.color.grey500 },
 ]);
 
+// ── 실험 C: 권 카드 연산 기호 + 예시 문제 ──────────────────
+
+export const courseBody = style({ flex: 1, minWidth: 0 });
+
+/** 「예) 48 × 6」 — 어떤 문제가 나오는지 미리 */
+export const courseSample = style([
+	text.caption,
+	text.number,
+	{
+		marginTop: 6,
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey700,
+	},
+]);
+
+export const courseOps = style({ display: 'flex', gap: 4, flexShrink: 0 });
+
+const opColor = {
+	'+': vars.color.blue500,
+	'-': vars.color.green500,
+	'×': vars.color.purple500,
+};
+
+/** 연산 기호 칩. 색은 반투명 바탕 + 같은 색 글자(라이트·다크 모두 옅게) */
+export const courseOp = style([
+	text.body1,
+	{
+		display: 'grid',
+		placeItems: 'center',
+		width: 28,
+		height: 28,
+		borderRadius: vars.radius.sm,
+		fontWeight: vars.font.weight.bold,
+		lineHeight: 1,
+		selectors: Object.fromEntries(
+			Object.entries(opColor).map(([op, color]) => [
+				`&[data-op="${op}"]`,
+				{
+					color,
+					background: `color-mix(in srgb, ${color} 12%, transparent)`,
+				},
+			]),
+		),
+	},
+]);
+
 // ── 나이·학년 막대 ─────────────────────────────────────────
 
 const THUMB = 28; // 손잡이 지름. 눈금 글자도 이 반만큼 안쪽에서 시작해야 손잡이 가운데와 맞는다
@@ -401,3 +447,37 @@ for (let n = 1; n <= 20; n++) {
 
 // 유형별을 눌러 이 칸으로 스크롤할 때 위에 살짝 여백을 남긴다
 export const modeField = style({ scrollMarginTop: 16 });
+
+// ── 실험 B: 단계 번호 ─────────────────────────────────────
+
+/** 칸 이름 앞에 ① ② ③ ④ — 어디까지 골랐는지 한눈에 */
+export const stepLabel = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 8,
+});
+
+export const step = style([
+	text.caption2,
+	text.number,
+	{
+		display: 'inline-grid',
+		placeItems: 'center',
+		flexShrink: 0,
+		width: 20,
+		height: 20,
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey600,
+		background: `color-mix(in srgb, ${vars.color.grey500} 16%, transparent)`,
+		transition: 'background 0.2s, color 0.2s',
+		selectors: {
+			'&[data-done="true"]': {
+				color: '#ffffff',
+				background: vars.color.blue500,
+			},
+		},
+	},
+]);
+
+export const stepCheck = style({ width: 14, height: 14 });
