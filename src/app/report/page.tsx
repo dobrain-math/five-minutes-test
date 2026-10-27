@@ -14,7 +14,7 @@ import { encodeReport, shareUrl } from '@/utils/shareLink.ts';
 import { shareMessage } from '@/utils/shareMessage.ts';
 
 const SHARE_HINT =
-	'보낼 글을 확인하고 고칠 수 있습니다. 복사한 뒤 카카오톡 대화방에 붙여 넣어 주세요.';
+	"'복사하기'를 눌러 내용을 복사한 뒤 공유할 곳에 붙여넣어 주세요.";
 
 export default function ReportPage() {
 	const { testId, part: partParam } = useParams();
