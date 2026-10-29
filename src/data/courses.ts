@@ -207,7 +207,7 @@ const book531: Course = {
 				return mul(num(int(rng, 1, 9), int(rng, Math.ceil(10 / b), 9)), b);
 			}),
 		},
-		// ── 곱셈 추가(2026-10-22, 원장님 목록 8~15번. 16번 ST 부터는 아직 안 만듦) ──
+		// ── 곱셈 추가(2026-10-22, 원장님 목록 8~15번) ──
 		// NOTE: 제목은 원장님이 준 짧은 이름 그대로(앞 유형들도 2026-10-22 「두두덧셈(받아올림O)」 꼴 짧은 이름으로 바꿈). 「세한곱」이 둘이라 -1·-2 를 붙였다(이름으로 유형을 찾으므로 겹치면 안 됨).
 		{
 			id: '531-8',
@@ -266,6 +266,45 @@ const book531: Course = {
 			id: '531-15',
 			title: 'X99',
 			generate: fixedTimes(99),
+		},
+		// ── 곱셈 추가(2026-10-29, 원장님 목록 16~19번) ──
+		// NOTE: 공유 링크가 유형을 «권 안 순서»로 찾으므로 늘 맨 뒤에 이어 붙인다(shareLink.ts decodeShort).
+		{
+			id: '531-16',
+			title: 'ST',
+			// Same Ten: 앞자리가 같고 뒷자리끼리 더해 10 (47 × 43)
+			generate: bothWays((rng) => {
+				const t = int(rng, 1, 9);
+				const o = int(rng, 1, 9);
+				return mul(num(t, o), num(t, 10 - o));
+			}),
+		},
+		{
+			id: '531-17',
+			title: 'TS',
+			// Ten Same: 뒷자리가 같고 앞자리끼리 더해 10 (92 × 12)
+			generate: bothWays((rng) => {
+				const t = int(rng, 1, 9);
+				const o = int(rng, 1, 9);
+				return mul(num(t, o), num(10 - t, o));
+			}),
+		},
+		{
+			id: '531-18',
+			title: '91단 곱',
+			// 일의자리가 1인 두자리끼리(앞자리 1~9)
+			generate: bothWays((rng) =>
+				mul(num(int(rng, 1, 9), 1), num(int(rng, 1, 9), 1)),
+			),
+		},
+		{
+			id: '531-19',
+			title: 'SQ',
+			// NOTE: 원장님 표에 설명이 없어 «같은 두자리(0으로 안 끝남)의 제곱»(37 × 37)으로 정함(2026-10-29)
+			generate: (rng) => {
+				const two = num(int(rng, 1, 9), int(rng, 1, 9));
+				return mul(two, two);
+			},
 		},
 	],
 };

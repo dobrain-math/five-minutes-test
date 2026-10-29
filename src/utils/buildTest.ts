@@ -1,7 +1,13 @@
 import type { Course, Problem, Question, Rng, SectionDef } from '@/@types/test';
 
-/** 유형 하나에서 내는 문제 수. 전체 풀기는 유형마다 이만큼씩 한 페이지가 된다. */
+/** 유형 하나만 풀 때(유형별 풀기) 내는 문제 수 */
 export const PER_SECTION = 24;
+
+/**
+ * 전체 풀기에서 유형마다 내는 문제 수. 전체 풀기는 이만큼씩 모아 한 페이지로 푼다.
+ * NOTE: 유형마다 24문제·페이지 넘김은 «문제가 너무 많다»는 의견으로 2026-10-29 바꿨다(원장님 «2~4문제»).
+ */
+export const FULL_PER_SECTION = 3;
 
 const SYMBOL = { '+': '+', '-': '−', '×': '×' } as const;
 
@@ -16,11 +22,15 @@ const shuffle = <T>(items: T[], rng: Rng) => {
 	return items;
 };
 
-/** 한 유형에서 서로 다른 문제 PER_SECTION 개를 만들어 그 안에서만 섞는다. */
-function buildSection(section: SectionDef, rng: Rng): Question[] {
+/** 한 유형에서 서로 다른 문제 count 개를 만들어 그 안에서만 섞는다. */
+function buildSection(
+	section: SectionDef,
+	count: number,
+	rng: Rng,
+): Question[] {
 	const seen = new Set<string>();
 	const result: Question[] = [];
-	for (let attempt = 0; result.length < PER_SECTION; attempt++) {
+	for (let attempt = 0; result.length < count; attempt++) {
 		if (attempt > 10_000) {
 			throw new Error(
 				`${section.title}: 서로 다른 문제를 충분히 만들 수 없습니다`,
@@ -41,8 +51,8 @@ function buildSection(section: SectionDef, rng: Rng): Question[] {
 }
 
 /**
- * part = 유형 번호(0부터)면 그 유형만, null 이면 전체(유형 목차 순서대로 PER_SECTION 개씩).
- * NOTE: 전체 풀기는 유형마다 한 페이지라 유형끼리는 섞지 않는다(2026-10-22).
+ * part = 유형 번호(0부터)면 그 유형 PER_SECTION 개, null 이면 전체(유형 목차 순서대로 FULL_PER_SECTION 개씩).
+ * NOTE: 전체 풀기도 쉬운 유형부터 차례로 풀도록 유형끼리는 섞지 않는다.
  */
 export function buildTest(
 	course: Course,
@@ -50,10 +60,12 @@ export function buildTest(
 	rng: Rng = Math.random,
 ): Question[] {
 	if (part === null) {
-		return course.sections.flatMap((section) => buildSection(section, rng));
+		return course.sections.flatMap((section) =>
+			buildSection(section, FULL_PER_SECTION, rng),
+		);
 	}
 	const section = course.sections[part];
 	if (!section)
 		throw new Error(`${course.title}: ${part + 1}번 유형이 없습니다`);
-	return buildSection(section, rng);
+	return buildSection(section, PER_SECTION, rng);
 }

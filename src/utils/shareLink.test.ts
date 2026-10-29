@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Report } from '@/@types/test';
-import { courses, getCourse } from '@/data/courses.ts';
+import { getCourse } from '@/data/courses.ts';
 import { decodeReport, encodeReport, shareUrl } from './shareLink.ts';
 
 const toBase64Url = (text: string) =>
@@ -213,8 +213,8 @@ describe('v4 — 유형별 24문제(2026-10-22)', () => {
 		})),
 	};
 
-	test('새 코드는 4 로 시작한다', () => {
-		expect(encodeReport(all)[0]).toBe('4');
+	test('새 코드는 5 로 시작한다(2026-10-29 v5)', () => {
+		expect(encodeReport(all)[0]).toBe('5');
 	});
 
 	test('전체 풀기: 유형마다 걸린 시간까지 되살린다', () => {
@@ -261,11 +261,11 @@ describe('shareUrl', () => {
 		);
 	});
 
-	test('53-1권 16개 유형 전체 풀기(마지막 유형에서 틀린 문제 포함)도 되살린다', () => {
+	test('53-1권 전체 유형 풀기(마지막 유형에서 틀린 문제 포함)도 되살린다', () => {
 		const sixteen: Report = {
 			...report,
-			total: 16 * 24,
-			correct: 16 * 20,
+			total: 20 * 24,
+			correct: 20 * 20,
 			sections: course.sections.map((sec, i) => ({
 				title: sec.title,
 				correct: 20,
@@ -277,12 +277,48 @@ describe('shareUrl', () => {
 				{ text: '13 × 17', mine: '', answer: '221', sectionTitle: '19단' },
 			],
 		};
-		expect(course.sections).toHaveLength(16);
+		expect(course.sections).toHaveLength(20);
 		expect(decodeReport(encodeReport(sixteen))).toEqual(sixteen);
 	});
+});
 
-	test('모든 권의 유형이 16개 이하다(틀린 문제의 유형 번호를 4비트에 담는다)', () => {
-		// NOTE: 53-1권이 16개로 한도에 찼다. 17번째(원장님 목록 16번 ST)를 넣기 전에 코드 모양(v5)부터 바꿀 것.
-		for (const c of courses) expect(c.sections.length).toBeLessThanOrEqual(16);
+// v4(2026-10-22 ~ 10-29 배포) 코드 — 53-1권 16유형 전체 풀기, 김하늘·초3, X99·19단에서 1문제씩 틀림
+const V4_CODE =
+	'4BDUzLTEJ6rmA7ZWY64qYBrAJxfefDgAQGBQUFBQUFBQUFBQUFBQUFBQBHh8gISIjJCUmJygpKissLQIvY2MDKA0RAA';
+
+describe('v5 — 53-1권 20유형(2026-10-29)', () => {
+	test('먼저 배포한 v4 링크(16유형)도 앞에서부터 16개 유형으로 열린다', () => {
+		const r = decodeReport(V4_CODE)!;
+		expect(r.sections).toHaveLength(16);
+		expect(r.sections[15]).toEqual({
+			title: 'X99',
+			correct: 20,
+			total: 24,
+			durationMs: 45_000,
+		});
+		expect(r.wrong).toEqual([
+			{ text: '99 × 99', mine: '9800', answer: '9801', sectionTitle: 'X99' },
+			{ text: '13 × 17', mine: '', answer: '221', sectionTitle: '19단' },
+		]);
+	});
+
+	test('17번째 이후 유형(SQ 등)에서 틀린 문제도 유형 이름까지 되살린다', () => {
+		expect(course.sections.length).toBeGreaterThan(16);
+		const twenty: Report = {
+			...report,
+			total: course.sections.length * 3,
+			correct: course.sections.length * 3 - 3,
+			sections: course.sections.map((sec, i) => ({
+				title: sec.title,
+				correct: i < 3 ? 2 : 3,
+				total: 3,
+			})),
+			wrong: [
+				{ text: '47 × 43', mine: '2020', answer: '2021', sectionTitle: 'ST' },
+				{ text: '91 × 21', mine: '', answer: '1911', sectionTitle: '91단 곱' },
+				{ text: '37 × 37', mine: '1360', answer: '1369', sectionTitle: 'SQ' },
+			],
+		};
+		expect(decodeReport(encodeReport(twenty))).toEqual(twenty);
 	});
 });

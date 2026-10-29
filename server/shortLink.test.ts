@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { encodeReport } from '../src/utils/shareLink.ts';
 import { createShortLink, isShortId, resolveShortLink } from './shortLink.ts';
 
 const CODE = '3BWJhc2ljCe2Zjeq4uOuPmQPYBIO1nw4IAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -48,6 +49,24 @@ describe('createShortLink', () => {
 		await expect(createShortLink('<script>')).rejects.toThrow();
 		await expect(createShortLink('3' + 'A'.repeat(3000))).rejects.toThrow();
 		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	test('지금 앱이 만드는 코드(최신 모양 번호)는 저장한다', async () => {
+		// NOTE: v4 때 CODE_PATTERN 을 안 넓혀 저장이 막힐 뻔했다 — 모양 번호를 올리면 이 테스트가 잡는다.
+		const latest = encodeReport({
+			studentName: '김하늘',
+			studentAge: '초3',
+			courseId: 'basic',
+			courseTitle: '기본연습',
+			correct: 1,
+			total: 1,
+			durationMs: 60_000,
+			sections: [{ title: '한한덧셈 (받아올림X)', correct: 1, total: 1 }],
+			wrong: [],
+		});
+		const { calls } = fakeRedis('OK');
+		await createShortLink(latest);
+		expect(calls[0][2]).toBe(latest);
 	});
 
 	test('Upstash 주소가 Vercel 에 연결 안 돼 있으면 알려 준다', async () => {

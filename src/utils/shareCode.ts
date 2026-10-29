@@ -71,6 +71,8 @@ export const V2 = '2';
 export const V3 = '3';
 /** v4(2026-10-22): v3 머리 + 풀이 범위(전체·한 유형) + 유형별 걸린 시간 */
 export const V4 = '4';
+/** v5(2026-10-29): v4 와 같고, 틀린 문제 머리를 «유형 번호 × 8 + 연산 번호»로(유형 16개 한도를 없앰) */
+export const V5 = '5';
 
 /** 나이: 0 = 글자 그대로(뒤따름), n + 1 = AGES[n] */
 export function writeAge(w: Writer, age: string) {
@@ -83,7 +85,7 @@ export function writeAge(w: Writer, age: string) {
 }
 
 export type CodeHead = {
-	version: 2 | 3 | 4;
+	version: 2 | 3 | 4 | 5;
 	courseId: string;
 	studentName: string;
 	studentAge: string;
@@ -92,15 +94,23 @@ export type CodeHead = {
 };
 
 /**
- * 짧은 코드(v2·v3·v4)의 머리를 읽는다. 뒤따르는 유형·틀린 문제는 reader 로 이어 읽는다.
- * v2: 걸린 시간 ms, 실시일 초 / v3·v4: 걸린 시간 초, 실시일 분, 나이는 목록 번호(머리 모양이 같다).
+ * 짧은 코드(v2~v5)의 머리를 읽는다. 뒤따르는 유형·틀린 문제는 reader 로 이어 읽는다.
+ * v2: 걸린 시간 ms, 실시일 초 / v3~v5: 걸린 시간 초, 실시일 분, 나이는 목록 번호(머리 모양이 같다).
  * 짧은 코드가 아니면 null(예외는 던질 수 있다).
  */
 export function readHead(
 	code: string,
 ): { head: CodeHead; reader: Reader } | null {
 	const version =
-		code[0] === V2 ? 2 : code[0] === V3 ? 3 : code[0] === V4 ? 4 : null;
+		code[0] === V2
+			? 2
+			: code[0] === V3
+				? 3
+				: code[0] === V4
+					? 4
+					: code[0] === V5
+						? 5
+						: null;
 	if (version === null) return null;
 	const reader = new Reader(base64UrlToBytes(code.slice(1)));
 	const courseId = reader.str();

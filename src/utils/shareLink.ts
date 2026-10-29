@@ -2,7 +2,7 @@ import type { Report, SectionScore } from '@/@types/test';
 import { getCourse } from '@/data/courses.ts';
 import {
 	type Reader,
-	V4,
+	V5,
 	Writer,
 	base64UrlToBytes,
 	bytesToBase64Url,
@@ -43,7 +43,7 @@ const isPlainNumber = (s: string) => /^(0|[1-9]\d{0,14})$/.test(s);
 const zigzag = (d: number) => (d >= 0 ? d * 2 : -d * 2 - 1);
 const unzigzag = (z: number) => (z % 2 === 0 ? z / 2 : -(z + 1) / 2);
 
-// ── 쓰기(v4) ─────────────────────────────────────────────
+// ── 쓰기(v5) ─────────────────────────────────────────────
 
 /**
  * 적은 답: 0 = 빈칸, 1 = 글자 그대로(뒤따름), 그 밖 = «정답과의 차이» + 2.
@@ -61,7 +61,7 @@ function writeMine(w: Writer, mine: string, answer: string) {
 }
 
 /**
- * 리포트 → 링크에 붙일 코드(v4 — v3 에 풀이 범위·유형별 시간을 더함).
+ * 리포트 → 링크에 붙일 코드(v5 — v3 에 풀이 범위·유형별 시간(v4), 틀린 문제 머리 모양을 바꿈(v5)).
  * 유형·종목 이름은 싣지 않고(courses.ts 에서 되찾는다) 숫자는 바이트로 묶는다.
  * 틀린 문제의 정답은 식에서 다시 계산하고, 적은 답은 정답과의 차이만 싣는다.
  * NOTE: lz-string 압축도 재 봤지만 흔한 결과가 337자로 이 방식보다 길었다.
@@ -112,8 +112,9 @@ export function encodeReport(report: Report) {
 			m !== null &&
 			op >= 0 &&
 			String(calc(Number(m[1]), op, Number(m[3]))) === q.answer;
-		// 한 바이트에 «연산 번호 × 16 + 유형 번호»
-		w.num((fits ? op : RAW) * 16 + section);
+		// «유형 번호 × 8 + 연산 번호»(v5). 유형 16개까지는 1바이트, 그 뒤는 2바이트.
+		// NOTE: v4 는 «연산 × 16 + 유형»이라 유형이 16개를 넘으면 담을 수 없었다(53-1권 20개, 2026-10-29).
+		w.num(section * 8 + (fits ? op : RAW));
 		if (fits) {
 			w.num(Number(m[1]));
 			w.num(Number(m[3]));
@@ -123,12 +124,12 @@ export function encodeReport(report: Report) {
 		}
 		writeMine(w, q.mine, q.answer);
 	}
-	return V4 + bytesToBase64Url(w.bytes);
+	return V5 + bytesToBase64Url(w.bytes);
 }
 
-// ── 읽기(v2·v3·v4) ──────────────────────────────────────────
+// ── 읽기(v2~v5) ──────────────────────────────────────────
 
-function readMine(r: Reader, version: 2 | 3 | 4, answer: string) {
+function readMine(r: Reader, version: 2 | 3 | 4 | 5, answer: string) {
 	const v = r.num();
 	if (v === 0) return '';
 	if (v === 1) return r.str();
@@ -145,7 +146,7 @@ function decodeShort(code: string): Report | null {
 	if (!course) return null;
 
 	// v4 부터 한 유형 풀이가 있다. 그 전 코드는 늘 전체(유형을 섞은 80문제).
-	const partCode = head.version === 4 ? r.num() : 0;
+	const partCode = head.version >= 4 ? r.num() : 0;
 	const count = r.num();
 	// NOTE: 유형은 권 뒤에 이어 붙이기만 한다(2026-10-22 53-1권 8 → 16개). 그 전에 보낸 전체 풀기 링크는
 	// 유형 수가 적으니 앞에서부터 그 개수만큼으로 읽는다. 순서를 바꾸거나 중간에 끼우면 옛 링크 이름이 엇갈린다.
@@ -159,14 +160,17 @@ function decodeShort(code: string): Report | null {
 		const correct = r.num();
 		return { title: sec.title, correct, total: common || r.num() };
 	});
-	if (head.version === 4 && r.num() === 1) {
+	if (head.version >= 4 && r.num() === 1) {
 		for (const sec of sections) sec.durationMs = r.num() * 1000;
 	}
 
 	const wrong = Array.from({ length: r.num() }, () => {
 		const h = r.num();
-		const op = Math.floor(h / 16);
-		const sectionTitle = sections[h % 16]?.title ?? '';
+		const [op, at] =
+			head.version === 5
+				? [h % 8, Math.floor(h / 8)]
+				: [Math.floor(h / 16), h % 16];
+		const sectionTitle = sections[at]?.title ?? '';
 		let text: string;
 		let answer: string;
 		if (op === RAW) {

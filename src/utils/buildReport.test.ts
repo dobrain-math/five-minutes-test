@@ -71,14 +71,17 @@ describe('buildReport', () => {
 		]);
 	});
 
-	test('전체 풀기는 유형마다 걸린 시간(페이지 시간)을 담는다', () => {
+	test('전체 풀기는 한 페이지라 유형마다 걸린 시간을 담지 않는다(2026-10-29)', () => {
 		const r = buildReport(course, {
 			...session,
 			part: null,
-			pageTimes: [20_000, 40_000],
+			pageTimes: [60_000],
 		});
 		expect(r.part).toBeUndefined();
-		expect(r.sections.map((sec) => sec.durationMs)).toEqual([20_000, 40_000]);
+		expect(r.sections.map((sec) => sec.durationMs)).toEqual([
+			undefined,
+			undefined,
+		]);
 	});
 
 	test('한 유형만 풀었으면 그 유형 하나와 유형 번호만 담는다', () => {

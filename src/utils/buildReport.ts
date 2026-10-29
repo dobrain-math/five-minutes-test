@@ -10,7 +10,7 @@ type FinishedSession = {
 	finishedAt: number;
 	/** 푼 유형 번호(0부터). null·없음 = 전체 풀기 */
 	part?: number | null;
-	/** 페이지(= 유형)마다 걸린 시간 ms. 한 유형 풀이는 하나 */
+	/** 페이지마다 걸린 시간 ms. 전체 풀기·한 유형 풀이 모두 한 페이지라 하나 */
 	pageTimes?: number[];
 };
 
@@ -30,7 +30,9 @@ export function buildReport(course: Course, session: FinishedSession): Report {
 			title: sec.title,
 			correct: r?.correct ?? 0,
 			total: r?.total ?? 0,
-			...(pageTimes?.[i] !== undefined && { durationMs: pageTimes[i] }),
+			// NOTE: 유형별 시간은 한 유형 풀이만 있다. 전체 풀기는 2026-10-29 부터 한 페이지라 유형마다 잴 수 없다.
+			...(part !== null &&
+				pageTimes?.[i] !== undefined && { durationMs: pageTimes[i] }),
 		};
 	});
 

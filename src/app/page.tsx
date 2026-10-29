@@ -8,7 +8,7 @@ import { courses } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
-import { PER_SECTION } from '@/utils/buildTest.ts';
+import { FULL_PER_SECTION, PER_SECTION } from '@/utils/buildTest.ts';
 import * as s from './page.css.ts';
 
 const OP_SYMBOL: Record<Operator, string> = { '+': '+', '-': '−', '×': '×' };
@@ -203,8 +203,7 @@ export default function HomePage() {
 									<span className={s.courseBody}>
 										<div className={s.courseTitle}>{course.title}</div>
 										<div className={s.courseMeta}>
-											{course.sections.length}개 유형 · 유형마다 {PER_SECTION}
-											문제
+											{course.sections.length}개 유형
 										</div>
 									</span>
 									<span className={s.courseOps} aria-hidden>
@@ -250,7 +249,8 @@ export default function HomePage() {
 							>
 								<span className={s.modeTitle}>전체 풀기</span>
 								<span className={s.modeMeta}>
-									{course.sections.length * PER_SECTION}문제 · 강약점 분석 포함
+									{course.sections.length * FULL_PER_SECTION}문제 · 강약점 분석
+									포함
 								</span>
 							</button>
 							<button

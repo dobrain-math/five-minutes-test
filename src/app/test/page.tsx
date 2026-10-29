@@ -38,11 +38,9 @@ export default function TestPage() {
 		answers,
 		startedAt,
 		finishedAt,
-		page,
 		pageStartedAt,
 		start,
 		setAnswer,
-		nextPage,
 		finish,
 	} = useTestSessionStore();
 	const [confirming, setConfirming] = useState(false);
@@ -96,14 +94,9 @@ export default function TestPage() {
 	if (needsNewTest) return null;
 	if (finishedAt !== null) return <Navigate to={reportPath} replace />;
 
-	// 전체 풀기는 유형마다 한 페이지. 한 유형 풀이는 한 페이지뿐이다.
-	const pageCount = part === null ? course.sections.length : 1;
-	const section = course.sections[part ?? page];
-	const pageQuestions =
-		part === null
-			? questions.filter((q) => q.sectionId === section.id)
-			: questions;
-	const isLastPage = page >= pageCount - 1;
+	// NOTE: 전체 풀기도 2026-10-29 부터 한 페이지(유형마다 FULL_PER_SECTION 문제, 원장님 «문제가 너무 많다»).
+	const section = part === null ? null : course.sections[part];
+	const pageQuestions = questions;
 
 	const answered = pageQuestions.filter((q) => answers[q.id]?.trim()).length;
 	const blanks = pageQuestions.length - answered;
@@ -114,11 +107,6 @@ export default function TestPage() {
 			return;
 		}
 		setConfirming(false);
-		if (!isLastPage) {
-			nextPage();
-			window.scrollTo({ top: 0 });
-			return;
-		}
 		finish();
 		navigate(reportPath);
 	};
@@ -154,18 +142,18 @@ export default function TestPage() {
 							{studentName} · {course.title}
 						</span>
 						<span className={s.topActions}>
-							<span className={s.timer} aria-label="이 유형 경과 시간">
+							<span className={s.timer} aria-label="경과 시간">
 								{formatDuration(now - (pageStartedAt ?? now))}
 							</span>
 							<ThemeToggle />
 						</span>
 					</div>
-					{/* NOTE: 전체 풀기는 「3 / 8」 페이지 번호, 한 유형 풀이는 유형 번호. 타이머는 이 페이지 시간이다. */}
+					{/* NOTE: 전체 풀기는 「전체 풀기」, 한 유형 풀이는 유형 번호 + 이름. */}
 					<div className={s.sectionRow}>
 						<span className={s.pageBadge}>
-							{part === null ? `${page + 1} / ${pageCount}` : `${part + 1}번`}
+							{section ? `${(part ?? 0) + 1}번` : '전체 풀기'}
 						</span>
-						<span className={s.sectionTitle}>{section.title}</span>
+						{section && <span className={s.sectionTitle}>{section.title}</span>}
 					</div>
 					<div className={s.progressRow}>
 						<div className={s.progressTrack}>
@@ -231,8 +219,7 @@ export default function TestPage() {
 				<div className={`${s.shell} ${layout.bottomBarInner}`}>
 					{confirming && (
 						<p className={s.confirm} role="alert">
-							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도{' '}
-							{isLastPage ? '채점할까요' : '다음 유형으로 넘어갈까요'}?
+							아직 안 푼 문제가 {blanks}개 남았습니다. 그래도 채점할까요?
 						</p>
 					)}
 					<div className={s.buttonRow}>
@@ -250,7 +237,7 @@ export default function TestPage() {
 							className={layout.primaryButton}
 							onClick={handleSubmit}
 						>
-							{isLastPage ? '채점하기' : '다음 유형'}
+							채점하기
 							{!confirming && ` (${answered}/${pageQuestions.length})`}
 						</button>
 					</div>

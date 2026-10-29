@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Problem } from '@/@types/test';
-import { PER_SECTION, buildTest } from '@/utils/buildTest.ts';
+import { FULL_PER_SECTION, PER_SECTION, buildTest } from '@/utils/buildTest.ts';
 import { courses, getCourse } from './courses.ts';
 
 const ones = (n: number) => n % 10;
@@ -133,10 +133,36 @@ const rules: Record<string, (p: Problem) => boolean> = {
 		digits(b) === 2 &&
 		ones(b) !== 0,
 	'531-15': (p) => fixedTimes(p, 99),
+	// 53-1권 곱셈 추가(2026-10-29, 원장님 목록 16~19번)
+	// ST: 앞자리가 같고 뒷자리끼리 더해 10 (47 × 43)
+	'531-16': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 2 &&
+		digits(b) === 2 &&
+		tens(a) === tens(b) &&
+		ones(a) + ones(b) === 10,
+	// TS: 뒷자리가 같고 앞자리끼리 더해 10 (92 × 12)
+	'531-17': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 2 &&
+		digits(b) === 2 &&
+		ones(a) === ones(b) &&
+		ones(a) !== 0 &&
+		tens(a) + tens(b) === 10,
+	// 91단 곱: 일의자리가 1인 두자리끼리(앞자리 1~9)
+	'531-18': ({ left: a, op, right: b }) =>
+		op === '×' &&
+		digits(a) === 2 &&
+		digits(b) === 2 &&
+		ones(a) === 1 &&
+		ones(b) === 1,
+	// SQ: 같은 두자리(0으로 안 끝남)를 두 번 — 제곱
+	'531-19': ({ left: a, op, right: b }) =>
+		op === '×' && digits(a) === 2 && ones(a) !== 0 && a === b,
 };
 
 describe('53-1권 유형 목록', () => {
-	test('유형 이름은 짧은 이름 + 괄호 조건(원장님 결정 2026-10-22, 16번 ST부터는 아직 없음)', () => {
+	test('유형 이름은 짧은 이름 + 괄호 조건(원장님 결정 2026-10-22, 16~19번은 2026-10-29)', () => {
 		expect(getCourse('basic')!.sections.map((s) => s.title)).toEqual([
 			'한한덧셈 (받아올림X)',
 			'한한덧셈 (받아올림O)',
@@ -164,6 +190,10 @@ describe('53-1권 유형 목록', () => {
 			'세한곱-2',
 			'두두곱',
 			'X99',
+			'ST',
+			'TS',
+			'91단 곱',
+			'SQ',
 		]);
 	});
 
@@ -203,15 +233,18 @@ describe('유형별 문제 생성', () => {
 
 describe('buildTest', () => {
 	for (const course of courses) {
-		test(`${course.title} 전체 풀기: 유형마다 24문제씩 목차 순서대로, 유형 안 중복 없음`, () => {
+		test(`${course.title} 전체 풀기: 유형마다 ${FULL_PER_SECTION}문제씩 목차 순서대로, 유형 안 중복 없음`, () => {
 			const questions = buildTest(course);
-			expect(questions).toHaveLength(24 * course.sections.length);
+			expect(questions).toHaveLength(FULL_PER_SECTION * course.sections.length);
 
-			// 유형 목차 순서대로 24문제씩 묶여 나온다(전체 풀기는 유형마다 한 페이지)
+			// 한 페이지에 유형 목차 순서대로 FULL_PER_SECTION 개씩 묶여 나온다(2026-10-29 문제 수 줄임)
 			course.sections.forEach((section, i) => {
-				const page = questions.slice(i * 24, (i + 1) * 24);
-				expect(page.every((q) => q.sectionId === section.id)).toBe(true);
-				expect(new Set(page.map((q) => q.text)).size).toBe(24);
+				const group = questions.slice(
+					i * FULL_PER_SECTION,
+					(i + 1) * FULL_PER_SECTION,
+				);
+				expect(group.every((q) => q.sectionId === section.id)).toBe(true);
+				expect(new Set(group.map((q) => q.text)).size).toBe(FULL_PER_SECTION);
 			});
 			expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
 		});
@@ -225,6 +258,11 @@ describe('buildTest', () => {
 			});
 		});
 	}
+
+	test('전체 풀기는 유형마다 2~4문제다(원장님 «문제가 너무 많다» 2026-10-29)', () => {
+		expect(FULL_PER_SECTION).toBeGreaterThanOrEqual(2);
+		expect(FULL_PER_SECTION).toBeLessThanOrEqual(4);
+	});
 
 	test('없는 유형 번호면 오류', () => {
 		expect(() => buildTest(getCourse('basic')!, 8)).toThrow();
@@ -308,7 +346,16 @@ describe('곱셈·덧셈 유형은 절반을 순서를 뒤집어 낸다(세한�
 		let x = seed;
 		return () => (x = (x * 9301 + 49297) % 233280) / 233280;
 	};
-	for (const id of ['basic-1', 'basic-2', '531-3', '531-8', '531-14']) {
+	for (const id of [
+		'basic-1',
+		'basic-2',
+		'531-3',
+		'531-8',
+		'531-14',
+		'531-16',
+		'531-17',
+		'531-18',
+	]) {
 		test(`${id}: 같은 난수면 홀수 번째는 짝수 번째를 뒤집은 식`, () => {
 			const section = sectionOf(id);
 			for (let n = 1; n <= 50; n++) {
