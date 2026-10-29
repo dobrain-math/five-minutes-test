@@ -273,18 +273,20 @@ export const ageLabelText = style({ selectors: { '&&': { marginBottom: 0 } } });
 
 // ── 유형(권을 고르면 펼쳐짐) ─────────────────────────────────
 
+// NOTE: 53-1권이 20유형이 되며 한 줄씩이면 스크롤이 너무 길어 휴대폰부터 2열로(원장님 2026-10-29)
 export const partList = style({
-	display: 'flex',
-	flexDirection: 'column',
+	display: 'grid',
+	gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
 	gap: 8,
 	listStyle: 'none',
 });
 
-// courseItem 과 함께 쓴다 — 줄이 많아 높이·둥글기만 줄인다
+// courseItem 과 함께 쓴다 — 칸이 많아 높이·여백·둥글기를 줄인다
 export const partItem = style({
-	gap: 10,
-	minHeight: 52,
-	padding: '12px 16px',
+	gap: 8,
+	height: '100%',
+	minHeight: 48,
+	padding: '10px 12px',
 	borderRadius: vars.radius.md,
 });
 
@@ -294,8 +296,8 @@ export const partNumber = style([
 		flexShrink: 0,
 		display: 'grid',
 		placeItems: 'center',
-		width: 24,
-		height: 24,
+		width: 22,
+		height: 22,
 		borderRadius: vars.radius.full,
 		fontWeight: vars.font.weight.bold,
 		color: vars.color.grey600,
@@ -311,7 +313,12 @@ export const partNumber = style([
 
 export const partTitle = style([
 	text.body2,
-	{ fontWeight: vars.font.weight.semibold, color: vars.color.grey900 },
+	{
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey900,
+		// 좁은 2열에서 긴 이름(셋둘뺄셈 (받아내림 두 번))이 낱말 중간에서 끊기지 않게
+		wordBreak: 'keep-all',
+	},
 ]);
 
 // ── 전체 풀기 / 유형별 풀기 ─────────────────────────────────

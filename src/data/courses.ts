@@ -297,15 +297,7 @@ const book531: Course = {
 				mul(num(int(rng, 1, 9), 1), num(int(rng, 1, 9), 1)),
 			),
 		},
-		{
-			id: '531-19',
-			title: 'SQ',
-			// NOTE: 원장님 표에 설명이 없어 «같은 두자리(0으로 안 끝남)의 제곱»(37 × 37)으로 정함(2026-10-29)
-			generate: (rng) => {
-				const two = num(int(rng, 1, 9), int(rng, 1, 9));
-				return mul(two, two);
-			},
-		},
+		// NOTE: 19번 SQ 는 원장님도 아직 설명을 못 들어 비워 둔 유형이라 만들지 않는다(2026-10-29). 설명을 받으면 맨 뒤에 붙인다.
 	],
 };
 

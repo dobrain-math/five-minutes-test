@@ -264,8 +264,8 @@ describe('shareUrl', () => {
 	test('53-1권 전체 유형 풀기(마지막 유형에서 틀린 문제 포함)도 되살린다', () => {
 		const sixteen: Report = {
 			...report,
-			total: 20 * 24,
-			correct: 20 * 20,
+			total: 19 * 24,
+			correct: 19 * 20,
 			sections: course.sections.map((sec, i) => ({
 				title: sec.title,
 				correct: 20,
@@ -277,7 +277,7 @@ describe('shareUrl', () => {
 				{ text: '13 × 17', mine: '', answer: '221', sectionTitle: '19단' },
 			],
 		};
-		expect(course.sections).toHaveLength(20);
+		expect(course.sections).toHaveLength(19);
 		expect(decodeReport(encodeReport(sixteen))).toEqual(sixteen);
 	});
 });
@@ -286,7 +286,7 @@ describe('shareUrl', () => {
 const V4_CODE =
 	'4BDUzLTEJ6rmA7ZWY64qYBrAJxfefDgAQGBQUFBQUFBQUFBQUFBQUFBQBHh8gISIjJCUmJygpKissLQIvY2MDKA0RAA';
 
-describe('v5 — 53-1권 20유형(2026-10-29)', () => {
+describe('v5 — 53-1권 17유형 이상(2026-10-29)', () => {
 	test('먼저 배포한 v4 링크(16유형)도 앞에서부터 16개 유형으로 열린다', () => {
 		const r = decodeReport(V4_CODE)!;
 		expect(r.sections).toHaveLength(16);
@@ -302,7 +302,7 @@ describe('v5 — 53-1권 20유형(2026-10-29)', () => {
 		]);
 	});
 
-	test('17번째 이후 유형(SQ 등)에서 틀린 문제도 유형 이름까지 되살린다', () => {
+	test('17번째 이후 유형(ST·TS·91단 곱)에서 틀린 문제도 유형 이름까지 되살린다', () => {
 		expect(course.sections.length).toBeGreaterThan(16);
 		const twenty: Report = {
 			...report,
@@ -316,7 +316,7 @@ describe('v5 — 53-1권 20유형(2026-10-29)', () => {
 			wrong: [
 				{ text: '47 × 43', mine: '2020', answer: '2021', sectionTitle: 'ST' },
 				{ text: '91 × 21', mine: '', answer: '1911', sectionTitle: '91단 곱' },
-				{ text: '37 × 37', mine: '1360', answer: '1369', sectionTitle: 'SQ' },
+				{ text: '92 × 12', mine: '1094', answer: '1104', sectionTitle: 'TS' },
 			],
 		};
 		expect(decodeReport(encodeReport(twenty))).toEqual(twenty);
