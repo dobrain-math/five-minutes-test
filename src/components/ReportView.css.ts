@@ -173,21 +173,18 @@ export const blockTitle = style([
 // ── 강 · 약점분석(유형별 정답률, 옛 이름 풀이 스타일 분석) ─────────────────────────────────────────
 
 /**
- * 강점·약점 뱃지는 태블릿 2열 구간(640~767px)에서만 아이콘만 남긴다.
- * 휴대폰(1열)과 768px 이상은 글자까지 보인다(원장님 결정 2026-10-20).
- * NOTE: 유형 목록 2열은 공용 breakpoints.tablet(640px)부터.
+ * 유형이 19개로 늘고 유형마다 3문제가 되며(2026-10-29) 가로로 긴 줄 대신 정사각형에 가까운 칸을 여러 열로 깐다.
+ * 휴대폰 3열 → 640px 4열 → 768px 5열(본문 800px 한 단에서 칸 한 변 130px 안팎).
  */
-const narrow = 'screen and (min-width: 640px) and (max-width: 767px)';
-
 export const sectionList = style({
 	display: 'grid',
-	gridTemplateColumns: '1fr',
+	gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
 	gap: 8,
 	listStyle: 'none',
 	'@media': {
-		[breakpoints.tablet]: {
-			gridTemplateColumns: 'repeat(2, 1fr)',
-			columnGap: 12,
+		[breakpoints.tablet]: { gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' },
+		'screen and (min-width: 768px)': {
+			gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
 		},
 	},
 });
@@ -195,12 +192,14 @@ export const sectionList = style({
 /**
  * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
  * 강점(80%↑, 24문제 중 20개↑)·약점(30%↓, 7개↓) 줄은 옅은 색 바탕 + 색 테두리.
- * 안은 «번호·이름 + 강점·약점(sectionHead)» 아래 «걸린 시간 + 맞힌 수(sectionBody)».
+ * 안은 위 «번호 + 강점·약점(sectionHead)», 가운데 이름, 아래 «걸린 시간 + 맞힌 수(sectionBody)».
  */
 export const sectionRow = style({
 	display: 'flex',
 	flexDirection: 'column',
-	padding: '8px 10px 10px',
+	gap: 6,
+	minHeight: 104,
+	padding: '8px 8px 10px',
 	// NOTE: grey100 은 다크에서 카드 바탕과 같아져 안 보여서, 회색을 반투명으로 섞는다(라이트·다크 모두 연하게).
 	border: `1px solid ${tint(vars.color.grey500, 16)}`,
 	borderRadius: vars.radius.sm,
@@ -216,17 +215,16 @@ export const sectionRow = style({
 	},
 });
 
-/** 번호·이름(왼쪽) + 강점·약점 뱃지(오른쪽) 한 줄 */
+/** 번호(왼쪽) + 강점·약점 뱃지(오른쪽) 한 줄 */
 export const sectionHead = style({
 	display: 'flex',
-	alignItems: 'flex-start',
+	alignItems: 'center',
 	justifyContent: 'space-between',
-	gap: 6,
-	marginBottom: 6,
+	gap: 4,
 });
 
 export const sectionName = style([
-	text.body2,
+	text.caption,
 	{
 		minWidth: 0,
 		fontWeight: vars.font.weight.semibold,
@@ -251,31 +249,20 @@ const badgeBase = style([
 ]);
 
 /**
- * 이름 아래 한 줄: 걸린 시간(왼쪽) · 맞힌 수(오른쪽).
- * 2열일 때 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 높이가 맞는다.
+ * 칸 맨 아래: 걸린 시간(옛 링크만, 왼쪽) · 맞힌 수(오른쪽).
+ * 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 줄이 맞는다.
  */
 export const sectionBody = style({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	gap: 8,
+	gap: 4,
 	marginTop: 'auto',
 });
 
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
-/**
- * 강점·약점 뱃지. 태블릿 2열 구간(640~767px)에서는 글자를 빼고 아이콘만 남긴 동그라미가 된다
- * (2열 한 칸이 좁아 글자 뱃지까지 두면 이름이 두 줄로 꺾여서).
- */
-const markBadge = style([
-	badgeBase,
-	{ '@media': { [narrow]: { padding: 4 } } },
-]);
-
-export const badgeLabel = style({
-	'@media': { [narrow]: { display: 'none' } },
-});
+const markBadge = style([badgeBase, { padding: '2px 6px 2px 5px' }]);
 
 export const strengthBadge = style([
 	markBadge,
@@ -293,7 +280,7 @@ export const scoreBadge = style([
 	text.number,
 	{
 		padding: '2px 8px',
-		width: 60,
+		marginLeft: 'auto',
 		whiteSpace: 'nowrap',
 		justifyContent: 'center',
 		color: vars.color.grey600,
@@ -315,8 +302,6 @@ export const sectionNumber = style([
 		placeItems: 'center',
 		width: 18,
 		height: 18,
-		marginRight: 6,
-		verticalAlign: '1px',
 		borderRadius: vars.radius.full,
 		fontWeight: vars.font.weight.bold,
 		color: vars.color.grey700,

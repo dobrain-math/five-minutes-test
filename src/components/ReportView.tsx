@@ -102,16 +102,13 @@ export default function ReportView({ report, actions }: Props) {
 											className={s.sectionRow}
 											data-mark={mark ?? undefined}
 										>
-											{/* NOTE: 번호·이름(왼쪽) + 강점·약점(오른쪽). 태블릿 2열 구간(640~767px)에서만 아이콘만 남는다. */}
+											{/* NOTE: 정사각형에 가까운 칸(2026-10-29): 위 «번호 + 강점·약점», 가운데 이름, 아래 «맞힌 수». */}
 											<div className={s.sectionHead}>
-												<span className={s.sectionName}>
-													<span
-														className={s.sectionNumber}
-														data-mark={mark ?? undefined}
-													>
-														{i + 1}
-													</span>
-													{sec.title}
+												<span
+													className={s.sectionNumber}
+													data-mark={mark ?? undefined}
+												>
+													{i + 1}
 												</span>
 												{mark && (
 													<span
@@ -131,19 +128,18 @@ export default function ReportView({ report, actions }: Props) {
 														) : (
 															<StarIcon className={s.badgeIcon} aria-hidden />
 														)}
-														<span className={s.badgeLabel} aria-hidden>
-															{MARK_LABEL[mark]}
-														</span>
+														<span aria-hidden>{MARK_LABEL[mark]}</span>
 													</span>
 												)}
 											</div>
-											{/* NOTE: 이름 줄 아래에 «걸린 시간(왼쪽) · 맞힌 수(오른쪽)». 옛 링크는 시간이 없다. */}
+											<span className={s.sectionName}>{sec.title}</span>
+											{/* NOTE: 걸린 시간은 유형마다 한 페이지씩 풀던 옛 링크(v4, 2026-10-29 전)에만 있다. */}
 											<div className={s.sectionBody}>
-												<span className={s.sectionTime}>
-													{sec.durationMs !== undefined &&
-														`걸린 시간 ${formatDuration(sec.durationMs)}`}
-												</span>
-												{/* NOTE: 맞힌 수 뱃지는 폭이 고정이라 줄마다 칸 크기·위치가 같다. */}
+												{sec.durationMs !== undefined && (
+													<span className={s.sectionTime}>
+														{formatDuration(sec.durationMs)}
+													</span>
+												)}
 												<span className={s.scoreBadge}>
 													<b className={s.sectionCorrect}>{sec.correct}</b> /{' '}
 													{sec.total}
