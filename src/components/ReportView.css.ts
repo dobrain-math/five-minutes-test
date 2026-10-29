@@ -192,14 +192,14 @@ export const sectionList = style({
 /**
  * 유형 한 칸. 강조 없는 줄도 아주 연한 회색 1px 실선으로 구분하고,
  * 강점(80%↑, 24문제 중 20개↑)·약점(30%↓, 7개↓) 줄은 옅은 색 바탕 + 색 테두리.
- * 안은 위 «번호 + 강점·약점(sectionHead)», 가운데 이름, 아래 «걸린 시간 + 맞힌 수(sectionBody)».
+ * 안은 위 «번호·강약 아이콘 + 맞힌 수(sectionHead)», 아래 이름(옛 링크는 그 아래 걸린 시간).
+ * NOTE: 2026-10-29 «공간 더 절약» — 세 단(번호 / 이름 / 맞힌 수, 최소 104px)을 두 단으로 줄였다.
  */
 export const sectionRow = style({
 	display: 'flex',
 	flexDirection: 'column',
-	gap: 6,
-	minHeight: 104,
-	padding: '8px 8px 10px',
+	gap: 4,
+	padding: '7px 8px 8px',
 	// NOTE: grey100 은 다크에서 카드 바탕과 같아져 안 보여서, 회색을 반투명으로 섞는다(라이트·다크 모두 연하게).
 	border: `1px solid ${tint(vars.color.grey500, 16)}`,
 	borderRadius: vars.radius.sm,
@@ -215,11 +215,10 @@ export const sectionRow = style({
 	},
 });
 
-/** 번호(왼쪽) + 강점·약점 뱃지(오른쪽) 한 줄 */
+/** 번호 + 강점·약점 아이콘(왼쪽) · 맞힌 수(오른쪽, scoreBadge marginLeft auto) 한 줄 */
 export const sectionHead = style({
 	display: 'flex',
 	alignItems: 'center',
-	justifyContent: 'space-between',
 	gap: 4,
 });
 
@@ -248,21 +247,13 @@ const badgeBase = style([
 	},
 ]);
 
-/**
- * 칸 맨 아래: 걸린 시간(옛 링크만, 왼쪽) · 맞힌 수(오른쪽).
- * 이름이 한 줄·두 줄로 달라도 이 줄이 맨 아래에 붙어 옆 칸과 줄이 맞는다.
- */
-export const sectionBody = style({
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'space-between',
-	gap: 4,
-	marginTop: 'auto',
-});
-
 export const badgeIcon = style({ width: 12, height: 12, flexShrink: 0 });
 
-const markBadge = style([badgeBase, { padding: '2px 6px 2px 5px' }]);
+/** 강점·약점은 글자 없이 아이콘 동그라미만(글자는 title·aria-label). 칸 바탕색·번호 색이 함께 알려 준다 */
+const markBadge = style([
+	badgeBase,
+	{ justifyContent: 'center', width: 18, height: 18, padding: 0 },
+]);
 
 export const strengthBadge = style([
 	markBadge,

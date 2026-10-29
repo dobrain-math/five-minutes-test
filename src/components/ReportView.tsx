@@ -102,7 +102,7 @@ export default function ReportView({ report, actions }: Props) {
 											className={s.sectionRow}
 											data-mark={mark ?? undefined}
 										>
-											{/* NOTE: 정사각형에 가까운 칸(2026-10-29): 위 «번호 + 강점·약점», 가운데 이름, 아래 «맞힌 수». */}
+											{/* NOTE: 작은 칸 두 단(2026-10-29 원장님 «공간 더 절약»): 위 «번호·강약 아이콘 + 맞힌 수», 아래 이름. */}
 											<div className={s.sectionHead}>
 												<span
 													className={s.sectionNumber}
@@ -128,16 +128,6 @@ export default function ReportView({ report, actions }: Props) {
 														) : (
 															<StarIcon className={s.badgeIcon} aria-hidden />
 														)}
-														<span aria-hidden>{MARK_LABEL[mark]}</span>
-													</span>
-												)}
-											</div>
-											<span className={s.sectionName}>{sec.title}</span>
-											{/* NOTE: 걸린 시간은 유형마다 한 페이지씩 풀던 옛 링크(v4, 2026-10-29 전)에만 있다. */}
-											<div className={s.sectionBody}>
-												{sec.durationMs !== undefined && (
-													<span className={s.sectionTime}>
-														{formatDuration(sec.durationMs)}
 													</span>
 												)}
 												<span className={s.scoreBadge}>
@@ -145,6 +135,13 @@ export default function ReportView({ report, actions }: Props) {
 													{sec.total}
 												</span>
 											</div>
+											<span className={s.sectionName}>{sec.title}</span>
+											{/* NOTE: 걸린 시간은 유형마다 한 페이지씩 풀던 옛 링크(v4, 2026-10-29 전)에만 있다. */}
+											{sec.durationMs !== undefined && (
+												<span className={s.sectionTime}>
+													{formatDuration(sec.durationMs)}
+												</span>
+											)}
 										</li>
 									);
 								})}
