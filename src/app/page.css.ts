@@ -431,8 +431,32 @@ for (let n = 1; n <= 20; n++) {
 	});
 }
 
+/**
+ * 권을 처음 고르면 «테스트 유형» 칸이 위에서부터 펼쳐지듯 나타난다(원장님 2026-10-29).
+ * NOTE: 위쪽 끝을 고정하고 아래로 잘라 둔 부분(clip-path)을 넓힌다. 카드 그림자가 잘리지 않게 양옆·아래는 8px 바깥까지.
+ */
+const unfold = keyframes({
+	from: {
+		opacity: 0,
+		transform: 'translateY(-6px)',
+		clipPath: 'inset(-8px -8px 100% -8px)',
+	},
+	to: {
+		opacity: 1,
+		transform: 'none',
+		clipPath: 'inset(-8px -8px -8px -8px)',
+	},
+});
+
 // 유형별을 눌러 이 칸으로 스크롤할 때 위에 살짝 여백을 남긴다
-export const modeField = style({ scrollMarginTop: 16 });
+export const modeField = style({
+	scrollMarginTop: 16,
+	'@media': {
+		'(prefers-reduced-motion: no-preference)': {
+			animation: `${unfold} 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)`,
+		},
+	},
+});
 
 // ── 실험 B: 단계 번호 ─────────────────────────────────────
 

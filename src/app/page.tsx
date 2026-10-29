@@ -69,6 +69,11 @@ export default function HomePage() {
 			);
 		} else scrollPending.current = true;
 	};
+	// 전체 범위 테스트로 바꾸면 유형별에서 골라 둔 유형은 버린다 — 다시 유형별로 와도 새로 고르게(원장님 2026-10-29)
+	const pickAll = () => {
+		setMode('all');
+		setPart(null);
+	};
 	const course = courses.find((c) => c.id === courseId);
 	const pickCourse = (id: string) => {
 		if (id !== courseId) {
@@ -245,7 +250,7 @@ export default function HomePage() {
 								role="radio"
 								aria-checked={mode === 'all'}
 								className={s.modeButton}
-								onClick={() => setMode('all')}
+								onClick={pickAll}
 							>
 								<span className={s.modeTitle}>전체 범위 테스트</span>
 								<span className={s.modeMeta}>
