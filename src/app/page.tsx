@@ -247,10 +247,12 @@ export default function HomePage() {
 								className={s.modeButton}
 								onClick={() => setMode('all')}
 							>
-								<span className={s.modeTitle}>전체 풀기</span>
+								<span className={s.modeTitle}>전체 범위 테스트</span>
 								<span className={s.modeMeta}>
-									{course.sections.length * FULL_PER_SECTION}문제 · 강약점 분석
-									포함
+									유형당 {FULL_PER_SECTION}문제 · 총{' '}
+									{course.sections.length * FULL_PER_SECTION}문제
+									<br />
+									강약점 분석 포함
 								</span>
 							</button>
 							<button

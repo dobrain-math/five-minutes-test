@@ -148,10 +148,10 @@ export default function TestPage() {
 							<ThemeToggle />
 						</span>
 					</div>
-					{/* NOTE: 전체 풀기는 「전체 풀기」, 한 유형 풀이는 유형 번호 + 이름. */}
+					{/* NOTE: 전체 풀기는 「전체 범위 테스트」(원장님 이름 2026-10-29), 한 유형 풀이는 유형 번호 + 이름. */}
 					<div className={s.sectionRow}>
 						<span className={s.pageBadge}>
-							{section ? `${(part ?? 0) + 1}번` : '전체 풀기'}
+							{section ? `${(part ?? 0) + 1}번` : '전체 범위 테스트'}
 						</span>
 						{section && <span className={s.sectionTitle}>{section.title}</span>}
 					</div>
