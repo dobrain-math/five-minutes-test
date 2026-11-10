@@ -60,14 +60,25 @@ export const nameInput = style([
 	},
 ]);
 
-/** 학생명 형식 위반 문구(입력 칸 바로 아래, 빨강) */
+/** 학생명 제목 줄(ageLabelRow 와 함께) — 오류 문구를 겹쳐 놓을 기준 */
+export const nameLabelRow = style({ position: 'relative' });
+
+/**
+ * 학생명 형식 위반 문구. 제목 줄 오른쪽에 두 줄(본문 / 제외 목록)로 붙인다.
+ * 줄 높이를 늘리지 않게 absolute — 문구가 생기고 사라져도 아래 칸이 움직이지 않는다(2026-11-10).
+ */
 export const nameError = style([
-	text.caption,
+	text.caption2,
 	{
-		marginTop: 8,
-		paddingLeft: 4,
-		color: vars.color.red500,
+		position: 'absolute',
+		right: 0,
+		bottom: 0,
+		maxWidth: 'calc(100% - 96px)',
+		textAlign: 'right',
+		whiteSpace: 'pre-line',
 		wordBreak: 'keep-all',
+		lineHeight: 1.35,
+		color: vars.color.red500,
 	},
 ]);
 

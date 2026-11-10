@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { nameError } from './nameError.ts';
 
+// 제목 줄 오른쪽에 두 줄(column)로 붙인다 — 본문 / 제외 목록
 const MESSAGE =
-	'올바른 이름 형식으로 입력해 주세요. (외국어·숫자·공백·특수문자·자음/모음 제외)';
+	'올바른 이름 형식으로 입력해 주세요.\n(외국어·숫자·공백·특수문자 제외)';
 
 describe('nameError — 학생명은 완성된 한글 글자만(2026-11-10)', () => {
 	test('한글 이름은 통과', () => {

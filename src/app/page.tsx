@@ -131,13 +131,21 @@ export default function HomePage() {
 
 			<div className={`${layout.container.narrow} ${layout.content}`}>
 				<div className={s.field}>
-					<label
-						htmlFor="student-name"
-						className={`${layout.sectionLabel} ${s.stepLabel}`}
-					>
-						<Step n={1} done={nameOk} />
-						학생명
-					</label>
+					{/* NOTE: 오류 문구는 제목 줄 오른쪽에 겹쳐 붙인다 — 칸 아래에 두면 뜰 때마다 아래 칸이 밀렸다(2026-11-10) */}
+					<div className={`${s.ageLabelRow} ${s.nameLabelRow}`}>
+						<label
+							htmlFor="student-name"
+							className={`${layout.sectionLabel} ${s.ageLabelText} ${s.stepLabel}`}
+						>
+							<Step n={1} done={nameOk} />
+							학생명
+						</label>
+						{showNameError && (
+							<p id="student-name-error" className={s.nameError} role="alert">
+								{nameProblem}
+							</p>
+						)}
+					</div>
 					<input
 						id="student-name"
 						className={s.nameInput}
@@ -152,11 +160,6 @@ export default function HomePage() {
 						aria-invalid={showNameError}
 						aria-describedby={showNameError ? 'student-name-error' : undefined}
 					/>
-					{showNameError && (
-						<p id="student-name-error" className={s.nameError} role="alert">
-							{nameProblem}
-						</p>
-					)}
 				</div>
 
 				<div className={s.field}>
