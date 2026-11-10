@@ -52,6 +52,21 @@ export const nameInput = style([
 		':focus': {
 			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
 		},
+		selectors: {
+			'&[aria-invalid="true"], &[aria-invalid="true"]:focus': {
+				boxShadow: `0 0 0 1px ${vars.color.red500}, ${vars.shadow.sm}`,
+			},
+		},
+	},
+]);
+
+/** 학생명 형식 위반 문구(입력 칸 바로 아래, 빨강) */
+export const nameError = style([
+	text.caption,
+	{
+		marginTop: 8,
+		paddingLeft: 4,
+		color: vars.color.red500,
 	},
 ]);
 

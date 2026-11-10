@@ -9,6 +9,7 @@ import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { FULL_PER_SECTION, PER_SECTION } from '@/utils/buildTest.ts';
+import { nameError } from '@/utils/nameError.ts';
 import * as s from './page.css.ts';
 
 const OP_SYMBOL: Record<Operator, string> = { '+': '+', '-': '−', '×': '×' };
@@ -49,6 +50,7 @@ export default function HomePage() {
 	const setStudentAge = useTestSessionStore((st) => st.setStudentAge);
 	const start = useTestSessionStore((st) => st.start);
 	const [courseId, setCourseId] = useState<string | null>(null);
+	const [composing, setComposing] = useState(false);
 
 	const ageIndex = Math.max(
 		0,
@@ -91,8 +93,13 @@ export default function HomePage() {
 		setCourseId(id);
 	};
 
+	// NOTE: 한글을 치는 동안(조합 중)은 「김ㅁ」처럼 낱자가 잠깐 생기므로 문구는 조합이 끝난 뒤에만 띄운다. 시작 버튼은 늘 막는다.
+	const nameProblem = nameError(studentName);
+	const nameOk = studentName !== '' && nameProblem === null;
+	const showNameError = nameProblem !== null && !composing;
+
 	const canStart =
-		studentName.trim() !== '' &&
+		nameOk &&
 		studentAge !== '' &&
 		courseId !== null &&
 		(mode === 'all' || (mode === 'each' && part !== null));
@@ -128,7 +135,7 @@ export default function HomePage() {
 						htmlFor="student-name"
 						className={`${layout.sectionLabel} ${s.stepLabel}`}
 					>
-						<Step n={1} done={studentName.trim() !== ''} />
+						<Step n={1} done={nameOk} />
 						학생명
 					</label>
 					<input
@@ -136,11 +143,20 @@ export default function HomePage() {
 						className={s.nameInput}
 						value={studentName}
 						onChange={(e) => setStudentName(e.target.value)}
+						onCompositionStart={() => setComposing(true)}
+						onCompositionEnd={() => setComposing(false)}
 						placeholder="이름을 적어 주세요"
 						autoComplete="off"
 						enterKeyHint="done"
 						maxLength={20}
+						aria-invalid={showNameError}
+						aria-describedby={showNameError ? 'student-name-error' : undefined}
 					/>
+					{showNameError && (
+						<p id="student-name-error" className={s.nameError} role="alert">
+							{nameProblem}
+						</p>
+					)}
 				</div>
 
 				<div className={s.field}>
