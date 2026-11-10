@@ -1,14 +1,16 @@
-import { type CSSProperties, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckIcon } from '@heroicons/react/16/solid';
 import type { Course, Operator } from '@/@types/test';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
+import { useChallengeLookup } from '@/hooks/useChallengeLookup.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { FULL_PER_SECTION, PER_SECTION } from '@/utils/buildTest.ts';
+import { CHALLENGE_URL } from '@/utils/challenge.ts';
 import { nameError } from '@/utils/nameError.ts';
 import * as s from './page.css.ts';
 
@@ -98,7 +100,19 @@ export default function HomePage() {
 	const nameOk = studentName !== '' && nameProblem === null;
 	const showNameError = nameProblem !== null && !composing;
 
+	// 챌린지(프로토타입 2026-11-10): 코드를 넣으면 명단 이름으로 학생명을 채운다. 코드를 적었는데 확인이 안 되면 시작을 막는다(엉뚱한 코드로 기록이 쌓이지 않게)
+	const challengeCode = useTestSessionStore((st) => st.challengeCode);
+	const setChallengeCode = useTestSessionStore((st) => st.setChallengeCode);
+	const challenge = useChallengeLookup(CHALLENGE_URL ? challengeCode : '');
+	const challengeName = challenge.kind === 'found' ? challenge.name : null;
+	useEffect(() => {
+		if (challengeName) setStudentName(challengeName);
+	}, [challengeName, setStudentName]);
+	const challengeOk =
+		!CHALLENGE_URL || challengeCode === '' || challengeName !== null;
+
 	const canStart =
+		challengeOk &&
 		nameOk &&
 		studentAge !== '' &&
 		courseId !== null &&
@@ -130,6 +144,47 @@ export default function HomePage() {
 			</header>
 
 			<div className={`${layout.container.narrow} ${layout.content}`}>
+				{CHALLENGE_URL && (
+					<div className={s.field}>
+						<div className={`${s.ageLabelRow} ${s.nameLabelRow}`}>
+							<label
+								htmlFor="challenge-code"
+								className={`${layout.sectionLabel} ${s.ageLabelText}`}
+							>
+								챌린지 코드 (참여 학생만)
+							</label>
+							{challenge.kind !== 'none' && (
+								<p
+									className={s.nameError}
+									data-ok={challenge.kind === 'found'}
+									role="status"
+								>
+									{challenge.kind === 'checking'
+										? '확인 중…'
+										: challenge.kind === 'found'
+											? `${challenge.name} 학생 챌린지`
+											: challenge.kind === 'unknown'
+												? '명단에 없는 코드입니다.'
+												: '기록 시트에 연결하지 못했습니다.'}
+								</p>
+							)}
+						</div>
+						<input
+							id="challenge-code"
+							className={s.nameInput}
+							value={challengeCode}
+							onChange={(e) =>
+								setChallengeCode(e.target.value.replace(/\D/g, '').slice(0, 4))
+							}
+							placeholder="선생님께 받은 4자리 숫자"
+							inputMode="numeric"
+							autoComplete="off"
+							enterKeyHint="done"
+							maxLength={4}
+							aria-invalid={challenge.kind === 'unknown'}
+						/>
+					</div>
+				)}
 				<div className={s.field}>
 					{/* NOTE: 오류 문구는 제목 줄 오른쪽에 겹쳐 붙인다 — 칸 아래에 두면 뜰 때마다 아래 칸이 밀렸다(2026-11-10) */}
 					<div className={`${s.ageLabelRow} ${s.nameLabelRow}`}>

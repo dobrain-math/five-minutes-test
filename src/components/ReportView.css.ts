@@ -482,6 +482,16 @@ export const buttonRow = style({
 	gap: 8,
 });
 
+/** 챌린지 기록 저장 결과 한 줄(버튼 줄 위, 프로토타입 2026-11-10) */
+export const challengeNote = style([
+	text.caption,
+	{
+		marginBottom: 10,
+		textAlign: 'center',
+		color: vars.color.grey600,
+	},
+]);
+
 /** 「처음으로」: 주 버튼(강조), 남은 폭 */
 export const homeButton = style({ flex: 1 });
 

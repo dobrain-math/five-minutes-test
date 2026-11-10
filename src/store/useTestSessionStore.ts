@@ -19,11 +19,26 @@ type TestSessionState = {
 	pageStartedAt: number | null;
 	/** 걸린 시간 ms(한 페이지라 채점할 때 하나 적힌다) */
 	pageTimes: number[];
+	/** 챌린지 코드(4자리, 비면 챌린지 아님). 매일 다시 치지 않게 기기(localStorage)에도 남긴다 */
+	challengeCode: string;
+	/** 챌린지 기록을 보낸 세션의 finishedAt — 리포트를 다시 열어도 두 번 보내지 않게 */
+	challengeSentFor: number | null;
 	setStudentName: (name: string) => void;
+	setChallengeCode: (code: string) => void;
+	markChallengeSent: (finishedAt: number) => void;
 	setStudentAge: (age: string) => void;
 	start: (courseId: string, part: number | null) => void;
 	setAnswer: (questionId: string, value: string) => void;
 	finish: () => void;
+};
+
+const CODE_KEY = 'challenge-code';
+const savedCode = () => {
+	try {
+		return localStorage.getItem(CODE_KEY) ?? '';
+	} catch {
+		return '';
+	}
 };
 
 // NOTE: 새로고침해도 풀던 문제·답·시간이 남도록 sessionStorage 에 둔다.
@@ -40,7 +55,18 @@ export const useTestSessionStore = create<TestSessionState>()(
 			finishedAt: null,
 			pageStartedAt: null,
 			pageTimes: [],
+			challengeCode: savedCode(),
+			challengeSentFor: null,
 			setStudentName: (studentName) => set({ studentName }),
+			setChallengeCode: (challengeCode) => {
+				try {
+					localStorage.setItem(CODE_KEY, challengeCode);
+				} catch {
+					// 저장이 막힌 브라우저(사생활 보호 모드 등)는 이번 세션에만 둔다
+				}
+				set({ challengeCode });
+			},
+			markChallengeSent: (challengeSentFor) => set({ challengeSentFor }),
 			setStudentAge: (studentAge) => set({ studentAge }),
 			start: (courseId, part) => {
 				const course = getCourse(courseId);

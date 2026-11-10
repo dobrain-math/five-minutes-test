@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import * as modal from '@/components/Modal.css.ts';
@@ -10,6 +10,12 @@ import { useShortShareUrl } from '@/hooks/useShortShareUrl.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { buildReport } from '@/utils/buildReport.ts';
+import {
+	CHALLENGE_URL,
+	challengeRecord,
+	isChallengeCode,
+	sendChallenge,
+} from '@/utils/challenge.ts';
 import { encodeReport, shareUrl } from '@/utils/shareLink.ts';
 import { shareMessage } from '@/utils/shareMessage.ts';
 
@@ -43,6 +49,34 @@ export default function ReportPage() {
 		: null;
 	// 짧은 링크(/r/6글자)는 미리 만들어 둔다. 준비 전·실패면 긴 링크(/s/코드)로 보낸다.
 	const shortUrl = useShortShareUrl(code);
+
+	// 챌린지(프로토타입 2026-11-10): 코드가 있으면 채점 결과를 기록 시트로 한 번만 보낸다
+	const [challengeNote, setChallengeNote] = useState<string | null>(null);
+	const { challengeCode } = session;
+	useEffect(() => {
+		if (!ready || !CHALLENGE_URL || !isChallengeCode(challengeCode)) return;
+		// NOTE: 화면 값(session)은 옛 값일 수 있다 — 효과가 두 번 돌면(개발 StrictMode) 두 번 보냈다. 저장소에서 바로 읽는다
+		const latest = useTestSessionStore.getState();
+		if (latest.challengeSentFor === finishedAt) {
+			setChallengeNote((note) => note ?? '챌린지 기록 저장 완료');
+			return;
+		}
+		latest.markChallengeSent(finishedAt);
+		setChallengeNote('챌린지 기록 저장 중…');
+		const report = buildReport(course, { ...session, startedAt, finishedAt });
+		sendChallenge(challengeRecord(report, challengeCode))
+			.then((r) =>
+				setChallengeNote(
+					!r.ok
+						? '명단에 없는 코드라 챌린지 기록을 남기지 못했습니다.'
+						: r.first
+							? '챌린지 기록 저장 완료 (오늘 첫 기록)'
+							: '챌린지 기록 저장 완료 (오늘 첫 기록이 이미 있어 그래프에는 안 들어감)',
+				),
+			)
+			.catch(() => setChallengeNote('챌린지 기록을 보내지 못했습니다.'));
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- 세션이 끝난 순간(finishedAt)마다 한 번
+	}, [ready, finishedAt, challengeCode]);
 
 	if (!ready) {
 		return <Navigate to="/" replace />;
@@ -93,6 +127,11 @@ export default function ReportPage() {
 			report={report}
 			actions={
 				<>
+					{challengeNote && (
+						<p className={s.challengeNote} role="status">
+							{challengeNote}
+						</p>
+					)}
 					<div className={s.buttonRow}>
 						<button
 							type="button"

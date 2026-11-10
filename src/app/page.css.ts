@@ -76,6 +76,10 @@ export const nameError = style([
 		transform: 'translateY(-50%)',
 		whiteSpace: 'nowrap',
 		color: vars.color.red500,
+		selectors: {
+			// 챌린지 코드 확인됨(«김민준 학생 챌린지»)은 파랑
+			'&[data-ok="true"]': { color: vars.color.blue500 },
+		},
 	},
 ]);
 
