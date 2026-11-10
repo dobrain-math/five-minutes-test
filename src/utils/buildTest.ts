@@ -1,6 +1,6 @@
 import type { Course, Problem, Question, Rng, SectionDef } from '@/@types/test';
 
-/** 유형 하나만 풀 때(유형별 풀기) 내는 문제 수 */
+/** 유형 하나만 풀 때(유형별 풀기) 내는 문제 수. 유형마다 SectionDef.count 로 바꿀 수 있다 */
 export const PER_SECTION = 24;
 
 /**
@@ -67,5 +67,5 @@ export function buildTest(
 	const section = course.sections[part];
 	if (!section)
 		throw new Error(`${course.title}: ${part + 1}번 유형이 없습니다`);
-	return buildSection(section, PER_SECTION, rng);
+	return buildSection(section, section.count ?? PER_SECTION, rng);
 }

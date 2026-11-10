@@ -1,7 +1,7 @@
 import { type CSSProperties, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckIcon } from '@heroicons/react/16/solid';
-import type { Operator } from '@/@types/test';
+import type { Course, Operator } from '@/@types/test';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
@@ -23,6 +23,14 @@ const COURSE_PREVIEW: Record<string, { ops: Operator[] }> = Object.fromEntries(
 		return [course.id, { ops }];
 	}),
 );
+
+/** 유형별 풀기 문제 수 — 유형마다 다르면 「24~30」(기본연습 한한덧셈 받아올림O 만 30, 2026-11-10) */
+const countRange = (course: Course) => {
+	const counts = course.sections.map((sec) => sec.count ?? PER_SECTION);
+	const lo = Math.min(...counts);
+	const hi = Math.max(...counts);
+	return lo === hi ? `${lo}` : `${lo}~${hi}`;
+};
 
 /** 단계 번호 동그라미. 그 단계를 다 고르면 파랑 체크로 바뀐다(실험 B) */
 function Step({ n, done }: { n: number; done: boolean }) {
@@ -271,7 +279,7 @@ export default function HomePage() {
 							>
 								<span className={s.modeTitle}>유형별 풀기</span>
 								<span className={s.modeMeta}>
-									{course.sections.length}개 중 하나 · {PER_SECTION}문제
+									{course.sections.length}개 중 하나 · {countRange(course)}문제
 								</span>
 							</button>
 						</div>

@@ -53,6 +53,14 @@ const fixedTimes =
 
 // ── 기본연습 ───────────────────────────────────────────────
 
+/**
+ * 한한덧셈(받아올림O) 원장님 목록 30개: 앞 수 5~9, 합 11 이상(합 10 제외, 2026-11-10).
+ * 유형만 풀면 30개를 전부 내고 순서만 섞는다. 목록 그대로라 순서를 뒤집지 않는다(4 + 7 은 목록에 없음).
+ */
+const oneOneCarry = [5, 6, 7, 8, 9].flatMap((a) =>
+	[2, 3, 4, 5, 6, 7, 8, 9].filter((b) => a + b >= 11).map((b) => add(a, b)),
+);
+
 const basic: Course = {
 	id: 'basic',
 	title: '기본연습',
@@ -68,10 +76,8 @@ const basic: Course = {
 		{
 			id: 'basic-2',
 			title: '한한덧셈 (받아올림O)',
-			generate: bothWays((rng) => {
-				const a = int(rng, 1, 9);
-				return add(a, int(rng, 10 - a, 9));
-			}),
+			generate: (rng) => oneOneCarry[int(rng, 0, oneOneCarry.length - 1)],
+			count: oneOneCarry.length,
 		},
 		{
 			id: 'basic-3',

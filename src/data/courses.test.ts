@@ -22,8 +22,9 @@ const rules: Record<string, (p: Problem) => boolean> = {
 	// 기본연습
 	'basic-1': ({ left: a, op, right: b }) =>
 		op === '+' && digits(a) === 1 && digits(b) === 1 && a + b < 10,
+	// 앞 수 5~9, 합 11 이상(합 10 제외) — 원장님 목록 30개(2026-11-10). 순서는 뒤집지 않는다
 	'basic-2': ({ left: a, op, right: b }) =>
-		op === '+' && digits(a) === 1 && digits(b) === 1 && a + b >= 10,
+		op === '+' && a >= 5 && a <= 9 && digits(b) === 1 && a + b >= 11,
 	'basic-3': ({ left: a, op, right: b }) =>
 		op === '-' && digits(a) === 1 && digits(b) === 1 && a > b,
 	'basic-4': ({ left: a, op, right: b }) =>
@@ -246,15 +247,55 @@ describe('buildTest', () => {
 			expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
 		});
 
-		test(`${course.title} 한 유형: 그 유형 24문제만`, () => {
+		test(`${course.title} 한 유형: 그 유형 24문제만(한한덧셈 받아올림O 는 30문제)`, () => {
 			course.sections.forEach((section, i) => {
+				const want = section.id === 'basic-2' ? 30 : PER_SECTION;
 				const questions = buildTest(course, i);
-				expect(questions).toHaveLength(PER_SECTION);
+				expect(questions).toHaveLength(want);
 				expect(questions.every((q) => q.sectionId === section.id)).toBe(true);
-				expect(new Set(questions.map((q) => q.text)).size).toBe(24);
+				expect(new Set(questions.map((q) => q.text)).size).toBe(want);
 			});
 		});
 	}
+
+	test('한한덧셈 (받아올림O): 원장님 목록 30개를 빠짐없이, 순서만 섞어서', () => {
+		// 앞 수 5~9 × 합 11 이상. 합 10(5+5 …)은 뺀다(원장님 2026-11-10)
+		const all = [
+			'5 + 6',
+			'5 + 7',
+			'5 + 8',
+			'5 + 9',
+			'6 + 5',
+			'6 + 6',
+			'6 + 7',
+			'6 + 8',
+			'6 + 9',
+			'7 + 4',
+			'7 + 5',
+			'7 + 6',
+			'7 + 7',
+			'7 + 8',
+			'7 + 9',
+			'8 + 3',
+			'8 + 4',
+			'8 + 5',
+			'8 + 6',
+			'8 + 7',
+			'8 + 8',
+			'8 + 9',
+			'9 + 2',
+			'9 + 3',
+			'9 + 4',
+			'9 + 5',
+			'9 + 6',
+			'9 + 7',
+			'9 + 8',
+			'9 + 9',
+		];
+		const texts = buildTest(getCourse('basic')!, 1).map((q) => q.text);
+		expect([...texts].sort()).toEqual([...all].sort());
+		expect(texts).not.toEqual(all);
+	});
 
 	test('전체 풀기는 유형마다 2~4문제다(원장님 «문제가 너무 많다» 2026-10-29)', () => {
 		expect(FULL_PER_SECTION).toBeGreaterThanOrEqual(2);
@@ -343,9 +384,9 @@ describe('곱셈·덧셈 유형은 절반을 순서를 뒤집어 낸다(세한�
 		let x = seed;
 		return () => (x = (x * 9301 + 49297) % 233280) / 233280;
 	};
+	// basic-2(한한덧셈 받아올림O)는 원장님 목록 30개 그대로라 뒤집지 않는다(2026-11-10)
 	for (const id of [
 		'basic-1',
-		'basic-2',
 		'531-3',
 		'531-8',
 		'531-14',

@@ -26,6 +26,8 @@ export type Section = {
 export type SectionDef = Section & {
 	/** i 는 이 유형 안에서 몇 번째 문제인지(0부터). 비율을 나눠야 하는 유형이 쓴다. */
 	generate: (rng: Rng, i?: number) => Problem;
+	/** 이 유형만 풀 때 내는 문제 수. 없으면 PER_SECTION(24) */
+	count?: number;
 };
 
 export type Course = {
