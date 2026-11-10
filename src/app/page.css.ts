@@ -67,6 +67,7 @@ export const nameError = style([
 		marginTop: 8,
 		paddingLeft: 4,
 		color: vars.color.red500,
+		wordBreak: 'keep-all',
 	},
 ]);
 
