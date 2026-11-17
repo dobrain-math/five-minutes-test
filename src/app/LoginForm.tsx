@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
+import logoWhite from '@/assets/logo-w.svg';
 import { autoLogin, useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import {
@@ -57,6 +58,7 @@ export default function LoginForm() {
 		// 머리 띠 없이 파랑 단색 바탕 + 화면 정중앙 흰 카드(사용자 2026-11-17. 위쪽 로고 자리는 나중에)
 		<main className={s.loginPage}>
 			<div className={s.loginInner}>
+				<img className={s.loginLogo} src={logoWhite} alt="두뇌로수학" />
 				<form className={s.loginCard} onSubmit={handleSubmit}>
 					<div>
 						<div className={s.ageLabelRow}>
