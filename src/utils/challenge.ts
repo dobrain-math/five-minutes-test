@@ -5,7 +5,10 @@ import type { Report } from '@/@types/test';
  * 시트 스크립트는 challenge/Code.gs (프로토타입 2026-11-10).
  */
 // NOTE: 로컬 시험용으로 .env 의 VITE_CHALLENGE_URL 이 있으면 그쪽을 쓴다.
-export const CHALLENGE_URL: string = import.meta.env.VITE_CHALLENGE_URL ?? '';
+// 비밀값이 아니다(누구나 부를 수 있는 웹 앱 주소). 시트에서 «새 배포»를 하면 주소가 바뀌니 여기도 바꿀 것.
+export const CHALLENGE_URL: string =
+	import.meta.env.VITE_CHALLENGE_URL ??
+	'https://script.google.com/macros/s/AKfycbwWD8s_xmb0QpFVUWLIaYi5NJMv8wj6E4GD0Zpv8eFJIqAwD6Z3oco214VHTffSC0U1/exec';
 
 /** 챌린지 코드: 1000~9999 네 자리 숫자(시트 Code.gs newCode_ 와 같은 규칙) */
 export const isChallengeCode = (code: string) => /^[1-9]\d{3}$/.test(code);
