@@ -45,14 +45,14 @@ export const data = style({
 });
 
 export const area = style({
-	fill: tint(vars.color.blue500, 18),
-	stroke: vars.color.blue500,
+	fill: tint(vars.color.blue700, 18),
+	stroke: vars.color.blue700,
 	strokeWidth: 2,
 	strokeLinejoin: 'round',
 });
 
 export const dot = style({
-	fill: vars.color.blue500,
+	fill: vars.color.blue700,
 	stroke: vars.color.layeredBackground,
 	strokeWidth: 2,
 	selectors: {
@@ -66,7 +66,7 @@ export const vertex = style({});
 export const vertexCircle = style({
 	fill: tint(vars.color.grey500, 14),
 	selectors: {
-		[`${vertex}[data-mark="strong"] &`]: { fill: vars.color.blue500 },
+		[`${vertex}[data-mark="strong"] &`]: { fill: vars.color.blue700 },
 		[`${vertex}[data-mark="weak"] &`]: { fill: vars.color.red500 },
 	},
 });

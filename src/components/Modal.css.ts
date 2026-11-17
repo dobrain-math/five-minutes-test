@@ -71,7 +71,7 @@ export const modalTextarea = style([
 		background: vars.color.grey100,
 		resize: 'vertical',
 		outline: 'none',
-		':focus': { boxShadow: `0 0 0 1px ${vars.color.blue500}` },
+		':focus': { boxShadow: `0 0 0 1px ${vars.color.blue700}` },
 	},
 ]);
 
@@ -114,6 +114,6 @@ export const modalToast = style([
 
 // 포커스 링도 1px(색 테두리·포커스 링은 모두 1px 규칙). 브라우저 기본 굵은 검정 링 대신
 globalStyle(`${modal} button:focus-visible`, {
-	outline: `1px solid ${vars.color.blue500}`,
+	outline: `1px solid ${vars.color.blue700}`,
 	outlineOffset: 2,
 });

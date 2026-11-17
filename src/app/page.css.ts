@@ -50,7 +50,7 @@ export const nameInput = style([
 			fontWeight: vars.font.weight.regular,
 		},
 		':focus': {
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue700}, ${vars.shadow.md}`,
 		},
 		selectors: {
 			'&[aria-invalid="true"], &[aria-invalid="true"]:focus': {
@@ -78,7 +78,7 @@ export const nameError = style([
 		color: vars.color.red500,
 		selectors: {
 			// 챌린지 코드 확인됨(«김민준 학생 챌린지»)은 파랑
-			'&[data-ok="true"]': { color: vars.color.blue500 },
+			'&[data-ok="true"]': { color: vars.color.blue700 },
 		},
 	},
 ]);
@@ -112,7 +112,7 @@ export const courseItem = style({
 		'&:active': { transform: 'scale(0.99)' },
 		'&[aria-checked="true"]': {
 			background: vars.color.blue50,
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue700}, ${vars.shadow.md}`,
 		},
 	},
 	'@media': {
@@ -138,7 +138,7 @@ export const courseBody = style({ flex: 1, minWidth: 0 });
 export const courseOps = style({ display: 'flex', gap: 4, flexShrink: 0 });
 
 const opColor = {
-	'+': vars.color.blue500,
+	'+': vars.color.blue700,
 	'-': vars.color.green500,
 	'×': vars.color.purple500,
 };
@@ -214,7 +214,7 @@ export const partNumber = style([
 		selectors: {
 			[`${courseItem}[aria-checked="true"] &`]: {
 				color: '#ffffff',
-				background: vars.color.blue500,
+				background: vars.color.blue700,
 			},
 		},
 	},
@@ -263,12 +263,12 @@ export const modeButton = style({
 		'&:active': { transform: 'scale(0.98)' },
 		'&[aria-checked="true"]': {
 			color: '#ffffff',
-			background: vars.color.blue500,
+			background: vars.color.blue700,
 			boxShadow: vars.shadow.md,
 		},
 		'&:focus-visible': {
 			outline: 'none',
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue700}, ${vars.shadow.md}`,
 		},
 	},
 	'@media': {
@@ -393,7 +393,7 @@ export const step = style([
 		selectors: {
 			'&[data-done="true"]': {
 				color: '#ffffff',
-				background: vars.color.blue500,
+				background: vars.color.blue700,
 			},
 		},
 	},
@@ -431,7 +431,7 @@ export const remember = style([
 export const rememberBox = style({
 	width: 18,
 	height: 18,
-	accentColor: vars.color.blue500,
+	accentColor: vars.color.blue700,
 	cursor: 'pointer',
 });
 
@@ -522,7 +522,7 @@ export const loginPage = style({
 	placeItems: 'center',
 	minHeight: '100dvh',
 	padding: '24px 16px',
-	background: vars.color.blue500,
+	background: vars.color.blue700,
 });
 
 export const loginInner = style({ width: '100%', maxWidth: 440 });

@@ -39,7 +39,7 @@ export const timer = style([
 		flexShrink: 0,
 		padding: '4px 12px',
 		borderRadius: vars.radius.full,
-		color: vars.color.blue600,
+		color: vars.color.blue700,
 		background: vars.color.blue50,
 	},
 ]);
@@ -62,7 +62,7 @@ export const progressTrack = style({
 export const progressFill = style({
 	height: '100%',
 	borderRadius: vars.radius.full,
-	background: vars.color.blue500,
+	background: vars.color.blue700,
 	transition: 'width 0.2s',
 });
 
@@ -127,7 +127,7 @@ export const item = style({
 	transition: 'box-shadow 0.15s',
 	selectors: {
 		'&:focus-within': {
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, ${vars.shadow.md}`,
+			boxShadow: `0 0 0 1px ${vars.color.blue700}, ${vars.shadow.md}`,
 		},
 	},
 });
@@ -148,7 +148,7 @@ export const number = style([
 		transition: 'color 0.15s, background 0.15s',
 		selectors: {
 			[`${item}[data-answered="true"] &`]: {
-				color: vars.color.blue600,
+				color: vars.color.blue700,
 				background: vars.color.blue50,
 			},
 		},

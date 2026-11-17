@@ -12,12 +12,12 @@ const tint = (color: string, percent: number) =>
  * 옅은 흰 원 장식은 뺐다(원장님 2026-10-27 «거슬린다»). 아래 양쪽 모서리는 16px(xl)이면 띠가 늘어진 천처럼 보여
  * 뺐다가, 2026-10-29 원장님 «작게» 로 10px(sm)만 다시 둥글린다.
  * 그림자는 은은하게 20%(원장님 2026-10-27: 60% 는 너무 강함 → 8% → 16%, 2026-10-29 20%).
- * NOTE: 더 진한 쪽은 blue700 대신 blue500 에 검정을 섞는다 — 다크 팔레트는 50↔900 뒤집기라 blue700 이 밝아진다.
+ * 브랜드 파랑은 blue700(2026-11-17 «밝다»는 의견으로 blue500 에서 내림). 진한 쪽은 검정을 섞는다.
  */
 export const brandBand = style({
 	position: 'relative',
 	borderRadius: `0 0 ${vars.radius.sm} ${vars.radius.sm}`,
 	color: '#ffffff',
-	background: `linear-gradient(135deg, ${vars.color.blue500} 0%, color-mix(in srgb, ${vars.color.blue500} 72%, #000) 100%)`,
-	boxShadow: `0 6px 16px -8px ${tint(vars.color.blue500, 20)}`,
+	background: `linear-gradient(135deg, ${vars.color.blue700} 0%, color-mix(in srgb, ${vars.color.blue700} 72%, #000) 100%)`,
+	boxShadow: `0 6px 16px -8px ${tint(vars.color.blue700, 20)}`,
 });

@@ -66,13 +66,13 @@ export const primaryButton = style([
 		borderRadius: vars.radius.md,
 		fontWeight: vars.font.weight.bold,
 		color: '#ffffff',
-		background: vars.color.blue500,
+		background: vars.color.blue700,
 		boxShadow: vars.shadow.sm,
 		cursor: 'pointer',
 		transition: 'background 0.15s, transform 0.1s, box-shadow 0.15s',
 		selectors: {
 			'&:active:not(:disabled)': {
-				background: vars.color.blue600,
+				background: vars.color.blue800,
 				transform: 'scale(0.98)',
 			},
 			'&:disabled': {
@@ -86,7 +86,7 @@ export const primaryButton = style([
 			[canHover]: {
 				selectors: {
 					'&:hover:not(:disabled)': {
-						background: vars.color.blue600,
+						background: vars.color.blue800,
 						boxShadow: vars.shadow.md,
 					},
 				},

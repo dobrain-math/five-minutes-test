@@ -206,7 +206,7 @@ export const sectionRow = style({
 	selectors: {
 		'&[data-mark="strong"]': {
 			background: tint(vars.color.blue300, 8),
-			borderColor: tint(vars.color.blue500, 35),
+			borderColor: tint(vars.color.blue700, 35),
 		},
 		'&[data-mark="weak"]': {
 			background: tint(vars.color.red300, 8),
@@ -257,7 +257,7 @@ const markBadge = style([
 
 export const strengthBadge = style([
 	markBadge,
-	{ background: vars.color.blue500 },
+	{ background: vars.color.blue700 },
 ]);
 
 export const weaknessBadge = style([
@@ -300,7 +300,7 @@ export const sectionNumber = style([
 		selectors: {
 			'&[data-mark="strong"]': {
 				color: '#ffffff',
-				background: vars.color.blue500,
+				background: vars.color.blue700,
 			},
 			'&[data-mark="weak"]': {
 				color: '#ffffff',
@@ -381,7 +381,7 @@ export const disclosure = style({
 	cursor: 'pointer',
 	selectors: {
 		'&:focus-visible': {
-			outline: `1px solid ${vars.color.blue500}`,
+			outline: `1px solid ${vars.color.blue700}`,
 			outlineOffset: 4,
 			borderRadius: vars.radius.xs,
 		},

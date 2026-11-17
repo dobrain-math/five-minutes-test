@@ -3,6 +3,7 @@
  *
  * 붙이는 곳: 구글 시트 → 확장 프로그램 → Apps Script → 이 파일 내용 전체를 붙여넣기 → 저장
  * 서비스: 왼쪽 «서비스 +» → «Google Sheets API» 추가(표 기능에 필요. 없으면 줄무늬 서식으로 대신한다)
+ * 표: 시트 메뉴 «챌린지 → 명단·기록을 표로 바꾸기» (이미 만든 줄무늬 탭을 표로. 안 되면 이유를 창으로 알려 준다)
  * 배포: 배포 → 배포 관리 → 연필 → 버전 «새 버전» → 배포 (주소가 그대로다. «새 배포»는 주소가 바뀐다)
  *
  * 탭 (A열·1행은 여백, 표는 B2 부터)
@@ -34,6 +35,8 @@ const LOG_HEAD = [
 ];
 /** 앱 src/data/ages.ts 와 같은 목록 — 명단 «나이» 칸 드롭다운 */
 const AGES = ['5세', '6세', '7세', '초1', '초2', '초3', '초4', '초5', '초6', '중1'];
+const ROSTER_TYPES = ['TEXT', 'DROPDOWN', 'TEXT', 'TEXT'];
+const LOG_TYPES = ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE'];
 const TZ = 'Asia/Seoul';
 const TOP = 2; // 머리글 줄(1행은 여백)
 const LEFT = 2; // 첫 칸 열 B(A열은 여백)
@@ -44,6 +47,7 @@ function onOpen() {
 	SpreadsheetApp.getUi()
 		.createMenu('챌린지')
 		.addItem('시트 정리(새 모양으로) · 명단 코드·학생 탭 만들기', 'syncRoster')
+		.addItem('명단·기록을 표로 바꾸기', 'makeTables')
 		.addToUi();
 }
 
@@ -77,13 +81,13 @@ function ensureSheets_() {
 	const roster = make(
 		ROSTER,
 		ROSTER_HEAD,
-		['TEXT', 'DROPDOWN', 'TEXT', 'TEXT'],
+		ROSTER_TYPES,
 		[110, 80, 100, 220],
 	);
 	const log = make(
 		LOG,
 		LOG_HEAD,
-		['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE'],
+		LOG_TYPES,
 		[130, 95, 90, 80, 60, 90, 200, 70, 60, 80, 95],
 	);
 	// 처음 만든 빈 «시트1»은 정리한다(내용이 있으면 둔다)
@@ -141,11 +145,16 @@ function frame_(sh, head, widths, textBody) {
 }
 
 /**
- * 스프레드시트 «표»로 만든다(Sheets API 서비스 필요). 서비스가 없으면 줄무늬 서식으로 대신한다.
+ * 스프레드시트 «표»로 만든다(Sheets API 서비스 필요). 머리글부터 지금 마지막 줄까지 표가 된다.
  * 표 이름 = 탭 이름(기록을 쓸 때 이 이름으로 표를 찾는다).
+ * 실패하면 줄무늬 서식 + 나이 드롭다운으로 대신하고 실패 이유(글)를 돌려준다. 성공하면 ''.
  */
 function table_(sh, name, head, types) {
+	const last = Math.max(sh.getLastRow(), TOP + 1);
 	try {
+		// NOTE: 줄무늬·입력 규칙(드롭다운)이 겹쳐 있으면 표를 못 만든다 — 먼저 걷어 낸다
+		sh.getBandings().forEach((b) => b.remove());
+		sh.getRange(TOP, LEFT, last - TOP + 1, head.length).clearDataValidations();
 		Sheets.Spreadsheets.batchUpdate(
 			{
 				requests: [
@@ -156,7 +165,7 @@ function table_(sh, name, head, types) {
 								range: {
 									sheetId: sh.getSheetId(),
 									startRowIndex: TOP - 1,
-									endRowIndex: TOP + 1,
+									endRowIndex: last,
 									startColumnIndex: LEFT - 1,
 									endColumnIndex: LEFT - 1 + head.length,
 								},
@@ -178,13 +187,38 @@ function table_(sh, name, head, types) {
 			},
 			SpreadsheetApp.getActive().getId(),
 		);
+		return '';
 	} catch (err) {
 		sh.getRange(TOP, LEFT, sh.getMaxRows() - TOP + 1, head.length).applyRowBanding(
 			SpreadsheetApp.BandingTheme.BLUE,
 			true,
 			false,
 		);
+		types.forEach((t, i) => {
+			if (t !== 'DROPDOWN') return;
+			sh.getRange(TOP + 1, LEFT + i, sh.getMaxRows() - TOP, 1).setDataValidation(
+				SpreadsheetApp.newDataValidation().requireValueInList(AGES, true).build(),
+			);
+		});
+		return String((err && err.message) || err);
 	}
+}
+
+/** 메뉴 «명단·기록을 표로 바꾸기» — 이미 있는 탭(줄무늬)을 표로 바꾸고 결과를 창으로 알려 준다 */
+function makeTables() {
+	const { roster, log } = ensureSheets_();
+	const lines = [
+		[ROSTER, roster, ROSTER_HEAD, ROSTER_TYPES],
+		[LOG, log, LOG_HEAD, LOG_TYPES],
+	].map(([name, sh, head, types]) => {
+		if (tableId_(name)) return name + ': 이미 표입니다';
+		const err = table_(sh, name, head, types);
+		if (!err) return name + ': 표로 바꿨습니다';
+		if (/Sheets is not defined/.test(err))
+			return name + ': 실패 — Apps Script 왼쪽 «서비스 +»에서 Google Sheets API 를 추가해 주세요';
+		return name + ': 실패 — ' + err;
+	});
+	SpreadsheetApp.getUi().alert(lines.join('\n'));
 }
 
 /** 표 id(기록 줄을 표 안에 이어 붙일 때). 표가 없으면 null */
