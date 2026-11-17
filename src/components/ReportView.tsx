@@ -10,7 +10,6 @@ import { groupWrong } from '@/utils/groupWrong.ts';
 import { highlightSections } from '@/utils/highlightSections.ts';
 import RadarChart from './RadarChart.tsx';
 import * as s from './ReportView.css.ts';
-import ThemeToggle from './ThemeToggle.tsx';
 
 const MARK_LABEL = { strong: '강점', weak: '약점' } as const;
 
@@ -42,7 +41,6 @@ export default function ReportView({ report, actions }: Props) {
 				<div className={`${s.container} ${s.heroInner}`}>
 					<div className={layout.titleRow}>
 						<h1 className={s.heroTitle}>두뇌로수학 테스트 결과 리포트</h1>
-						<ThemeToggle />
 					</div>
 					<div className={s.heroStudent}>
 						<span className={s.heroName}>{studentName}</span>

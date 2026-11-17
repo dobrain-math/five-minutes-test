@@ -1,10 +1,5 @@
-import {
-	assignVars,
-	createGlobalTheme,
-	createThemeContract,
-	globalStyle,
-} from '@vanilla-extract/css';
-import { darkColors, lightColors } from '@/styles/palette.ts';
+import { createGlobalTheme, createThemeContract } from '@vanilla-extract/css';
+import { lightColors } from '@/styles/palette.ts';
 
 const colorVars = createThemeContract(lightColors);
 
@@ -16,32 +11,11 @@ const lightShadows = {
 	lg: '0 4px 12px rgba(0, 27, 55, 0.05), 0 16px 40px rgba(0, 27, 55, 0.08)',
 };
 
-// 어두운 바탕에서는 옅은 그림자가 안 보이므로 검정 농도를 높인다.
-const darkShadows: typeof lightShadows = {
-	xs: '0 1px 2px rgba(0, 0, 0, 0.2)',
-	sm: '0 1px 3px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.16)',
-	md: '0 2px 6px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.2)',
-	lg: '0 4px 12px rgba(0, 0, 0, 0.28), 0 16px 40px rgba(0, 0, 0, 0.24)',
-};
-
 const shadowVars = createThemeContract(lightShadows);
 
+// NOTE: 다크모드는 2026-11-17 사용자 지시로 기능째 삭제(토글·기기 설정 따라가기 모두 없음). 라이트 한 벌만
 createGlobalTheme(':root', colorVars, lightColors);
 createGlobalTheme(':root', shadowVars, lightShadows);
-
-createGlobalTheme(':root[data-theme="dark"]', colorVars, darkColors);
-createGlobalTheme(':root[data-theme="dark"]', shadowVars, darkShadows);
-
-globalStyle(':root:not([data-theme="light"])', {
-	'@media': {
-		'(prefers-color-scheme: dark)': {
-			vars: {
-				...assignVars(colorVars, darkColors),
-				...assignVars(shadowVars, darkShadows),
-			},
-		},
-	},
-});
 
 // 글자 — 토스 타이포 스케일(t1 가장 큼 → t8 가장 작음). 실제 조합은 typography.css.ts 의 text 를 쓴다.
 const fontVars = createGlobalTheme(':root', {

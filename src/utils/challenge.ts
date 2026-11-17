@@ -35,7 +35,7 @@ export type ChallengeLogin = {
 	history: ChallengeDay[];
 };
 
-export type LoginFailure = 'wrong' | 'locked' | 'network';
+export type LoginFailure = 'wrong' | 'network';
 
 /** 시트 «기록» 한 줄로 보낼 값 */
 export function challengeRecord(report: Report, who: ChallengeWho) {
@@ -62,22 +62,39 @@ export const challengeDays = (history: ChallengeDay[]) =>
 	new Set(history.map((h) => h.date)).size;
 
 export function loginError(error: LoginFailure) {
-	if (error === 'locked')
-		return '여러 번 틀려 1시간 동안 로그인할 수 없습니다. 학원으로 문의해 주세요.';
 	if (error === 'network')
 		return '기록 시트에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.';
 	return '이름 또는 챌린지 코드가 맞지 않습니다.';
 }
 
 type SheetAnswer =
-	({ ok: true } & Omit<ChallengeLogin, 'code'>) | { ok: false; error: string };
+	| ({ ok: true } & Partial<Omit<ChallengeLogin, 'code'>> & { name: string })
+	| { ok: false; error?: string };
 
+/** 한국 날짜 'YYYY-MM-DD' — 시트(Asia/Seoul)와 같은 기준 */
+const kstDate = (ms: number) =>
+	new Date(ms).toLocaleDateString('sv', { timeZone: 'Asia/Seoul' });
+
+/** 오늘(한국 날짜) 기록이 있으면 true — 저장해 둔 로그인으로 바로 들어갈 때 다시 계산한다 */
+export const isDoneToday = (history: ChallengeDay[], now = Date.now()) =>
+	history.some((h) => h.date === kstDate(now));
+
+// NOTE: 옛 시트 스크립트(배포 전)는 이름만 돌려줘 history 가 없었다 → 기록을 세다 멈춰 빈 화면(2026-11-17). 빠진 값은 채운다
 const toLogin = (data: SheetAnswer, code: string) =>
 	data.ok
-		? ({ ok: true, login: { ...data, code } } as const)
+		? ({
+				ok: true,
+				login: {
+					name: data.name,
+					age: data.age ?? '',
+					code,
+					history: data.history ?? [],
+					doneToday: data.doneToday ?? false,
+				},
+			} as const)
 		: ({
 				ok: false,
-				error: (data.error === 'locked' ? 'locked' : 'wrong') as LoginFailure,
+				error: 'wrong' as LoginFailure,
 				doneToday: data.error === 'done-today',
 			} as const);
 

@@ -3,7 +3,11 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Question } from '@/@types/test';
 import { getCourse } from '@/data/courses.ts';
 import { buildTest } from '@/utils/buildTest.ts';
-import type { ChallengeLogin, ChallengeWho } from '@/utils/challenge.ts';
+import {
+	type ChallengeLogin,
+	type ChallengeWho,
+	isDoneToday,
+} from '@/utils/challenge.ts';
 
 type TestSessionState = {
 	/** 학생명·나이는 로그인한 명단 값(2026-11-17 홈 입력 칸 삭제) */
@@ -33,10 +37,14 @@ type TestSessionState = {
 	finish: () => void;
 };
 
-/** 자동 로그인: 이 기기(localStorage)에 이름·코드를 남겨 두고 다음에 열 때 바로 로그인한다 */
+/**
+ * 자동 로그인: 이 기기(localStorage)에 지난 로그인 결과(이름·코드·나이·기록)를 남겨 둔다.
+ * 다음에 열면 시트에 묻지 않고 바로 홈을 보여 주고(시트 응답이 2초 넘게 걸려서, 2026-11-17), 확인은 홈이 뒤에서 한다.
+ */
 const AUTO_KEY = 'challenge-login';
+type Saved = ChallengeWho & Partial<ChallengeLogin>;
 export const autoLogin = {
-	get(): ChallengeWho | null {
+	get(): Saved | null {
 		try {
 			const saved = JSON.parse(localStorage.getItem(AUTO_KEY) ?? 'null');
 			return saved?.name && saved?.code ? saved : null;
@@ -44,7 +52,7 @@ export const autoLogin = {
 			return null;
 		}
 	},
-	set(who: ChallengeWho | null) {
+	set(who: Saved | null) {
 		try {
 			if (who) localStorage.setItem(AUTO_KEY, JSON.stringify(who));
 			else localStorage.removeItem(AUTO_KEY);
@@ -54,12 +62,28 @@ export const autoLogin = {
 	},
 };
 
+/** 저장해 둔 로그인(기록까지 있는 것)으로 바로 들어갈 값. 오늘 완료 여부는 지금 날짜로 다시 센다 */
+const snapshot = (): ChallengeLogin | null => {
+	const saved = autoLogin.get();
+	if (!saved?.history) return null;
+	return {
+		name: saved.name,
+		code: saved.code,
+		age: saved.age ?? '',
+		history: saved.history,
+		doneToday: isDoneToday(saved.history),
+	};
+};
+const startLogin = snapshot();
+/** 저장해 둔 값으로 들어왔으면 true — 홈이 한 번 시트에 다시 물어 최신으로 바꾼다 */
+export const loginFromSnapshot = { pending: startLogin !== null };
+
 // NOTE: 새로고침해도 풀던 문제·답·시간이 남도록 sessionStorage 에 둔다.
 export const useTestSessionStore = create<TestSessionState>()(
 	persist(
 		(set) => ({
-			studentName: '',
-			studentAge: '',
+			studentName: startLogin?.name ?? '',
+			studentAge: startLogin?.age ?? '',
 			courseId: null,
 			part: null,
 			questions: [],
@@ -68,14 +92,17 @@ export const useTestSessionStore = create<TestSessionState>()(
 			finishedAt: null,
 			pageStartedAt: null,
 			pageTimes: [],
-			login: null,
+			login: startLogin,
 			challengeSentFor: null,
-			setLogin: (login) =>
+			setLogin: (login) => {
+				// 자동 로그인을 켜 둔 기기면 저장해 둔 값도 최신으로(다음에 열 때 바로 보이게)
+				if (login && autoLogin.get()) autoLogin.set(login);
 				set(
 					login
 						? { login, studentName: login.name, studentAge: login.age }
 						: { login: null, studentName: '', studentAge: '' },
-				),
+				);
+			},
 			markChallengeSent: (challengeSentFor) => set({ challengeSentFor }),
 			start: (courseId, part) => {
 				const course = getCourse(courseId);

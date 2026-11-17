@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { HomeIcon } from '@heroicons/react/24/outline';
+import * as themeButton from '@/components/IconButton.css.ts';
 import * as modal from '@/components/Modal.css.ts';
 import Modal from '@/components/Modal.tsx';
-import * as themeButton from '@/components/ThemeToggle.css.ts';
-import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { getCourse } from '@/data/courses.ts';
 import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
@@ -145,7 +144,6 @@ export default function TestPage() {
 							<span className={s.timer} aria-label="경과 시간">
 								{formatDuration(now - (pageStartedAt ?? now))}
 							</span>
-							<ThemeToggle />
 						</span>
 					</div>
 					{/* NOTE: 전체 풀기는 「전체 범위 테스트」(원장님 이름 2026-10-29), 한 유형 풀이는 유형 번호 + 이름. */}

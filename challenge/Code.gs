@@ -11,9 +11,9 @@
  *   이름(코드) : 기록 중 그 학생 줄만 날짜순으로 보여 주고 정답률 꺾은선을 그린다(FILTER 수식)
  *
  * 앱과 주고받기 (로그인 = 이름 + 코드 둘 다 맞아야 한다)
- *   GET  ?name=김민준&code=4821 → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' | 'locked' }
+ *   GET  ?name=김민준&code=4821 → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' }
  *   POST { name, code, course, scope, correct, total, seconds, finishedAt }
- *        → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' | 'locked' | 'done-today' }
+ *        → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' | 'done-today' }
  */
 
 const ROSTER = '명단';
@@ -37,7 +37,6 @@ const AGES = ['5세', '6세', '7세', '초1', '초2', '초3', '초4', '초5', '�
 const TZ = 'Asia/Seoul';
 const TOP = 2; // 머리글 줄(1행은 여백)
 const LEFT = 2; // 첫 칸 열 B(A열은 여백)
-const MAX_FAILS = 5; // 같은 이름으로 연달아 틀리면 한 시간 잠금
 
 function onOpen() {
 	ensureSheets_();
@@ -229,23 +228,15 @@ function studentTab_(name, code) {
 
 // ── 로그인·기록 ─────────────────────────────────────────────
 
-/** 이름 + 코드가 모두 맞는 명단 줄. 같은 이름으로 연달아 틀리면 잠근다 */
+/** 이름 + 코드가 모두 맞는 명단 줄(틀린 횟수 잠금은 2026-11-17 사용자 지시로 뺌) */
 function login_(name, code) {
 	name = String(name || '').trim();
 	code = String(code || '').trim();
-	const cache = CacheService.getScriptCache();
-	const key = 'fail:' + name;
-	const fails = Number(cache.get(key) || 0);
-	if (fails >= MAX_FAILS) return { ok: false, error: 'locked' };
 	const { roster } = ensureSheets_();
 	const hit = rows_(roster, ROSTER_HEAD.length).find(
 		(r) => String(r.values[0]).trim() === name && String(r.values[2]).trim() === code,
 	);
-	if (!name || !code || !hit) {
-		cache.put(key, String(fails + 1), 3600);
-		return { ok: false, error: 'wrong' };
-	}
-	cache.remove(key);
+	if (!name || !code || !hit) return { ok: false, error: 'wrong' };
 	return { ok: true, name: name, code: code, age: String(hit.values[1] || '') };
 }
 

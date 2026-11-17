@@ -8,14 +8,6 @@ const rgba = (hex: string, alpha: number) => {
 	return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 };
 
-const reverse = <T extends string>(name: T, scale: Scale<T>) =>
-	Object.fromEntries(
-		steps.map((step, i) => [
-			`${name}${step}`,
-			scale[`${name}${steps[steps.length - 1 - i]}`],
-		]),
-	) as Scale<T>;
-
 const grey: Scale<'grey'> = {
 	grey50: '#f9fafb',
 	grey100: '#f2f4f6',
@@ -150,31 +142,3 @@ export const lightColors = {
 };
 
 export type ColorTokens = Record<keyof typeof lightColors, string>;
-
-const darkGrey = reverse('grey', grey);
-
-export const darkColors: ColorTokens = {
-	...darkGrey,
-	...reverse('blue', blue),
-	...reverse('red', red),
-	greyOpacity50: rgba('#ffffff', 0.02),
-	greyOpacity100: rgba('#ffffff', 0.05),
-	greyOpacity200: rgba('#ffffff', 0.1),
-	greyOpacity300: rgba('#ffffff', 0.18),
-	greyOpacity400: rgba('#ffffff', 0.31),
-	greyOpacity500: rgba('#ffffff', 0.46),
-	greyOpacity600: rgba('#ffffff', 0.58),
-	greyOpacity700: rgba('#ffffff', 0.7),
-	greyOpacity800: rgba('#ffffff', 0.8),
-	greyOpacity900: rgba('#ffffff', 0.91),
-	...reverse('orange', orange),
-	...reverse('yellow', yellow),
-	...reverse('green', green),
-	...reverse('teal', teal),
-	...reverse('purple', purple),
-	background: '#101318',
-	greyBackground: '#0b0d11',
-	// 페이지 바탕이 grey50 이므로, 카드는 한 단계 위(grey100)로 올려야 다크에서 구분된다.
-	layeredBackground: darkGrey.grey100,
-	floatedBackground: darkGrey.grey200,
-};

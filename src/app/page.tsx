@@ -1,14 +1,17 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckIcon } from '@heroicons/react/16/solid';
 import type { Course, Operator } from '@/@types/test';
-import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { courses } from '@/data/courses.ts';
-import { autoLogin, useTestSessionStore } from '@/store/useTestSessionStore.ts';
+import {
+	autoLogin,
+	loginFromSnapshot,
+	useTestSessionStore,
+} from '@/store/useTestSessionStore.ts';
 import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { FULL_PER_SECTION, PER_SECTION } from '@/utils/buildTest.ts';
-import { challengeDays } from '@/utils/challenge.ts';
+import { challengeDays, login as fetchLogin } from '@/utils/challenge.ts';
 import LoginForm from './LoginForm.tsx';
 import * as s from './page.css.ts';
 
@@ -61,6 +64,17 @@ function CoursePicker() {
 		autoLogin.set(null);
 		setLogin(null);
 	};
+	// 저장해 둔 로그인으로 바로 들어왔으면 뒤에서 시트에 한 번 다시 물어 최신(기록·오늘 완료)으로 바꾼다.
+	// 코드가 바뀌었으면(틀림) 로그아웃. 연결 실패는 그대로 둔다
+	useEffect(() => {
+		if (!login || !loginFromSnapshot.pending) return;
+		loginFromSnapshot.pending = false;
+		void fetchLogin(login.name, login.code).then((r) => {
+			if (r.ok) setLogin(r.login);
+			else if (r.error === 'wrong') logout();
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- 처음 열 때 한 번
+	}, []);
 
 	// 풀이 방식: 'all' = 전체 풀기, 'each' = 유형별(아래 목록에서 유형 하나 고름). 권을 바꾸면 다시 고른다.
 	const [mode, setMode] = useState<'all' | 'each' | null>(null);
@@ -121,7 +135,6 @@ function CoursePicker() {
 							<button type="button" className={s.logoutButton} onClick={logout}>
 								로그아웃
 							</button>
-							<ThemeToggle />
 						</div>
 					</div>
 					<div className={s.heroMeta}>

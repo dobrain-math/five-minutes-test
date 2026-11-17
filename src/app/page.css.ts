@@ -446,7 +446,7 @@ export const loginNote = style([
 	{
 		marginTop: 14,
 		textAlign: 'center',
-		color: vars.color.grey500,
+		color: 'rgba(255, 255, 255, 0.85)',
 		wordBreak: 'keep-all',
 	},
 ]);
@@ -515,3 +515,14 @@ export const doneBody = style([
 	text.body2,
 	{ marginTop: 8, color: vars.color.grey600, wordBreak: 'keep-all' },
 ]);
+
+/** 로그인 화면 바탕: 파랑 단색, 카드를 화면 정중앙에(2026-11-17) */
+export const loginPage = style({
+	display: 'grid',
+	placeItems: 'center',
+	minHeight: '100dvh',
+	padding: '24px 16px',
+	background: vars.color.blue500,
+});
+
+export const loginInner = style({ width: '100%', maxWidth: 440 });

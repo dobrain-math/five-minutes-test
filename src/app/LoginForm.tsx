@@ -1,7 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
-import ThemeToggle from '@/components/ThemeToggle.tsx';
 import { autoLogin, useTestSessionStore } from '@/store/useTestSessionStore.ts';
-import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import {
 	type ChallengeWho,
@@ -29,7 +27,8 @@ export default function LoginForm() {
 		setError(null);
 		const r = await login(who.name, who.code);
 		if (r.ok) {
-			autoLogin.set(keep ? { name: r.login.name, code: who.code } : null);
+			// 기록까지 통째로 남겨 두면 다음에는 시트를 기다리지 않고 바로 들어간다(store snapshot)
+			autoLogin.set(keep ? r.login : null);
 			setLogin(r.login);
 			return;
 		}
@@ -55,20 +54,9 @@ export default function LoginForm() {
 	};
 
 	return (
-		<main className={layout.page}>
-			<header className={brand.brandBand}>
-				<div className={`${layout.container.narrow} ${s.heroInner}`}>
-					<div className={layout.titleRow}>
-						<h1 className={s.heroTitle}>두뇌로수학 연산 테스트</h1>
-						<ThemeToggle />
-					</div>
-					<p className={s.heroSubtitle}>
-						학생 이름과 챌린지 코드를 입력해 주세요.
-					</p>
-				</div>
-			</header>
-
-			<div className={`${layout.container.narrow} ${layout.content}`}>
+		// 머리 띠 없이 파랑 단색 바탕 + 화면 정중앙 흰 카드(사용자 2026-11-17. 위쪽 로고 자리는 나중에)
+		<main className={s.loginPage}>
+			<div className={s.loginInner}>
 				<form className={s.loginCard} onSubmit={handleSubmit}>
 					<div>
 						<div className={s.ageLabelRow}>
@@ -137,7 +125,7 @@ export default function LoginForm() {
 					</button>
 				</form>
 				<p className={s.loginNote}>
-					챌린지 코드를 잃어버렸다면 학원으로 문의해 주세요.
+					챌린지 코드 분실 시, 학원으로 문의해 주세요.
 				</p>
 			</div>
 		</main>

@@ -1,9 +1,11 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import type { Report } from '@/@types/test';
 import {
 	challengeDays,
 	challengeRecord,
 	isChallengeCode,
+	isDoneToday,
+	login,
 	loginError,
 	loginUrl,
 } from './challenge.ts';
@@ -72,11 +74,45 @@ test('챌린지 참여 일수 = 기록이 있는 서로 다른 날짜 수', () =
 	).toBe(2);
 });
 
+test('오늘 완료 여부는 한국 날짜로 — 저장해 둔 로그인으로 바로 들어갈 때 다시 계산', () => {
+	const history = [
+		{
+			date: '2026-11-17',
+			course: '',
+			scope: '',
+			correct: 1,
+			total: 1,
+			seconds: 1,
+		},
+	];
+	// 2026-11-16 15:30 UTC = 11월 17일 00:30 한국
+	expect(isDoneToday(history, Date.UTC(2026, 10, 16, 15, 30))).toBe(true);
+	// 2026-11-16 14:30 UTC = 11월 16일 23:30 한국
+	expect(isDoneToday(history, Date.UTC(2026, 10, 16, 14, 30))).toBe(false);
+	expect(isDoneToday([], Date.UTC(2026, 10, 16, 15, 30))).toBe(false);
+});
+
+test('옛 시트 스크립트처럼 이름만 와도 기록·나이를 빈 값으로 채운다(빈 화면 방지)', async () => {
+	vi.stubGlobal(
+		'fetch',
+		async () => new Response(JSON.stringify({ ok: true, name: '테스트' })),
+	);
+	const r = await login('테스트', '6746');
+	vi.unstubAllGlobals();
+	expect(r).toEqual({
+		ok: true,
+		login: {
+			name: '테스트',
+			age: '',
+			code: '6746',
+			history: [],
+			doneToday: false,
+		},
+	});
+});
+
 test('로그인 실패 문구', () => {
 	expect(loginError('wrong')).toBe('이름 또는 챌린지 코드가 맞지 않습니다.');
-	expect(loginError('locked')).toBe(
-		'여러 번 틀려 1시간 동안 로그인할 수 없습니다. 학원으로 문의해 주세요.',
-	);
 	expect(loginError('network')).toBe(
 		'기록 시트에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.',
 	);
