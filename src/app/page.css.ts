@@ -530,8 +530,8 @@ export const loginInner = style({ width: '100%', maxWidth: 440 });
 /** 카드 위 흰 로고(assets/logo-w.svg, 가로 642 : 세로 200) */
 export const loginLogo = style({
 	display: 'block',
-	width: 200,
+	width: 140,
 	height: 'auto',
-	margin: '0 auto 28px',
-	'@media': { [breakpoints.tablet]: { width: 240, marginBottom: 32 } },
+	margin: '0 auto 20px',
+	'@media': { [breakpoints.tablet]: { width: 160, marginBottom: 24 } },
 });
