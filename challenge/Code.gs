@@ -180,6 +180,12 @@ function doPost(e) {
 			d.seconds,
 			first ? 'O' : '',
 		]);
+		// 날짜·코드는 줄마다 다시 글자로 박는다 — 열 서식(ensureSheets_)이 풀린 줄에서 숫자·날짜로 바뀌면
+		// 학생 탭 FILTER(C="6746")에 안 걸린다(2026-11-17 셋째 시험 줄에서 확인)
+		log
+			.getRange(log.getLastRow(), 2, 1, 2)
+			.setNumberFormat('@')
+			.setValues([[day, String(d.code)]]);
 		return json_({ ok: true, name: name, first: first });
 	} finally {
 		lock.releaseLock();
