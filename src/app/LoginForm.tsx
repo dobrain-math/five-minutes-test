@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
-import logoWhite from '@/assets/logo-w.svg';
+import logoWhite from '@/assets/logo-w.webp';
 import { autoLogin, useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import {
