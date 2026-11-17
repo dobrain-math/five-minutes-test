@@ -46,10 +46,11 @@ describe('challengeRecord — 시트 «기록» 한 줄로 보낼 값', () => {
 	});
 });
 
-test('챌린지 코드는 1000~9999 네 자리 숫자', () => {
-	for (const ok of ['1000', '4821', '9999'])
-		expect(isChallengeCode(ok)).toBe(true);
-	for (const bad of ['', '482', '48211', '0482', '48a1', ' 4821'])
+// NOTE: 사용자가 시트에서 코드를 0000 으로 직접 바꿔 쓴다(2026-11-17) — 0 으로 시작해도 된다
+test('챌린지 코드는 0000~9999 네 자리 숫자', () => {
+	for (const ok of ['0000', '0482', '1000', '4821', '9999'])
+		expect(isChallengeCode(ok), ok).toBe(true);
+	for (const bad of ['', '482', '48211', '48a1', ' 4821'])
 		expect(isChallengeCode(bad), bad).toBe(false);
 });
 

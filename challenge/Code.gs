@@ -119,7 +119,7 @@ function moveRoster_(old, roster) {
 		.slice(1)
 		.forEach((r) => {
 			const name = String(r[0]).trim();
-			const code = String(r[1]).trim();
+			const code = code_(r[1]);
 			if (!name) return;
 			append_(ROSTER, roster, [name, '', code, String(r[2] || '')]);
 			const tab = ss.getSheetByName(name + '(' + code + ')');
@@ -250,11 +250,11 @@ function rows_(sh, width) {
 function syncRoster() {
 	const { roster } = ensureSheets_();
 	const rows = rows_(roster, ROSTER_HEAD.length);
-	const used = new Set(rows.map((r) => String(r.values[2])).filter(Boolean));
+	const used = new Set(rows.map((r) => code_(r.values[2])).filter(Boolean));
 	rows.forEach((r) => {
 		const name = String(r.values[0]).trim();
 		if (!name) return;
-		let code = String(r.values[2]);
+		let code = code_(r.values[2]);
 		if (!code) {
 			code = newCode_(used);
 			used.add(code);
@@ -262,6 +262,14 @@ function syncRoster() {
 		}
 		studentTab_(name, code);
 	});
+}
+
+/**
+ * 칸에 든 코드를 네 자리 글자로. 0000 을 직접 적으면 시트가 숫자 0 으로 바꿔 둘 수 있어서 앞을 0 으로 채운다(2026-11-17)
+ */
+function code_(v) {
+	const s = String(v).trim();
+	return /^\d{1,4}$/.test(s) ? ('000' + s).slice(-4) : s;
 }
 
 /** 1000~9999 중 아직 안 쓴 번호(앞자리 0 없음 — 학생이 헷갈리지 않게) */
@@ -283,7 +291,7 @@ function studentTab_(name, code) {
 	// 기록 탭: C 날짜 · D 코드 · G~L 권·범위·맞힌 수·전체·정답률·걸린 시간
 	const log = "'" + LOG + "'!";
 	sh.getRange(TOP + 1, LEFT).setFormula(
-		'=IFERROR(FILTER({' + log + 'C3:C, ' + log + 'G3:L}, TO_TEXT(' + log + 'D3:D)="' + code +
+		'=IFERROR(FILTER({' + log + 'C3:C, ' + log + 'G3:L}, TEXT(' + log + 'D3:D, "0000")="' + code +
 			'"), "아직 기록이 없습니다")',
 	);
 	const chart = sh
@@ -309,7 +317,7 @@ function login_(name, code) {
 	code = String(code || '').trim();
 	const { roster } = ensureSheets_();
 	const hit = rows_(roster, ROSTER_HEAD.length).find(
-		(r) => String(r.values[0]).trim() === name && String(r.values[2]).trim() === code,
+		(r) => String(r.values[0]).trim() === name && code_(r.values[2]) === code,
 	);
 	if (!name || !code || !hit) return { ok: false, error: 'wrong' };
 	return { ok: true, name: name, code: code, age: String(hit.values[1] || '') };
@@ -318,7 +326,7 @@ function login_(name, code) {
 /** 그 학생의 기록(오래된 것부터) */
 function history_(log, code) {
 	return rows_(log, LOG_HEAD.length)
-		.filter((r) => String(r.values[2]) === code)
+		.filter((r) => code_(r.values[2]) === code)
 		.map((r) => {
 			const v = r.values;
 			return {

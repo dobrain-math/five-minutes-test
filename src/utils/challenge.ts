@@ -10,8 +10,11 @@ export const CHALLENGE_URL: string =
 	import.meta.env.VITE_CHALLENGE_URL ??
 	'https://script.google.com/macros/s/AKfycbwWD8s_xmb0QpFVUWLIaYi5NJMv8wj6E4GD0Zpv8eFJIqAwD6Z3oco214VHTffSC0U1/exec';
 
-/** 챌린지 코드: 1000~9999 네 자리 숫자(시트 Code.gs newCode_ 와 같은 규칙) */
-export const isChallengeCode = (code: string) => /^[1-9]\d{3}$/.test(code);
+/**
+ * 챌린지 코드: 네 자리 숫자 0000~9999. 시트가 새로 주는 코드는 1000~9999(newCode_)지만
+ * 선생님이 시트에서 0000 처럼 직접 바꿔 쓸 수 있다(2026-11-17)
+ */
+export const isChallengeCode = (code: string) => /^\d{4}$/.test(code);
 
 /** 로그인한 학생 — 이름 + 코드가 명단과 둘 다 맞아야 한다 */
 export type ChallengeWho = { name: string; code: string };
