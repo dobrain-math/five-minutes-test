@@ -38,11 +38,12 @@ const TZ = 'Asia/Seoul';
 const TOP = 2; // 머리글 줄(1행은 여백)
 const LEFT = 2; // 첫 칸 열 B(A열은 여백)
 
+// NOTE: 시트를 열 때 저절로 도는 onOpen 은 표 API(Sheets 서비스) 권한이 없어 여기서 탭을 만들면 표가 아닌 줄무늬가 된다.
+// 탭 만들기·옛 모양 옮기기는 메뉴(권한 있음)나 앱의 첫 요청(웹 앱)에서 한다
 function onOpen() {
-	ensureSheets_();
 	SpreadsheetApp.getUi()
 		.createMenu('챌린지')
-		.addItem('명단 코드·학생 탭 다시 만들기', 'syncRoster')
+		.addItem('시트 정리(새 모양으로) · 명단 코드·학생 탭 만들기', 'syncRoster')
 		.addToUi();
 }
 
@@ -57,9 +58,17 @@ function onEdit(e) {
 
 function ensureSheets_() {
 	const ss = SpreadsheetApp.getActive();
+	const legacy = {};
 	const make = (name, head, types, widths) => {
 		const old = ss.getSheetByName(name);
-		if (old) return old;
+		// B2 머리글이 맞으면 새 모양 그대로 쓴다
+		if (old && old.getRange(TOP, LEFT).getValue() === head[0]) return old;
+		// NOTE: 옛 모양(A1 부터) 탭이 남아 있으면 이름을 «(옛)»으로 바꿔 두고 새로 만든다 —
+		// 옛 명단을 새 스크립트가 B열부터 읽어 코드가 맞아도 로그인이 안 됐다(2026-11-17)
+		if (old) {
+			legacy[name] = old;
+			old.setName(spareName_(name + '(옛)'));
+		}
 		const sh = ss.insertSheet(name);
 		frame_(sh, head, widths, true);
 		table_(sh, name, head, types);
@@ -82,7 +91,39 @@ function ensureSheets_() {
 		const sh = ss.getSheetByName(n);
 		if (sh && sh.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(sh);
 	});
+	if (legacy[ROSTER]) moveRoster_(legacy[ROSTER], roster);
 	return { roster, log };
+}
+
+/** 같은 이름 탭이 이미 있으면 뒤에 번호를 붙인다 */
+function spareName_(name) {
+	const ss = SpreadsheetApp.getActive();
+	let title = name;
+	for (let n = 2; ss.getSheetByName(title); n++) title = name + n;
+	return title;
+}
+
+/**
+ * 옛 명단(A열 이름 · B열 코드 · C열 메모, 1행 머리글)의 학생을 새 명단 표로 옮긴다. 코드는 그대로.
+ * 옛 학생 탭 «이름(코드)»은 옛 기록을 가리키므로 «이름(코드) 옛»으로 비켜 두고 새로 만든다.
+ */
+function moveRoster_(old, roster) {
+	const ss = SpreadsheetApp.getActive();
+	old
+		.getDataRange()
+		.getValues()
+		.slice(1)
+		.forEach((r) => {
+			const name = String(r[0]).trim();
+			const code = String(r[1]).trim();
+			if (!name) return;
+			append_(ROSTER, roster, [name, '', code, String(r[2] || '')]);
+			const tab = ss.getSheetByName(name + '(' + code + ')');
+			if (tab) tab.setName(spareName_(name + '(' + code + ') 옛'));
+		});
+	// 표 API(Sheets)로 쓴 줄을 아래 syncRoster 가 읽을 수 있게 먼저 반영
+	SpreadsheetApp.flush();
+	syncRoster();
 }
 
 /** A열·1행 여백을 작게, B2 에 머리글, 열 폭 */
@@ -297,7 +338,7 @@ function doPost(e) {
 			return json_({ ok: false, error: 'done-today' });
 
 		const rate = d.total ? Math.round((d.correct / d.total) * 100) : 0;
-		append_(log, [
+		append_(LOG, log, [
 			Utilities.formatDate(at, TZ, 'yyyy-MM-dd HH:mm'),
 			day,
 			who.code,
@@ -316,9 +357,9 @@ function doPost(e) {
 	}
 }
 
-/** 기록 한 줄 — 표가 있으면 표 안에(표가 함께 늘어난다), 없으면 마지막 줄 아래에 */
-function append_(log, values) {
-	const id = tableId_(LOG);
+/** 표(이름 = 탭 이름)에 한 줄 — 표가 있으면 표 안에(표가 함께 늘어난다), 없으면 마지막 줄 아래에 */
+function append_(name, sh, values) {
+	const id = tableId_(name);
 	if (id) {
 		Sheets.Spreadsheets.batchUpdate(
 			{
@@ -344,9 +385,9 @@ function append_(log, values) {
 		);
 		return;
 	}
-	const row = Math.max(log.getLastRow(), TOP) + 1;
-	log.getRange(row, LEFT, 1, values.length).setNumberFormat('@').setValues([values]);
-	log.getRange(row, LEFT + 7, 1, 4).setNumberFormat('0');
+	const row = Math.max(sh.getLastRow(), TOP) + 1;
+	sh.getRange(row, LEFT, 1, values.length).setNumberFormat('@').setValues([values]);
+	if (name === LOG) sh.getRange(row, LEFT + 7, 1, 4).setNumberFormat('0');
 }
 
 /** 날짜 칸은 시트가 Date 로 바꿔 둘 수 있어 글자로 맞춘다 */
