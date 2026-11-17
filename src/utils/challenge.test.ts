@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import type { Report } from '@/@types/test';
-import { challengeRecord, isChallengeCode } from './challenge.ts';
+import {
+	challengeDays,
+	challengeRecord,
+	isChallengeCode,
+	loginError,
+	loginUrl,
+} from './challenge.ts';
 
 const report: Report = {
 	studentName: '김민준',
@@ -15,9 +21,12 @@ const report: Report = {
 	wrong: [],
 };
 
+const who = { name: '김민준', code: '4821' };
+
 describe('challengeRecord — 시트 «기록» 한 줄로 보낼 값', () => {
-	test('전체 범위 테스트', () => {
-		expect(challengeRecord(report, '4821')).toEqual({
+	test('전체 범위 테스트 — 로그인한 이름·코드를 함께 보낸다', () => {
+		expect(challengeRecord(report, who)).toEqual({
+			name: '김민준',
 			code: '4821',
 			course: '53-1권',
 			scope: '전체 범위 테스트',
@@ -29,7 +38,7 @@ describe('challengeRecord — 시트 «기록» 한 줄로 보낼 값', () => {
 	});
 
 	test('한 유형 풀이는 «n번 유형 이름»', () => {
-		expect(challengeRecord({ ...report, part: 0 }, '4821').scope).toBe(
+		expect(challengeRecord({ ...report, part: 0 }, who).scope).toBe(
 			'1번 두한덧셈 (받아올림O)',
 		);
 	});
@@ -40,4 +49,35 @@ test('챌린지 코드는 1000~9999 네 자리 숫자', () => {
 		expect(isChallengeCode(ok)).toBe(true);
 	for (const bad of ['', '482', '48211', '0482', '48a1', ' 4821'])
 		expect(isChallengeCode(bad), bad).toBe(false);
+});
+
+test('로그인 주소 — 한글 이름은 인코딩하고 앞뒤 공백은 뺀다', () => {
+	expect(loginUrl('https://x.test/exec', ' 김민준 ', '4821')).toBe(
+		'https://x.test/exec?name=%EA%B9%80%EB%AF%BC%EC%A4%80&code=4821',
+	);
+});
+
+test('챌린지 참여 일수 = 기록이 있는 서로 다른 날짜 수', () => {
+	const day = (date: string) => ({
+		date,
+		course: '53-1권',
+		scope: '전체 범위 테스트',
+		correct: 1,
+		total: 2,
+		seconds: 10,
+	});
+	expect(challengeDays([])).toBe(0);
+	expect(
+		challengeDays([day('2026-11-15'), day('2026-11-16'), day('2026-11-16')]),
+	).toBe(2);
+});
+
+test('로그인 실패 문구', () => {
+	expect(loginError('wrong')).toBe('이름 또는 챌린지 코드가 맞지 않습니다.');
+	expect(loginError('locked')).toBe(
+		'여러 번 틀려 1시간 동안 로그인할 수 없습니다. 학원으로 문의해 주세요.',
+	);
+	expect(loginError('network')).toBe(
+		'기록 시트에 연결하지 못했습니다. 잠시 뒤 다시 시도해 주세요.',
+	);
 });

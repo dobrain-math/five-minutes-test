@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { ShareIcon } from '@heroicons/react/24/outline';
+import ChallengeHistory from '@/components/ChallengeHistory.tsx';
 import * as modal from '@/components/Modal.css.ts';
 import Modal from '@/components/Modal.tsx';
 import * as s from '@/components/ReportView.css.ts';
@@ -11,9 +12,10 @@ import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { buildReport } from '@/utils/buildReport.ts';
 import {
-	CHALLENGE_URL,
+	type ChallengeDay,
+	type ChallengeLogin,
 	challengeRecord,
-	isChallengeCode,
+	login as fetchLogin,
 	sendChallenge,
 } from '@/utils/challenge.ts';
 import { encodeReport, shareUrl } from '@/utils/shareLink.ts';
@@ -50,33 +52,43 @@ export default function ReportPage() {
 	// 짧은 링크(/r/6글자)는 미리 만들어 둔다. 준비 전·실패면 긴 링크(/s/코드)로 보낸다.
 	const shortUrl = useShortShareUrl(code);
 
-	// 챌린지(프로토타입 2026-11-10): 코드가 있으면 채점 결과를 기록 시트로 한 번만 보낸다
+	// 챌린지: 채점 결과를 기록 시트로 한 번만 보내고, 돌려받은 누적 기록을 리포트 아래에 보여 준다(2026-11-17)
 	const [challengeNote, setChallengeNote] = useState<string | null>(null);
-	const { challengeCode } = session;
+	const [history, setHistory] = useState<ChallengeDay[]>([]);
+	const { login } = session;
 	useEffect(() => {
-		if (!ready || !CHALLENGE_URL || !isChallengeCode(challengeCode)) return;
+		if (!ready || !login) return;
 		// NOTE: 화면 값(session)은 옛 값일 수 있다 — 효과가 두 번 돌면(개발 StrictMode) 두 번 보냈다. 저장소에서 바로 읽는다
 		const latest = useTestSessionStore.getState();
+		// 홈으로 돌아가면 «오늘 챌린지 완료»가 보이게 로그인 값(doneToday·기록)도 새로 바꿔 둔다
+		const apply = (fresh: ChallengeLogin) => {
+			useTestSessionStore.getState().setLogin(fresh);
+			setHistory(fresh.history);
+		};
+		const reload = () =>
+			fetchLogin(login.name, login.code).then((r) => r.ok && apply(r.login));
 		if (latest.challengeSentFor === finishedAt) {
-			setChallengeNote((note) => note ?? '챌린지 기록 저장 완료');
+			void reload();
 			return;
 		}
 		latest.markChallengeSent(finishedAt);
 		setChallengeNote('챌린지 기록 저장 중…');
 		const report = buildReport(course, { ...session, startedAt, finishedAt });
-		sendChallenge(challengeRecord(report, challengeCode))
-			.then((r) =>
-				setChallengeNote(
-					!r.ok
-						? '명단에 없는 코드라 챌린지 기록을 남기지 못했습니다.'
-						: r.first
-							? '챌린지 기록 저장 완료 (오늘 첫 기록)'
-							: '챌린지 기록 저장 완료 (오늘 첫 기록이 이미 있어 그래프에는 안 들어감)',
-				),
-			)
+		sendChallenge(challengeRecord(report, login))
+			.then((r) => {
+				if (r.ok) {
+					apply(r.login);
+					setChallengeNote('오늘 챌린지 기록을 저장했습니다.');
+				} else if (r.doneToday) {
+					setChallengeNote(
+						'오늘 챌린지 기록이 이미 있어 이번 풀이는 저장하지 않았습니다.',
+					);
+					void reload();
+				} else setChallengeNote('챌린지 기록을 저장하지 못했습니다.');
+			})
 			.catch(() => setChallengeNote('챌린지 기록을 보내지 못했습니다.'));
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- 세션이 끝난 순간(finishedAt)마다 한 번
-	}, [ready, finishedAt, challengeCode]);
+	}, [ready, finishedAt]);
 
 	if (!ready) {
 		return <Navigate to="/" replace />;
@@ -127,6 +139,7 @@ export default function ReportPage() {
 			report={report}
 			actions={
 				<>
+					<ChallengeHistory history={history} />
 					{challengeNote && (
 						<p className={s.challengeNote} role="status">
 							{challengeNote}

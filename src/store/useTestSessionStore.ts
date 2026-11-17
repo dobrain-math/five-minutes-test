@@ -3,8 +3,10 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Question } from '@/@types/test';
 import { getCourse } from '@/data/courses.ts';
 import { buildTest } from '@/utils/buildTest.ts';
+import type { ChallengeLogin, ChallengeWho } from '@/utils/challenge.ts';
 
 type TestSessionState = {
+	/** 학생명·나이는 로그인한 명단 값(2026-11-17 홈 입력 칸 삭제) */
 	studentName: string;
 	/** 나이·학년 표시. 예: "7세", "초3" (data/ages.ts) */
 	studentAge: string;
@@ -19,26 +21,37 @@ type TestSessionState = {
 	pageStartedAt: number | null;
 	/** 걸린 시간 ms(한 페이지라 채점할 때 하나 적힌다) */
 	pageTimes: number[];
-	/** 챌린지 코드(4자리, 비면 챌린지 아님). 매일 다시 치지 않게 기기(localStorage)에도 남긴다 */
-	challengeCode: string;
+	/** 챌린지 로그인(이름 + 코드). null = 로그인 전 — 홈은 로그인 화면만 보여 준다(2026-11-17) */
+	login: ChallengeLogin | null;
 	/** 챌린지 기록을 보낸 세션의 finishedAt — 리포트를 다시 열어도 두 번 보내지 않게 */
 	challengeSentFor: number | null;
-	setStudentName: (name: string) => void;
-	setChallengeCode: (code: string) => void;
+	/** 로그인하면 학생명·나이도 명단 값으로 채운다. null = 로그아웃 */
+	setLogin: (login: ChallengeLogin | null) => void;
 	markChallengeSent: (finishedAt: number) => void;
-	setStudentAge: (age: string) => void;
 	start: (courseId: string, part: number | null) => void;
 	setAnswer: (questionId: string, value: string) => void;
 	finish: () => void;
 };
 
-const CODE_KEY = 'challenge-code';
-const savedCode = () => {
-	try {
-		return localStorage.getItem(CODE_KEY) ?? '';
-	} catch {
-		return '';
-	}
+/** 자동 로그인: 이 기기(localStorage)에 이름·코드를 남겨 두고 다음에 열 때 바로 로그인한다 */
+const AUTO_KEY = 'challenge-login';
+export const autoLogin = {
+	get(): ChallengeWho | null {
+		try {
+			const saved = JSON.parse(localStorage.getItem(AUTO_KEY) ?? 'null');
+			return saved?.name && saved?.code ? saved : null;
+		} catch {
+			return null;
+		}
+	},
+	set(who: ChallengeWho | null) {
+		try {
+			if (who) localStorage.setItem(AUTO_KEY, JSON.stringify(who));
+			else localStorage.removeItem(AUTO_KEY);
+		} catch {
+			// 저장이 막힌 브라우저(사생활 보호 모드 등)는 이번에만 로그인한다
+		}
+	},
 };
 
 // NOTE: 새로고침해도 풀던 문제·답·시간이 남도록 sessionStorage 에 둔다.
@@ -55,19 +68,15 @@ export const useTestSessionStore = create<TestSessionState>()(
 			finishedAt: null,
 			pageStartedAt: null,
 			pageTimes: [],
-			challengeCode: savedCode(),
+			login: null,
 			challengeSentFor: null,
-			setStudentName: (studentName) => set({ studentName }),
-			setChallengeCode: (challengeCode) => {
-				try {
-					localStorage.setItem(CODE_KEY, challengeCode);
-				} catch {
-					// 저장이 막힌 브라우저(사생활 보호 모드 등)는 이번 세션에만 둔다
-				}
-				set({ challengeCode });
-			},
+			setLogin: (login) =>
+				set(
+					login
+						? { login, studentName: login.name, studentAge: login.age }
+						: { login: null, studentName: '', studentAge: '' },
+				),
 			markChallengeSent: (challengeSentFor) => set({ challengeSentFor }),
-			setStudentAge: (studentAge) => set({ studentAge }),
 			start: (courseId, part) => {
 				const course = getCourse(courseId);
 				if (!course || (part !== null && !course.sections[part])) return;
@@ -95,8 +104,8 @@ export const useTestSessionStore = create<TestSessionState>()(
 				}),
 		}),
 		{
-			// NOTE: 2026-10-22 유형별 풀이, 2026-10-29 전체 풀기 한 페이지로 모양이 바뀌어 이름을 바꿨다(옛 세션은 버린다).
-			name: 'test-session-v3',
+			// NOTE: 2026-10-22 유형별 풀이, 2026-10-29 전체 풀기 한 페이지, 2026-11-17 챌린지 로그인으로 모양이 바뀌어 이름을 바꿨다(옛 세션은 버린다).
+			name: 'test-session-v4',
 			storage: createJSONStorage(() => sessionStorage),
 		},
 	),

@@ -166,10 +166,7 @@ export const courseOp = style([
 	},
 ]);
 
-// ── 나이·학년 막대 ─────────────────────────────────────────
-
-const THUMB = 28; // 손잡이 지름. 눈금 글자도 이 반만큼 안쪽에서 시작해야 손잡이 가운데와 맞는다
-const TRACK = 6;
+// ── 칸 제목 줄(로그인 이름·코드) ─────────────────────────────
 
 export const ageLabelRow = style({
 	display: 'flex',
@@ -179,122 +176,6 @@ export const ageLabelRow = style({
 	gap: 12,
 	marginBottom: 10,
 });
-
-export const ageValue = style([
-	text.caption,
-	{
-		color: vars.color.grey400,
-		selectors: {
-			'&[data-picked="true"]': {
-				fontSize: vars.font.size.t5,
-				fontWeight: vars.font.weight.bold,
-				color: vars.color.blue500,
-			},
-		},
-	},
-]);
-
-export const ageCard = style({
-	padding: '6px 18px 14px',
-	borderRadius: vars.radius.lg,
-	background: vars.color.layeredBackground,
-	boxShadow: vars.shadow.sm,
-});
-
-const thumb = {
-	width: THUMB,
-	height: THUMB,
-	border: `1px solid ${vars.color.grey300}`,
-	borderRadius: vars.radius.full,
-	background: '#ffffff',
-	boxShadow: vars.shadow.md,
-	cursor: 'grab',
-	transition: 'border-color 0.15s, transform 0.1s',
-} as const;
-
-// 막대: 손잡이 가운데까지 파랑, 나머지 회색. --age-fill(0~1)은 page.tsx 가 넣는다
-const trackFill = `linear-gradient(to right, ${vars.color.blue500} calc(${THUMB / 2}px + (100% - ${THUMB}px) * var(--age-fill, 0)), ${vars.color.grey200} 0)`;
-
-export const ageSlider = style({
-	display: 'block',
-	width: '100%',
-	height: 44, // 손가락으로 잡기 쉬운 높이
-	margin: 0,
-	background: 'transparent',
-	appearance: 'none',
-	WebkitAppearance: 'none',
-	cursor: 'pointer',
-	outline: 'none',
-	touchAction: 'pan-y',
-	selectors: {
-		'&::-webkit-slider-runnable-track': {
-			height: TRACK,
-			borderRadius: vars.radius.full,
-			background: vars.color.grey200,
-		},
-		'&[data-picked="true"]::-webkit-slider-runnable-track': {
-			background: trackFill,
-		},
-		'&::-moz-range-track': {
-			height: TRACK,
-			borderRadius: vars.radius.full,
-			background: vars.color.grey200,
-		},
-		'&[data-picked="true"]::-moz-range-track': { background: trackFill },
-		'&::-webkit-slider-thumb': {
-			...thumb,
-			WebkitAppearance: 'none',
-			marginTop: (TRACK - THUMB) / 2,
-		},
-		'&::-moz-range-thumb': thumb,
-		'&[data-picked="true"]::-webkit-slider-thumb': {
-			borderColor: vars.color.blue500,
-		},
-		'&[data-picked="true"]::-moz-range-thumb': {
-			borderColor: vars.color.blue500,
-		},
-		'&:active::-webkit-slider-thumb': {
-			cursor: 'grabbing',
-			transform: 'scale(1.08)',
-		},
-		'&:active::-moz-range-thumb': {
-			cursor: 'grabbing',
-			transform: 'scale(1.08)',
-		},
-		'&:focus-visible::-webkit-slider-thumb': {
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, 0 0 0 4px ${vars.color.blue100}`,
-		},
-		'&:focus-visible::-moz-range-thumb': {
-			boxShadow: `0 0 0 1px ${vars.color.blue500}, 0 0 0 4px ${vars.color.blue100}`,
-		},
-	},
-});
-
-// 눈금 글자: 손잡이가 다니는 구간(양 끝에서 손잡이 반지름만큼 안쪽)에 맞춰 놓는다
-export const ageTicks = style({
-	position: 'relative',
-	height: 18,
-	margin: `2px ${THUMB / 2}px 0`,
-});
-
-export const ageTick = style([
-	text.caption2,
-	{
-		position: 'absolute',
-		top: 0,
-		transform: 'translateX(-50%)',
-		whiteSpace: 'nowrap',
-		color: vars.color.grey500,
-		cursor: 'pointer',
-		userSelect: 'none',
-		selectors: {
-			'&[data-active="true"]': {
-				color: vars.color.blue500,
-				fontWeight: vars.font.weight.bold,
-			},
-		},
-	},
-]);
 
 // 공용 sectionLabel 의 아래 여백(10px)은 ageLabelRow 가 대신 준다. && 로 우선순위를 올려 덮어쓴다
 export const ageLabelText = style({ selectors: { '&&': { marginBottom: 0 } } });
@@ -519,3 +400,118 @@ export const step = style([
 ]);
 
 export const stepCheck = style({ width: 14, height: 14 });
+
+// ── 로그인(2026-11-17) · 로그인 뒤 머리 띠 ─────────────────────
+
+/** 로그인 칸들을 담는 흰 카드 */
+export const loginCard = style({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: 20,
+	padding: 20,
+	borderRadius: vars.radius.lg,
+	background: vars.color.layeredBackground,
+	boxShadow: vars.shadow.sm,
+	'@media': {
+		[breakpoints.tablet]: { padding: 28 },
+	},
+});
+
+export const remember = style([
+	text.body2,
+	{
+		display: 'flex',
+		alignItems: 'center',
+		gap: 8,
+		color: vars.color.grey700,
+		cursor: 'pointer',
+	},
+]);
+
+export const rememberBox = style({
+	width: 18,
+	height: 18,
+	accentColor: vars.color.blue500,
+	cursor: 'pointer',
+});
+
+export const loginError = style([
+	text.body2,
+	{ color: vars.color.red500, wordBreak: 'keep-all' },
+]);
+
+/** 「챌린지 코드를 잃어버렸다면 학원으로 문의해 주세요.」 */
+export const loginNote = style([
+	text.caption,
+	{
+		marginTop: 14,
+		textAlign: 'center',
+		color: vars.color.grey500,
+		wordBreak: 'keep-all',
+	},
+]);
+
+/** 로그인 뒤 머리 띠: 나이 뱃지 + 챌린지 참여 문구 */
+export const heroMeta = style({
+	display: 'flex',
+	flexWrap: 'wrap',
+	alignItems: 'center',
+	gap: 8,
+	marginTop: 10,
+});
+
+export const heroBadge = style([
+	text.label,
+	{
+		padding: '4px 10px',
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.semibold,
+		color: '#ffffff',
+		background: 'rgba(255, 255, 255, 0.2)',
+	},
+]);
+
+export const heroStreak = style([
+	text.body2,
+	{
+		fontWeight: vars.font.weight.semibold,
+		color: '#ffffff',
+		wordBreak: 'keep-all',
+	},
+]);
+
+/** 머리 띠 오른쪽 «로그아웃» — 테마 버튼 옆 작은 글자 버튼 */
+export const logoutButton = style([
+	text.caption,
+	{
+		padding: '6px 10px',
+		borderRadius: vars.radius.full,
+		fontWeight: vars.font.weight.semibold,
+		color: '#ffffff',
+		border: 'none',
+		background: 'rgba(255, 255, 255, 0.16)',
+		cursor: 'pointer',
+	},
+]);
+
+export const heroActions = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 8,
+});
+
+/** 오늘 챌린지를 이미 푼 날: 권 고르기 대신 이 카드 */
+export const doneCard = style({
+	padding: 24,
+	borderRadius: vars.radius.lg,
+	background: vars.color.layeredBackground,
+	boxShadow: vars.shadow.sm,
+	textAlign: 'center',
+});
+
+export const doneTitle = style([text.title2, { color: vars.color.grey900 }]);
+
+export const doneBody = style([
+	text.body2,
+	{ marginTop: 8, color: vars.color.grey600, wordBreak: 'keep-all' },
+]);

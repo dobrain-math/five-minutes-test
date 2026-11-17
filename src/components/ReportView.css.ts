@@ -508,3 +508,50 @@ export const shareButton = style({
 });
 
 export const shareIcon = style({ width: 20, height: 20, flexShrink: 0 });
+
+// ── 챌린지 기록(2026-11-17) ─────────────────────────────────
+
+export const historyCard = style({ marginBottom: 16 });
+
+export const historyList = style({
+	display: 'flex',
+	flexDirection: 'column',
+	listStyle: 'none',
+});
+
+export const historyRow = style({
+	display: 'flex',
+	alignItems: 'center',
+	gap: 12,
+	padding: '10px 0',
+	selectors: {
+		'& + &': { borderTop: `1px solid ${tint(vars.color.grey500, 16)}` },
+	},
+});
+
+export const historyDate = style([
+	text.body2,
+	text.number,
+	{
+		flexShrink: 0,
+		minWidth: 72,
+		whiteSpace: 'nowrap',
+		fontWeight: vars.font.weight.semibold,
+		color: vars.color.grey800,
+	},
+]);
+
+export const historyScope = style([
+	text.caption,
+	{ minWidth: 0, flex: 1, color: vars.color.grey600, wordBreak: 'keep-all' },
+]);
+
+export const historyScore = style([
+	text.body2,
+	text.number,
+	{
+		flexShrink: 0,
+		fontWeight: vars.font.weight.bold,
+		color: vars.color.grey900,
+	},
+]);

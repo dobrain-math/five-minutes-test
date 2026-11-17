@@ -1,17 +1,15 @@
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CheckIcon } from '@heroicons/react/16/solid';
 import type { Course, Operator } from '@/@types/test';
 import ThemeToggle from '@/components/ThemeToggle.tsx';
-import { AGES } from '@/data/ages.ts';
 import { courses } from '@/data/courses.ts';
-import { useChallengeLookup } from '@/hooks/useChallengeLookup.ts';
-import { useTestSessionStore } from '@/store/useTestSessionStore.ts';
+import { autoLogin, useTestSessionStore } from '@/store/useTestSessionStore.ts';
 import * as brand from '@/styles/brand.css.ts';
 import * as layout from '@/styles/utility.css.ts';
 import { FULL_PER_SECTION, PER_SECTION } from '@/utils/buildTest.ts';
-import { CHALLENGE_URL } from '@/utils/challenge.ts';
-import { nameError } from '@/utils/nameError.ts';
+import { challengeDays } from '@/utils/challenge.ts';
+import LoginForm from './LoginForm.tsx';
 import * as s from './page.css.ts';
 
 const OP_SYMBOL: Record<Operator, string> = { '+': '+', '-': '−', '×': '×' };
@@ -44,22 +42,25 @@ function Step({ n, done }: { n: number; done: boolean }) {
 	);
 }
 
+/** 로그인 전에는 로그인 화면만, 로그인하면 권 고르기(2026-11-17) */
 export default function HomePage() {
+	const login = useTestSessionStore((st) => st.login);
+	return login ? <CoursePicker /> : <LoginForm />;
+}
+
+function CoursePicker() {
 	const navigate = useNavigate();
-	const studentName = useTestSessionStore((st) => st.studentName);
-	const setStudentName = useTestSessionStore((st) => st.setStudentName);
-	const studentAge = useTestSessionStore((st) => st.studentAge);
-	const setStudentAge = useTestSessionStore((st) => st.setStudentAge);
+	const login = useTestSessionStore((st) => st.login);
+	const setLogin = useTestSessionStore((st) => st.setLogin);
 	const start = useTestSessionStore((st) => st.start);
 	const [courseId, setCourseId] = useState<string | null>(null);
-	const [composing, setComposing] = useState(false);
-
-	const ageIndex = Math.max(
-		0,
-		AGES.indexOf(studentAge as (typeof AGES)[number]),
-	);
-	const agePicked = studentAge !== '';
-	const pickAge = (i: number) => setStudentAge(AGES[i]);
+	const days = login ? challengeDays(login.history) : 0;
+	// 챌린지는 하루 한 번 — 오늘 이미 풀었으면 권 고르기 대신 안내만(시트도 두 번째 기록은 받지 않는다)
+	const doneToday = login?.doneToday ?? false;
+	const logout = () => {
+		autoLogin.set(null);
+		setLogin(null);
+	};
 
 	// 풀이 방식: 'all' = 전체 풀기, 'each' = 유형별(아래 목록에서 유형 하나 고름). 권을 바꾸면 다시 고른다.
 	const [mode, setMode] = useState<'all' | 'each' | null>(null);
@@ -95,32 +96,13 @@ export default function HomePage() {
 		setCourseId(id);
 	};
 
-	// NOTE: 한글을 치는 동안(조합 중)은 「김ㅁ」처럼 낱자가 잠깐 생기므로 문구는 조합이 끝난 뒤에만 띄운다. 시작 버튼은 늘 막는다.
-	const nameProblem = nameError(studentName);
-	const nameOk = studentName !== '' && nameProblem === null;
-	const showNameError = nameProblem !== null && !composing;
-
-	// 챌린지(프로토타입 2026-11-10): 코드를 넣으면 명단 이름으로 학생명을 채운다. 코드를 적었는데 확인이 안 되면 시작을 막는다(엉뚱한 코드로 기록이 쌓이지 않게)
-	const challengeCode = useTestSessionStore((st) => st.challengeCode);
-	const setChallengeCode = useTestSessionStore((st) => st.setChallengeCode);
-	const challenge = useChallengeLookup(CHALLENGE_URL ? challengeCode : '');
-	const challengeName = challenge.kind === 'found' ? challenge.name : null;
-	useEffect(() => {
-		if (challengeName) setStudentName(challengeName);
-	}, [challengeName, setStudentName]);
-	const challengeOk =
-		!CHALLENGE_URL || challengeCode === '' || challengeName !== null;
-
 	const canStart =
-		challengeOk &&
-		nameOk &&
-		studentAge !== '' &&
+		!doneToday &&
 		courseId !== null &&
 		(mode === 'all' || (mode === 'each' && part !== null));
 
 	const handleStart = () => {
 		if (!canStart) return;
-		setStudentName(studentName.trim());
 		const solo = mode === 'each' ? part : null;
 		start(courseId, solo);
 		navigate(
@@ -134,277 +116,178 @@ export default function HomePage() {
 			<header className={brand.brandBand}>
 				<div className={`${layout.container.narrow} ${s.heroInner}`}>
 					<div className={layout.titleRow}>
-						<h1 className={s.heroTitle}>두뇌로수학 연산 테스트</h1>
-						<ThemeToggle />
+						<h1 className={s.heroTitle}>{login?.name} 학생</h1>
+						<div className={s.heroActions}>
+							<button type="button" className={s.logoutButton} onClick={logout}>
+								로그아웃
+							</button>
+							<ThemeToggle />
+						</div>
 					</div>
-					<p className={s.heroSubtitle}>
-						이름과 나이를 입력하고 테스트 권과 유형을 골라 주세요.
-					</p>
+					<div className={s.heroMeta}>
+						{login?.age && <span className={s.heroBadge}>{login.age}</span>}
+						<span className={s.heroStreak}>
+							{days > 0
+								? `챌린지 ${days}일째 참여 중!`
+								: '오늘부터 챌린지를 시작해 보세요!'}
+						</span>
+					</div>
 				</div>
 			</header>
 
 			<div className={`${layout.container.narrow} ${layout.content}`}>
-				{CHALLENGE_URL && (
-					<div className={s.field}>
-						<div className={`${s.ageLabelRow} ${s.nameLabelRow}`}>
-							<label
-								htmlFor="challenge-code"
-								className={`${layout.sectionLabel} ${s.ageLabelText}`}
+				{doneToday ? (
+					<div className={s.doneCard} role="status">
+						<p className={s.doneTitle}>오늘 챌린지 완료</p>
+						<p className={s.doneBody}>
+							챌린지는 하루에 한 번 풀 수 있습니다. 내일 다시 도전해 주세요.
+						</p>
+					</div>
+				) : (
+					<>
+						<div className={s.field}>
+							<span
+								id="course-label"
+								className={`${layout.sectionLabel} ${s.stepLabel}`}
 							>
-								챌린지 코드 (참여 학생만)
-							</label>
-							{challenge.kind !== 'none' && (
-								<p
-									className={s.nameError}
-									data-ok={challenge.kind === 'found'}
-									role="status"
-								>
-									{challenge.kind === 'checking'
-										? '확인 중…'
-										: challenge.kind === 'found'
-											? `${challenge.name} 학생 챌린지`
-											: challenge.kind === 'unknown'
-												? '명단에 없는 코드입니다.'
-												: '기록 시트에 연결하지 못했습니다.'}
-								</p>
-							)}
-						</div>
-						<input
-							id="challenge-code"
-							className={s.nameInput}
-							value={challengeCode}
-							onChange={(e) =>
-								setChallengeCode(e.target.value.replace(/\D/g, '').slice(0, 4))
-							}
-							placeholder="선생님께 받은 4자리 숫자"
-							inputMode="numeric"
-							autoComplete="off"
-							enterKeyHint="done"
-							maxLength={4}
-							aria-invalid={challenge.kind === 'unknown'}
-						/>
-					</div>
-				)}
-				<div className={s.field}>
-					{/* NOTE: 오류 문구는 제목 줄 오른쪽에 겹쳐 붙인다 — 칸 아래에 두면 뜰 때마다 아래 칸이 밀렸다(2026-11-10) */}
-					<div className={`${s.ageLabelRow} ${s.nameLabelRow}`}>
-						<label
-							htmlFor="student-name"
-							className={`${layout.sectionLabel} ${s.ageLabelText} ${s.stepLabel}`}
-						>
-							<Step n={1} done={nameOk} />
-							학생명
-						</label>
-						{showNameError && (
-							<p id="student-name-error" className={s.nameError} role="alert">
-								{nameProblem}
-							</p>
-						)}
-					</div>
-					<input
-						id="student-name"
-						className={s.nameInput}
-						value={studentName}
-						onChange={(e) => setStudentName(e.target.value)}
-						onCompositionStart={() => setComposing(true)}
-						onCompositionEnd={() => setComposing(false)}
-						placeholder="이름을 적어 주세요"
-						autoComplete="off"
-						enterKeyHint="done"
-						maxLength={20}
-						aria-invalid={showNameError}
-						aria-describedby={showNameError ? 'student-name-error' : undefined}
-					/>
-				</div>
-
-				<div className={s.field}>
-					<div className={s.ageLabelRow}>
-						<label
-							htmlFor="student-age"
-							className={`${layout.sectionLabel} ${s.ageLabelText} ${s.stepLabel}`}
-						>
-							<Step n={2} done={agePicked} />
-							나이(학년)
-						</label>
-						<span className={s.ageValue} data-picked={agePicked}>
-							{agePicked ? studentAge : '막대를 끌어 골라 주세요'}
-						</span>
-					</div>
-					<div className={s.ageCard}>
-						<input
-							id="student-age"
-							type="range"
-							min={0}
-							max={AGES.length - 1}
-							step={1}
-							value={ageIndex}
-							aria-valuetext={agePicked ? studentAge : '선택 안 함'}
-							className={s.ageSlider}
-							data-picked={agePicked}
-							// 막대 칠하기 비율(0~1). page.css.ts 의 ageSlider 가 읽는다
-							style={
-								{ '--age-fill': ageIndex / (AGES.length - 1) } as CSSProperties
-							}
-							onChange={(e) => pickAge(Number(e.target.value))}
-							// 손잡이를 움직이지 않고 누르기만 해도(맨 왼쪽 5세 그대로) 고른 것으로 친다
-							onClick={(e) => pickAge(Number(e.currentTarget.value))}
-						/>
-						<div className={s.ageTicks} aria-hidden>
-							{AGES.map((age, i) => (
-								<span
-									key={age}
-									className={s.ageTick}
-									data-active={agePicked && i === ageIndex}
-									style={{ left: `${(i / (AGES.length - 1)) * 100}%` }}
-									onClick={() => pickAge(i)}
-								>
-									{age}
-								</span>
-							))}
-						</div>
-					</div>
-				</div>
-
-				<div className={s.field}>
-					<span
-						id="course-label"
-						className={`${layout.sectionLabel} ${s.stepLabel}`}
-					>
-						<Step n={3} done={courseId !== null} />
-						테스트 권
-					</span>
-					<ul
-						role="radiogroup"
-						aria-labelledby="course-label"
-						className={s.courseList}
-					>
-						{courses.map((course) => (
-							<li key={course.id}>
-								<button
-									type="button"
-									role="radio"
-									aria-checked={courseId === course.id}
-									className={s.courseItem}
-									onClick={() => pickCourse(course.id)}
-								>
-									<span className={s.courseBody}>
-										<div className={s.courseTitle}>{course.title}</div>
-										<div className={s.courseMeta}>
-											{course.sections.length}개 유형
-										</div>
-									</span>
-									<span className={s.courseOps} aria-hidden>
-										{COURSE_PREVIEW[course.id].ops.map((op) => (
-											<span key={op} className={s.courseOp} data-op={op}>
-												{OP_SYMBOL[op]}
+								<Step n={1} done={courseId !== null} />
+								테스트 권
+							</span>
+							<ul
+								role="radiogroup"
+								aria-labelledby="course-label"
+								className={s.courseList}
+							>
+								{courses.map((course) => (
+									<li key={course.id}>
+										<button
+											type="button"
+											role="radio"
+											aria-checked={courseId === course.id}
+											className={s.courseItem}
+											onClick={() => pickCourse(course.id)}
+										>
+											<span className={s.courseBody}>
+												<div className={s.courseTitle}>{course.title}</div>
+												<div className={s.courseMeta}>
+													{course.sections.length}개 유형
+												</div>
 											</span>
-										))}
-									</span>
-								</button>
-							</li>
-						))}
-					</ul>
-				</div>
-
-				{/*
-				 * NOTE: 권을 고르면 «전체 풀기 / 유형별 풀기» 둘만 나온다.
-				 * 유형별을 눌러야 아래로 유형 목록이 펼쳐진다(원장님 결정 2026-10-22).
-				 */}
-				{course && (
-					<div ref={modeField} className={`${s.field} ${s.modeField}`}>
-						<span
-							id="mode-label"
-							className={`${layout.sectionLabel} ${s.stepLabel}`}
-						>
-							<Step
-								n={4}
-								done={mode === 'all' || (mode === 'each' && part !== null)}
-							/>
-							테스트 유형
-						</span>
-						<div
-							role="radiogroup"
-							aria-labelledby="mode-label"
-							className={s.modeGrid}
-						>
-							<button
-								type="button"
-								role="radio"
-								aria-checked={mode === 'all'}
-								className={s.modeButton}
-								onClick={pickAll}
-							>
-								<span className={s.modeTitle}>전체 범위 테스트</span>
-								<span className={s.modeMeta}>
-									유형당 {FULL_PER_SECTION}문제 · 총{' '}
-									{course.sections.length * FULL_PER_SECTION}문제
-									<br />
-									강약점 분석 포함
-								</span>
-							</button>
-							<button
-								type="button"
-								role="radio"
-								aria-checked={mode === 'each'}
-								aria-expanded={mode === 'each'}
-								aria-controls="part-list"
-								className={s.modeButton}
-								onClick={openEach}
-							>
-								<span className={s.modeTitle}>유형별 풀기</span>
-								<span className={s.modeMeta}>
-									{course.sections.length}개 중 하나 · {countRange(course)}문제
-								</span>
-							</button>
+											<span className={s.courseOps} aria-hidden>
+												{COURSE_PREVIEW[course.id].ops.map((op) => (
+													<span key={op} className={s.courseOp} data-op={op}>
+														{OP_SYMBOL[op]}
+													</span>
+												))}
+											</span>
+										</button>
+									</li>
+								))}
+							</ul>
 						</div>
 
-						{/* NOTE: 접혀 있을 때도 그려 두고 높이만 0 → 펼칠 때·접을 때 모두 부드럽게 움직인다. inert 로 접힌 목록에는 손·키보드가 닿지 않는다. */}
-						<div
-							id="part-list"
-							className={s.partReveal}
-							data-open={mode === 'each'}
-							inert={mode !== 'each'}
-							onTransitionEnd={(e) => {
-								if (
-									e.target === e.currentTarget &&
-									e.propertyName === 'grid-template-rows' &&
-									scrollPending.current
-								) {
-									scrollPending.current = false;
-									scrollToModeField();
-								}
-							}}
-						>
-							<div className={s.partRevealInner}>
-								<ul
-									role="radiogroup"
-									aria-label="풀 유형"
-									className={s.partList}
+						{/*
+						 * NOTE: 권을 고르면 «전체 풀기 / 유형별 풀기» 둘만 나온다.
+						 * 유형별을 눌러야 아래로 유형 목록이 펼쳐진다(원장님 결정 2026-10-22).
+						 */}
+						{course && (
+							<div ref={modeField} className={`${s.field} ${s.modeField}`}>
+								<span
+									id="mode-label"
+									className={`${layout.sectionLabel} ${s.stepLabel}`}
 								>
-									{course.sections.map((section, i) => (
-										<li key={section.id}>
-											<button
-												type="button"
-												role="radio"
-												aria-checked={part === i}
-												className={`${s.courseItem} ${s.partItem}`}
-												onClick={() => setPart(i)}
-											>
-												<span className={s.partNumber}>{i + 1}</span>
-												<span>
-													<div className={s.partTitle}>{section.title}</div>
-												</span>
-											</button>
-										</li>
-									))}
-								</ul>
+									<Step
+										n={2}
+										done={mode === 'all' || (mode === 'each' && part !== null)}
+									/>
+									테스트 유형
+								</span>
+								<div
+									role="radiogroup"
+									aria-labelledby="mode-label"
+									className={s.modeGrid}
+								>
+									<button
+										type="button"
+										role="radio"
+										aria-checked={mode === 'all'}
+										className={s.modeButton}
+										onClick={pickAll}
+									>
+										<span className={s.modeTitle}>전체 범위 테스트</span>
+										<span className={s.modeMeta}>
+											유형당 {FULL_PER_SECTION}문제 · 총{' '}
+											{course.sections.length * FULL_PER_SECTION}문제
+											<br />
+											강약점 분석 포함
+										</span>
+									</button>
+									<button
+										type="button"
+										role="radio"
+										aria-checked={mode === 'each'}
+										aria-expanded={mode === 'each'}
+										aria-controls="part-list"
+										className={s.modeButton}
+										onClick={openEach}
+									>
+										<span className={s.modeTitle}>유형별 풀기</span>
+										<span className={s.modeMeta}>
+											{course.sections.length}개 중 하나 · {countRange(course)}
+											문제
+										</span>
+									</button>
+								</div>
+
+								{/* NOTE: 접혀 있을 때도 그려 두고 높이만 0 → 펼칠 때·접을 때 모두 부드럽게 움직인다. inert 로 접힌 목록에는 손·키보드가 닿지 않는다. */}
+								<div
+									id="part-list"
+									className={s.partReveal}
+									data-open={mode === 'each'}
+									inert={mode !== 'each'}
+									onTransitionEnd={(e) => {
+										if (
+											e.target === e.currentTarget &&
+											e.propertyName === 'grid-template-rows' &&
+											scrollPending.current
+										) {
+											scrollPending.current = false;
+											scrollToModeField();
+										}
+									}}
+								>
+									<div className={s.partRevealInner}>
+										<ul
+											role="radiogroup"
+											aria-label="풀 유형"
+											className={s.partList}
+										>
+											{course.sections.map((section, i) => (
+												<li key={section.id}>
+													<button
+														type="button"
+														role="radio"
+														aria-checked={part === i}
+														className={`${s.courseItem} ${s.partItem}`}
+														onClick={() => setPart(i)}
+													>
+														<span className={s.partNumber}>{i + 1}</span>
+														<span>
+															<div className={s.partTitle}>{section.title}</div>
+														</span>
+													</button>
+												</li>
+											))}
+										</ul>
+									</div>
+								</div>
 							</div>
-						</div>
-					</div>
+						)}
+					</>
 				)}
 			</div>
 
-			<div className={layout.bottomBar}>
+			<div className={layout.bottomBar} hidden={doneToday}>
 				<div className={`${layout.container.narrow} ${layout.bottomBarInner}`}>
 					<button
 						type="button"
