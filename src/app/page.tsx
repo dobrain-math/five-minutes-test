@@ -59,7 +59,7 @@ function CoursePicker() {
 	const [courseId, setCourseId] = useState<string | null>(null);
 	const days = login ? challengeDays(login.history) : 0;
 	// 챌린지는 하루 한 번 — 오늘 이미 풀었으면 권 고르기 대신 안내만(시트도 두 번째 기록은 받지 않는다)
-	const doneToday = login?.doneToday ?? false;
+	const doneToday = false;
 	const logout = () => {
 		autoLogin.set(null);
 		setLogin(null);
