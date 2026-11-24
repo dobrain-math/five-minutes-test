@@ -33,7 +33,7 @@ export type ChallengeLogin = {
 	name: string;
 	age: string;
 	code: string;
-	/** 오늘 이미 풀었으면 true — 챌린지는 하루 한 번 */
+	/** 오늘 이미 풀었으면 true — 다시 풀 때 홈에서 한 번 묻는다(하루 한 번 제한은 2026-11-24 없앰) */
 	doneToday: boolean;
 	history: ChallengeDay[];
 };
@@ -95,11 +95,7 @@ const toLogin = (data: SheetAnswer, code: string) =>
 					doneToday: data.doneToday ?? false,
 				},
 			} as const)
-		: ({
-				ok: false,
-				error: 'wrong' as LoginFailure,
-				doneToday: data.error === 'done-today',
-			} as const);
+		: ({ ok: false, error: 'wrong' as LoginFailure } as const);
 
 // NOTE: Apps Script 웹 앱은 미리 묻는 요청(preflight)을 못 받는다 — Content-Type 을 붙이지 않고(text/plain) 보낸다.
 
@@ -109,11 +105,7 @@ export async function login(name: string, code: string) {
 		const res = await fetch(loginUrl(CHALLENGE_URL, name, code));
 		return toLogin((await res.json()) as SheetAnswer, code);
 	} catch {
-		return {
-			ok: false,
-			error: 'network' as LoginFailure,
-			doneToday: false,
-		} as const;
+		return { ok: false, error: 'network' as LoginFailure } as const;
 	}
 }
 

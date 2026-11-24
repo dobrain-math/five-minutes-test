@@ -60,7 +60,7 @@ export default function ReportPage() {
 		if (!ready || !login) return;
 		// NOTE: 화면 값(session)은 옛 값일 수 있다 — 효과가 두 번 돌면(개발 StrictMode) 두 번 보냈다. 저장소에서 바로 읽는다
 		const latest = useTestSessionStore.getState();
-		// 홈으로 돌아가면 «오늘 챌린지 완료»가 보이게 로그인 값(doneToday·기록)도 새로 바꿔 둔다
+		// 홈으로 돌아가면 다시 풀기 확인 창이 뜨도록 로그인 값(doneToday·기록)도 새로 바꿔 둔다
 		const apply = (fresh: ChallengeLogin) => {
 			useTestSessionStore.getState().setLogin(fresh);
 			setHistory(fresh.history);
@@ -79,11 +79,6 @@ export default function ReportPage() {
 				if (r.ok) {
 					apply(r.login);
 					setChallengeNote('오늘 챌린지 기록을 저장했습니다.');
-				} else if (r.doneToday) {
-					setChallengeNote(
-						'오늘 챌린지 기록이 이미 있어 이번 풀이는 저장하지 않았습니다.',
-					);
-					void reload();
 				} else setChallengeNote('챌린지 기록을 저장하지 못했습니다.');
 			})
 			.catch(() => setChallengeNote('챌린지 기록을 보내지 못했습니다.'));

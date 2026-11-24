@@ -500,22 +500,6 @@ export const heroActions = style({
 	gap: 8,
 });
 
-/** 오늘 챌린지를 이미 푼 날: 권 고르기 대신 이 카드 */
-export const doneCard = style({
-	padding: 24,
-	borderRadius: vars.radius.lg,
-	background: vars.color.layeredBackground,
-	boxShadow: vars.shadow.sm,
-	textAlign: 'center',
-});
-
-export const doneTitle = style([text.title2, { color: vars.color.grey900 }]);
-
-export const doneBody = style([
-	text.body2,
-	{ marginTop: 8, color: vars.color.grey600, wordBreak: 'keep-all' },
-]);
-
 /** 로그인 화면 바탕: 파랑 단색, 카드를 화면 정중앙에(2026-11-17) */
 export const loginPage = style({
 	display: 'grid',

@@ -8,6 +8,7 @@ import {
 	login,
 	loginError,
 	loginUrl,
+	sendChallenge,
 } from './challenge.ts';
 
 const report: Report = {
@@ -110,6 +111,18 @@ test('옛 시트 스크립트처럼 이름만 와도 기록·나이를 빈 값�
 			doneToday: false,
 		},
 	});
+});
+
+// NOTE: 하루 한 번 제한은 없앴다(2026-11-24) — 실패 응답에 «오늘 이미 함» 구분을 두지 않는다
+test('기록 저장 실패는 «done-today» 를 따로 구분하지 않는다', async () => {
+	vi.stubGlobal(
+		'fetch',
+		async () =>
+			new Response(JSON.stringify({ ok: false, error: 'done-today' })),
+	);
+	const r = await sendChallenge(challengeRecord(report, who));
+	vi.unstubAllGlobals();
+	expect(r).toEqual({ ok: false, error: 'wrong' });
 });
 
 test('로그인 실패 문구', () => {

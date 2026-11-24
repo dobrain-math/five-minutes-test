@@ -8,13 +8,13 @@
  *
  * 탭 (A열·1행은 여백, 표는 B2 부터)
  *   명단  : 선생님이 이름·나이를 적으면 옆 칸에 4자리 챌린지 코드가 생기고 «이름(코드)» 학생 탭이 생긴다
- *   기록  : 앱이 채점할 때마다 한 줄씩 쓴다(전체 학생, 학생마다 하루 한 줄). 손으로 고치지 않는다
+ *   기록  : 앱이 채점할 때마다 한 줄씩 쓴다(전체 학생, 풀 때마다 한 줄 — 같은 날 여러 줄도 된다). 손으로 고치지 않는다
  *   이름(코드) : 기록 중 그 학생 줄만 날짜순으로 보여 주고 정답률 꺾은선을 그린다(FILTER 수식)
  *
  * 앱과 주고받기 (로그인 = 이름 + 코드 둘 다 맞아야 한다)
  *   GET  ?name=김민준&code=4821 → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' }
  *   POST { name, code, course, scope, correct, total, seconds, finishedAt }
- *        → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' | 'done-today' }
+ *        → { ok, name, age, doneToday, history } / { ok: false, error: 'wrong' }
  */
 
 const ROSTER = '명단';
@@ -375,10 +375,7 @@ function doPost(e) {
 		const { log } = ensureSheets_();
 		const at = new Date(Number(d.finishedAt) || Date.now());
 		const day = Utilities.formatDate(at, TZ, 'yyyy-MM-dd');
-		// 챌린지는 하루 한 번 — 앱이 막지만 다른 기기·새로고침으로 두 번 와도 한 줄만 남긴다
-		if (history_(log, who.code).some((h) => h.date === day))
-			return json_({ ok: false, error: 'done-today' });
-
+		// 하루 한 번 제한은 없앴다(2026-11-24) — 같은 날 다시 풀면 한 줄 더 쌓인다(앱이 다시 풀기 전에 묻는다)
 		const rate = d.total ? Math.round((d.correct / d.total) * 100) : 0;
 		append_(LOG, log, [
 			Utilities.formatDate(at, TZ, 'yyyy-MM-dd HH:mm'),
